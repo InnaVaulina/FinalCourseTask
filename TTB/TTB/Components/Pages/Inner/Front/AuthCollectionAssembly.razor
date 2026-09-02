@@ -1,0 +1,43 @@
+﻿@inject HttpRequestSender HttpRequestSender
+@inject NavigationManager NavigationManager
+
+
+<div class="tabs area">
+	<input type="radio" name="tab-btn" id="tab-btn-single" value="">
+	<label for="tab-btn-single">Просмотр</label>
+
+	<input type="radio" name="tab-btn" id="tab-btn-edit" value="" checked>
+	<label for="tab-btn-edit">Редактирование</label>
+
+	<section id="content-single" class="record-looking">
+		<CollectionForm Model="@showCollectionFormModel" />
+	</section>
+
+	<section id="content-edit" class="record-change">
+		<CollectionFormSaveChanges Model="@editCollectionModel" />
+	</section>
+
+</div>
+
+@code {
+	EditCollectionFormVM? editCollectionModel = null;
+	ShowCollectionFormVM? showCollectionFormModel = null;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var sender = new CollectionFormRequestSender(HttpRequestSender);
+        try
+        {
+			var showdm = await ShowCollectionFormDM.CreateAsync(sender);
+			showCollectionFormModel = new ShowCollectionFormVM(showdm);
+
+			var editdm = await EditCollectionFormDM.CreateAsync(sender);
+			editCollectionModel = new EditCollectionFormVM(editdm);
+			editCollectionModel.ChangeModel += showCollectionFormModel.OnModelChange;
+        }
+        catch (Exception ex)
+        {
+            NavigationManager.NavigateTo($"/Error/{ex}");
+        }
+	}
+}

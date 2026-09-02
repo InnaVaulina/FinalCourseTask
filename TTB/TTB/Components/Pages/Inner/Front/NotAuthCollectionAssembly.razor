@@ -1,0 +1,23 @@
+﻿@inject HttpRequestSender HttpRequestSender
+@inject NavigationManager NavigationManager
+
+<CollectionForm Model="@showCollectionFormModel" />
+
+@code {
+	ShowCollectionFormVM? showCollectionFormModel = null;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var sender = new CollectionFormRequestSender(HttpRequestSender);
+		try
+		{
+			var showdm = await ShowCollectionFormDM.CreateAsync(sender);
+			showCollectionFormModel = new ShowCollectionFormVM(showdm);
+		}
+		catch (Exception ex)
+		{
+			NavigationManager.NavigateTo($"/Error/{ex}");
+		}
+
+	}
+}

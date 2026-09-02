@@ -1,0 +1,348 @@
+﻿@using System.Threading.Tasks
+@using WpfBLazorHybridClient.Functions.Header.AVM
+@using System.Configuration
+
+@inject IJSRuntime JSRuntime
+
+<style>
+
+	.flex {
+		display: flex;
+	}
+
+	.container {
+		width: 1200px;
+		padding: 0 15px;
+		margin: 0 auto;
+	}
+
+	/* hero */
+
+	.hero_section {
+		/* Базовый стиль фона (будет переопределён инлайн-стилем при рантайме) */
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: center;
+	}
+
+	.hero-container {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.hero-content {
+		padding-left: 20px;
+		background-color: white;
+		clip-path: polygon(0 0, 100% 0, 50% 0, 100% 70%, 70% 100%, 0 100%);
+		opacity: 0.7;
+	}
+
+	.hero-content-inside {
+		padding-top: 100px;
+		padding-bottom: 100px;
+		max-width: 70%;
+		flex-direction: column;
+		align-content: flex-start;
+	}
+
+	.hero-content_2 {
+		align-self: flex-end;
+		display: flex;
+		flex-direction: column;
+		padding-top: 100px;
+		padding-bottom: 50px;
+	}
+
+	
+
+	.hero-descr {
+		padding: 10px;
+	}
+
+	.hero-descr:hover {
+		background-color: rgba(128, 128, 128, 0.5);
+		cursor: text;
+	}
+
+	.hero-descr p {
+		margin: 0;
+		margin-bottom: 34px;
+		font-size: 16px;
+		line-height: 155%;
+		color: #787878;
+	}
+
+	.hero-title-place {
+		padding: 10px;
+		margin-bottom: 25px;
+	}
+
+		.hero-title-place:hover {
+			background-color: rgba(128, 128, 128, 0.5);
+			cursor: text;
+		}
+
+	.hero-title {
+		font-weight: 300;
+		font-size: 40px;
+		line-height: 130%;
+	}
+
+
+	.btn {
+		position: relative;
+		outline: none;
+		padding: 20px 10px;
+		margin-bottom: 14px;
+		min-width: 250px;
+		background-color: #3172B9;
+		border-radius: 3px;
+		color: #fff;
+	}
+
+		.btn span {
+			display: inline-block;
+			min-width: 1px;
+			font-weight: 600;
+			font-size: 15px;
+			text-transform: uppercase;
+		}
+
+	.hero-motto {
+        padding: 10px;
+		margin-bottom: 34px;
+		align-self: flex-start;
+        min-width: 100px;
+	}
+
+	.hero-motto span {
+		display: inline-block;
+		min-width: 1px;
+		font-size: 16px;
+		color: #787878;
+		line-height: 155%;
+    }
+
+	.hero-motto:hover {
+		background-color: rgba(128, 128, 128, 0.5);
+		cursor: text;
+	}
+
+	.hero-wrapper {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+
+
+	
+
+
+	.hero-secure {
+		font-size: 11px;
+		line-height: 155%;
+		color: #787878;
+		text-transform: uppercase;
+		background-image: url(../img/secure.svg);
+		background-position: left center;
+		background-size: 14px 17px;
+		background-repeat: no-repeat;
+		padding-left: 30px;
+	}
+
+</style>
+
+
+
+<section @ref="heroSectionRef" class="hero_section container hero-container" style="@HeroSectionStyle">
+	<div class="row">
+		<div class="col-6">
+			<div class="hero-content">
+				<div class="hero-content-inside flex">
+					<div class="hero-title-place"
+						@onclick="@(async () => await SetTitleFocus())">
+						<h1 @ref="titleTextRef"
+							contenteditable="true"
+							class="hero-title"
+							@oninput="@(async () => await HandleInput())">
+							ИТ-Консалтинг
+						</h1>
+					</div>
+					
+					<div @ref="aimsTextRef" 
+						 class="hero-descr"
+						 contenteditable="true"
+						 @oninput="@(async () => await HandleInput())"
+						 @onclick="@(async () => await SetAimsFocus())">
+						<p>
+							Разработать ИТ-стратегию — план внедрения ПО для реализации основной стратегии компании.
+						</p>
+						<p>
+							Модифицировать или адаптировать имеющееся ПО.
+						</p>
+						<p>
+							Проанализировать ИТ-рынок, конкурентов, риски
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="offset-2 col-4 flex">
+			<div class="hero-content_2">
+				<div class="hero-motto"
+					@onclick="@(async () => await SetMottoFocus())">
+					<span @ref="mottoTextRef"
+						  contenteditable="true"
+						  @oninput="@(async () => await HandleInput())">
+						С нами надежно, просто, безопасно
+					</span>
+				</div>
+				<div class="hero-wrapper">
+					<button class="btn" type="button"
+							@onclick="@(async () => await SetButtonFocus())">
+						<span @ref="buttonTextRef"
+							  contenteditable="true"
+							  @oninput="@(async () => await HandleInput())">
+							  Заказать услугу
+						</span>
+					</button>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+@code {
+
+	private ElementReference heroSectionRef;
+	private ElementReference titleTextRef;
+	private ElementReference aimsTextRef;
+	private ElementReference mottoTextRef;
+	private ElementReference buttonTextRef;
+
+	[Parameter]
+	public EditCollectionFormVM Model { get; set; }
+
+
+	private bool isInitialized = false;
+
+
+	protected override void OnInitialized()
+	{
+		if (Model != null)
+		{
+			Model.ChangeImage += SetHeroImage;
+			Model.ChangeModel += SetNewModel;
+		}
+	}
+
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && !isInitialized)
+		{
+			isInitialized = true;
+			await SetNewModel();
+		}
+	}
+
+
+	public async Task HandleInput()
+	{
+		if (JSRuntime != null)
+		{
+			Model.EditCollectionFormDM.HtmlPattern = await JSRuntime.InvokeAsync<string>("getHTML", heroSectionRef);
+			Model.EditCollectionFormDM.Title = await JSRuntime.InvokeAsync<string>("getText", titleTextRef);
+			Model.EditCollectionFormDM.Aims = await JSRuntime.InvokeAsync<string>("getHTML", aimsTextRef); ;
+			Model.EditCollectionFormDM.Motto = await JSRuntime.InvokeAsync<string>("getText", mottoTextRef);
+			Model.EditCollectionFormDM.ButtonText = await JSRuntime.InvokeAsync<string>("getText", buttonTextRef);
+		}
+	}
+
+	public async Task SetAimsFocus()
+	{
+		if (JSRuntime != null)
+		{
+			await JSRuntime.InvokeVoidAsync("SetFocusToHTMLParagraph", aimsTextRef);
+		}
+	}
+
+	public async Task SetTitleFocus()
+	{
+		if (JSRuntime != null)
+		{
+			await JSRuntime.InvokeVoidAsync("SetFocusToHTMLh1", titleTextRef);
+		}
+	}
+
+	public async Task SetMottoFocus()
+	{
+		if (JSRuntime != null)
+		{
+			await JSRuntime.InvokeVoidAsync("SetFocusToHTMLSpan", mottoTextRef);
+		}
+	}
+
+	public async Task SetButtonFocus()
+	{
+		if (JSRuntime != null)
+		{
+			await JSRuntime.InvokeVoidAsync("SetFocusToHTMLSpan", buttonTextRef);
+		}
+    }
+
+
+	private string _heroImage = "";
+	
+
+	private string HeroSectionStyle =>
+		$"background-image: linear-gradient(to right, rgba(255, 255, 255, 1.0) 0 20%, rgba(255, 255, 255, 0.0) 40%), " +
+		$"radial-gradient(circle 600px at 90% bottom, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 0.0)), " +
+		$"url('{_heroImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;";
+
+
+
+	public void SetHeroImage(string url)
+	{
+		if (string.IsNullOrWhiteSpace(url))
+		{
+			return;
+		}
+
+		_heroImage = url;
+		StateHasChanged();
+	}
+
+	protected async Task SetNewModel()
+	{
+		if (Model.EditCollectionFormDM.ImagePath != "")
+			_heroImage = Model.ImageUrl;
+		StateHasChanged();
+
+		await JSRuntime.InvokeVoidAsync(
+			"setDivInnerText",
+			titleTextRef, Model.EditCollectionFormDM.Title
+		);
+		await JSRuntime.InvokeVoidAsync(
+			"setDivInnerText",
+			mottoTextRef, Model.EditCollectionFormDM.Motto
+		);
+		await JSRuntime.InvokeVoidAsync(
+			"setDivInnerText",
+			buttonTextRef, Model.EditCollectionFormDM.ButtonText
+		);
+		await JSRuntime.InvokeVoidAsync(
+			"initializeEditableWithParagraph",
+			aimsTextRef, Model.EditCollectionFormDM.Aims
+		);
+
+		
+		Model.EditCollectionFormDM.HtmlPattern = await JSRuntime.InvokeAsync<string>("getHTML", heroSectionRef);
+    }
+
+	
+
+}
+
+

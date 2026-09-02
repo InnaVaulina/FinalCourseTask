@@ -1,0 +1,73 @@
+﻿@using TTB.Client.Pages.Inner.SVGComponents
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+
+<style>
+
+
+   
+</style>
+
+@if (Model is null)
+{
+    <section class="hero_section">
+        <div>Загрузка...</div>
+    </section>
+}
+else
+{
+
+    <div class="uc-header">
+        <CollectionFormEditor Model="@Model"/>
+        <div class="header-top">
+
+            <Dovnload_button OnChange="OnDownloadButtonChanged"/>
+
+            <div class="header-spacer"></div>
+
+            <button class="save-btn" @onclick="HandleSave" disabled="@IsBusy">
+                <span class="save-inner">@(IsBusy ? "Сохраняю..." : "Сохранить")</span>
+            </button>
+
+        </div>
+    </div>
+}
+
+
+
+
+@code {
+
+    [Parameter]
+    public EditCollectionFormVM? Model { get; set; } = null;
+
+    private bool IsBusy { get; set; } = false;
+
+    private async Task HandleSave()
+    {
+        if (IsBusy) return;
+
+        IsBusy = true;
+        try
+        {
+            await Model.SaveForm();
+        }
+        catch (Exception ex)
+        {
+            NavigationManager.NavigateTo($"/Error/{ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private void OnDownloadButtonChanged(MakeImageContent makeImageContent)
+    {
+        if (makeImageContent is null) return;
+        Model.SaveImageContent(makeImageContent);
+    }
+
+    
+    
+}

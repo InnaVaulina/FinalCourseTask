@@ -1,0 +1,128 @@
+﻿<UserControl x:Class="WpfBLazorHybridClient.Functions.Work.Control.UC_RequestTreating"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfBLazorHybridClient.Functions.Work.Control"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <DockPanel Margin="20,20,20,20"
+          VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+
+
+        <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" BorderBrush="CadetBlue">
+            <Grid Margin="0,0,0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0"
+                    FontSize="22" FontWeight="Bold" Foreground="CadetBlue"
+                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                    Работа с заявкой № 
+                    <Run Text="{Binding ID, Mode=OneTime}"/>
+                    .
+                </TextBlock>
+
+                <TextBlock Grid.Row="0" Grid.Column="1"
+                    FontSize="22" FontWeight="Bold" Foreground="CadetBlue"
+                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                    Дата поступления:
+                    <Run Text="{Binding RequestIn, Mode=OneTime}"/>
+                </TextBlock>
+
+                <TextBlock Grid.Row="1" Grid.Column="0"
+                    FontSize="22" FontWeight="Bold" Foreground="CadetBlue"
+                    HorizontalAlignment="Left" VerticalAlignment="Center">                       
+                    Имя клиента:     
+                    <Run Text="{Binding ClientFullName, Mode=OneTime}"/>
+                </TextBlock>
+
+                <DockPanel Grid.Row="1" Grid.Column="1">
+                    <TextBlock DockPanel.Dock="Left"
+                        FontSize="22" FontWeight="Bold" Foreground="CadetBlue"
+                        HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Статус: 
+                        <Run Text="{Binding StatusTranslated, Mode=OneWay}"/>
+                    </TextBlock>
+
+                    <MenuItem DockPanel.Dock="Right" Margin="0,0,15,0" Width="150">
+                        <MenuItem.Header>
+                            <Border CornerRadius="20" BorderThickness="1" Background="CadetBlue">
+                                <Grid Height="40" Width="40" Style="{StaticResource chooseBackground}"/>
+                            </Border>
+                        </MenuItem.Header>
+                        <MenuItem Header="Взять в работу" Command="{Binding ChangeStatusTakeOnWork}"/>
+                        <MenuItem Header="Отклонить" Command="{Binding ChangeStatusRejected}"/>
+                        <MenuItem Header="Завершить работу" Command="{Binding ChangeStatusFinished}"/>
+                        <MenuItem Header="Отменить заявку" Command="{Binding ChangeStatusCancelled}"/>
+                    </MenuItem>
+
+                </DockPanel>
+
+
+            </Grid>
+        </Border>
+
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Margin="0,0,15,0" Header="Данные">
+                <MenuItem Margin="0,0,15,0" Header="Сохранить" Command="{Binding SaveRequest}"/>
+                <MenuItem Margin="0,0,15,0" Header="Обновить" Command="{Binding UpdateRequest}"/>
+            </MenuItem>
+
+            <MenuItem Margin="0,0,15,0" Header="Изменить статус:">
+                <MenuItem Header="Взять в работу" Command="{Binding ChangeStatusTakeOnWork}"/>
+                <MenuItem Header="Отклонить" Command="{Binding ChangeStatusRejected}"/>
+                <MenuItem Header="Завершить работу" Command="{Binding ChangeStatusFinished}"/>
+                <MenuItem Header="Отменить заявку" Command="{Binding ChangeStatusCancelled}"/>
+            </MenuItem>
+
+        </Menu>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="45*"/>
+                <ColumnDefinition Width="336*"/>
+                <ColumnDefinition Width="380*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <DockPanel Grid.Row="0" Grid.ColumnSpan="3" Margin="5,5,5,5">
+                <TextBox Name="requestText" DockPanel.Dock="Bottom" Height="125" Text="{Binding RequestText}" TextWrapping="Wrap"/>
+                <Label Target="{Binding ElementName=requestText}"
+                    HorizontalAlignment="Left"
+                    FontSize="16" FontWeight="Bold" Foreground="CadetBlue">
+                    Содержание запроса
+                </Label>
+            </DockPanel>
+
+            <DockPanel Grid.Row="1" Grid.Column="0" Margin="5,5,5,5" Grid.ColumnSpan="2">
+                <TextBox Name="contact" DockPanel.Dock="Bottom" Height="125" Text="{Binding Contact}" TextWrapping="Wrap"/>
+                <Label Target="{Binding ElementName=contact}"
+                    HorizontalAlignment="Left"
+                    FontSize="16" FontWeight="Bold" Foreground="CadetBlue">
+                    Контакты
+                </Label>
+            </DockPanel>
+
+            <DockPanel Grid.Row="1" Grid.Column="2" Margin="5,5,5,5">
+                <TextBox Name="history" DockPanel.Dock="Bottom"  Height="125" Text="{Binding PerformingInfo}" TextWrapping="Wrap"/>
+                <Label Target="{Binding ElementName=history}"
+                    HorizontalAlignment="Left"
+                    FontSize="16" FontWeight="Bold" Foreground="CadetBlue">
+                    История обработки
+                </Label>
+            </DockPanel>
+
+        </Grid>
+
+    </DockPanel>
+</UserControl>

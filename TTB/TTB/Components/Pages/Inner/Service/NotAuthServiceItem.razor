@@ -1,0 +1,57 @@
+﻿<style>
+
+    .blog-card {
+        width: 250px;
+        height: 200px;
+        border: 0;
+        margin: 10px;
+        padding: 10px;
+        box-sizing: border-box;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        position: relative;
+        border: 1px solid transparent;
+    }
+
+
+
+    .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        text-align: center;
+        margin: 8px 0;
+    }
+
+
+</style>
+
+
+@if (Model is null)
+{
+    <div class="blog-card">
+        <div>Загрузка...</div>
+    </div>
+}
+else
+{
+    <article class="blog-card">
+        <h2 class="card-title">@Model.Title</h2>
+
+        <div class="content-wrapper">
+            <div class="snippet-scroll">
+                @Model.Fragment
+            </div>
+        </div>
+    </article>
+
+}
+
+
+@code {
+
+    [Parameter]
+    public INotAuthServiceItemVM? Model { get; set; } = null;
+
+
+
+}

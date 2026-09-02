@@ -1,0 +1,94 @@
+﻿<UserControl x:Class="WpfBLazorHybridClient.Functions.Blog.Control.UC_BlogItemAdd"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfBLazorHybridClient.Functions.Blog.Control"
+             xmlns:wv2="clr-namespace:Microsoft.AspNetCore.Components.WebView.Wpf;assembly=Microsoft.AspNetCore.Components.WebView.Wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <local:WidthToHeightConverter x:Key="WidthToHeightConverter"/>
+    </UserControl.Resources>
+    <DockPanel Margin="20,20,20,20"
+          VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+
+
+        <DockPanel DockPanel.Dock="Top" Margin="5">
+
+            <Label DockPanel.Dock="Top" HorizontalAlignment="Left"
+                FontSize="16" FontWeight="Bold" Foreground="BlueViolet">
+                Заголовок
+
+            </Label>
+
+            <TextBox DockPanel.Dock="Top" Height="30" FontSize="22" FontWeight="Bold" Foreground="Black"
+                    HorizontalAlignment="Stretch"  Margin="0,0,10,0" 
+                     Text="{Binding Title}"
+                    />
+
+            <Label DockPanel.Dock="Top" HorizontalAlignment="Left"
+                    FontSize="16" FontWeight="Bold" Foreground="BlueViolet">
+                Содержимое поста
+            </Label>
+
+        </DockPanel>
+
+
+
+        <DockPanel DockPanel.Dock="Bottom">
+            <Button DockPanel.Dock="Right"
+                BorderThickness="0" Style="{StaticResource ButtonStyle}"
+                Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"
+                Command="{Binding SaveBlog}">
+                <Border CornerRadius="10" BorderThickness="1" Background="CadetBlue">
+                    <Grid Height="40" Width="180" >
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                            FontSize="16" FontWeight="Bold" Foreground="White">
+                            Сохранить
+                        </TextBlock>
+                    </Grid>
+                </Border>
+            </Button>
+
+            <CheckBox DockPanel.Dock="Left" FontSize="16" FontWeight="Bold" Foreground="BlueViolet"
+                      IsChecked="{Binding State}" Height="20" Content="В работе" />
+        </DockPanel>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width=".3*"/>
+                <ColumnDefinition Width=".7*"/>
+            </Grid.ColumnDefinitions>
+
+            <DockPanel Grid.Column="0" Margin="5">
+                <Button DockPanel.Dock="Bottom"
+                        x:Name="downloadButton" Click="downloadButton_Click"
+                    BorderThickness="0" Margin="5,0,5,0" HorizontalAlignment="Left"
+                    Style="{StaticResource ButtonStyle}">
+                    <Border CornerRadius="20" >
+                        <Grid Height="24" Width="24" Margin="5"  
+                        Style="{StaticResource downloadBackground}"/>
+                    </Border>
+                </Button>
+                <Border BorderBrush="BlueViolet" BorderThickness="1" Style="{StaticResource illustrationBackground}"
+                        Height="{Binding ActualWidth,
+                               RelativeSource={RelativeSource Self},
+                               Converter={StaticResource WidthToHeightConverter}}">
+                    <Image Source="{Binding Picture}" Stretch="Uniform"/>
+                </Border>
+                
+            </DockPanel>
+
+
+            <ProgressBar x:Name="LoadingIndicator" Grid.Column="1" Height="25" Width="200"
+                         IsIndeterminate="True" Visibility="Visible" />
+            <wv2:BlazorWebView x:Name="blazorWebView" Grid.Column="1" 
+                               Visibility="Hidden"/>
+
+
+        </Grid>
+
+
+    </DockPanel>
+</UserControl>

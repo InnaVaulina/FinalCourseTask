@@ -1,0 +1,19 @@
+﻿@page "/blog"
+
+@rendermode InteractiveServer
+
+
+<PageTitle>Blog</PageTitle>
+
+<AuthorizeView Roles="admin, blog">
+	<NotAuthorized>
+		<NotAuthBlogList/>
+	</NotAuthorized>
+	<Authorized>
+		<AuthBlogList/>
+	</Authorized>
+</AuthorizeView>
+
+
+
+

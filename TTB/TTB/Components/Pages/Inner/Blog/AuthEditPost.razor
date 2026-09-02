@@ -1,0 +1,113 @@
+﻿@inject HttpRequestSender HttpRequestSender
+@inject NavigationManager NavigationManager
+
+
+	<div class="tabs area">
+		@if(Tab == "Show")
+		{
+		<input type="radio" name="tab-btn" id="tab-btn-single" value="" checked>
+		<label for="tab-btn-single">Просмотр</label>
+
+		<input type="radio" name="tab-btn" id="tab-btn-edit" value="" >
+		<label for="tab-btn-edit">Редактирование</label>
+		}
+	
+		@if(Tab == "Edit")
+		{
+		<input type="radio" name="tab-btn" id="tab-btn-single" value="">
+		<label for="tab-btn-single">Просмотр</label>
+
+		<input type="radio" name="tab-btn" id="tab-btn-edit" value="" checked>
+		<label for="tab-btn-edit">Редактирование</label>
+		}
+
+		<section id="content-single" class="record-looking">
+			<PostExample Model="@ShowModel" />
+		</section>
+
+		<section id="content-edit" class="record-change">
+			<div class="uc-header">
+				<BlogEditor Model="@EditModel" />
+				<div class="header-top">
+
+					<div class="header-spacer"></div>
+
+					<button class="save-btn" @onclick="HandleSave" disabled="@IsBusy">
+						<span class="save-inner">@(IsBusy ? "Сохраняю..." : "Сохранить")</span>
+					</button>
+					<button class="save-btn" @onclick="HandleBack">
+						<span class="save-inner">Назад</span>
+					</button>
+
+				</div>
+			</div>
+		</section>
+
+	</div>
+
+
+	
+
+
+@code {
+	[Parameter]
+	public int? Id { get; set; } = null;
+
+	[Parameter]
+	public string Tab { get; set; } = "";
+
+	BlogItemVM? ShowModel = null;
+    EditBlogVM? EditModel = null;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			var dm = await BlogExampleDM.CreateAsync(new BlogRequestSender(HttpRequestSender), Id.Value);
+			ShowModel = new BlogItemVM(dm);
+			EditModel = new EditBlogVM(dm);
+		}
+		catch (Exception ex)
+		{
+			NavigationManager.NavigateTo($"/Error/{ex}");
+		}
+	}
+
+	private bool IsBusy { get; set; } = false;
+
+	private async Task HandleSave()
+	{
+		if (IsBusy) return;
+
+		IsBusy = true;
+		try
+		{
+			await EditModel.SavePost();
+
+			// Обновляем модель из источника данных, чтобы получить актуальную иллюстрацию и другие поля
+			if (Id.HasValue)
+			{
+				var dm = await BlogExampleDM.CreateAsync(new TTClassLibrary.Functions.Blog.BlogRequestSender(HttpRequestSender), Id.Value);
+				ShowModel = new TTB.VModel.BlogVM.BlogItemVM(dm);
+				EditModel = new TTB.Client.VModel.Blog.EditBlogVM(dm);
+			}
+
+			StateHasChanged();
+		}
+        catch (Exception ex)
+        {
+            NavigationManager.NavigateTo($"/Error/{ex}");
+        }
+		finally
+		{
+
+			IsBusy = false;
+			NavigationManager.NavigateTo($"/post?Id={Id}&Tab=Show");
+		}
+	}
+
+	private void HandleBack()
+	{
+		NavigationManager.NavigateTo("/blog");
+	}
+}

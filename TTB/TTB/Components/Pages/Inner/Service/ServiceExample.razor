@@ -1,0 +1,70 @@
+﻿@inject NavigationManager NavigationManager
+
+<style>
+    .post-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-top: 6px;
+        border: none;
+        border-bottom: 1px solid BlueViolet;
+        display: flex;
+        justify-content: space-between;
+    }    
+
+    .content-wrapper {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+
+</style>
+
+
+
+
+<div class="uc-header">
+
+    @if (Model is null)
+    {
+        <div class="post-article">
+            <div>Загрузка...</div>
+        </div>
+    }
+    else
+    {
+        <article class="post-article">
+            <h2 class="post-title">
+                @Model.Title
+            </h2>
+
+            <div class="content-wrapper">
+                <div class="snippet-scroll">
+                    @Model.Fragment
+                </div>
+            </div>
+        </article>
+    }
+    <div class="header-top">
+
+        <div class="header-spacer"></div>
+
+        <button class="save-btn" @onclick="HandleBack">
+            <span class="save-inner">Назад</span>
+        </button>
+
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public ServiceItemVM? Model { get; set; } = null;
+
+    
+    protected void HandleBack()
+    {
+        NavigationManager.NavigateTo("/services");
+    }
+
+}

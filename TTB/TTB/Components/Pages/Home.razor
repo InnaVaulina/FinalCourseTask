@@ -1,0 +1,17 @@
+﻿@page "/"
+
+@rendermode InteractiveServer
+
+
+<PageTitle>Home</PageTitle>
+
+<AuthorizeView Roles="admin, mainpage">
+	<NotAuthorized>
+		<NotAuthCollectionAssembly/>
+	</NotAuthorized>
+
+	<Authorized>
+		<AuthCollectionAssembly/>
+	</Authorized>
+</AuthorizeView>
+

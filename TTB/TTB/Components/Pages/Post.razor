@@ -1,0 +1,39 @@
+﻿@page "/post"
+
+
+
+<PageTitle>Post</PageTitle>
+
+@if (Id == null)
+{
+	<AuthorizeView Roles="admin, blog">
+		<Authorized>
+			<AuthAddPost />
+		</Authorized>
+    </AuthorizeView>
+}
+else
+{
+	<AuthorizeView Roles="admin, blog">
+		<NotAuthorized>
+			<NotAuthPostExample Id="@Id" />
+		</NotAuthorized>
+		<Authorized>
+			<AuthEditPost Id="@Id" Tab="@Tab"/>
+		</Authorized>
+	</AuthorizeView>
+}
+
+
+@code {
+
+	[Parameter]
+	[SupplyParameterFromQuery]
+	public int? Id { get; set; } = null;
+
+	[Parameter]
+	[SupplyParameterFromQuery]
+	public string Tab { get; set; } = "";
+
+}
+

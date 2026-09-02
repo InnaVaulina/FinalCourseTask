@@ -1,0 +1,72 @@
+﻿@inject HttpRequestSender HttpRequestSender
+@inject NavigationManager NavigationManager
+
+
+
+@if (Model is null)
+{
+    <section class="hero_section">
+        <div>Загрузка...</div>
+    </section>
+}
+else
+{
+
+    <div class="uc-header">
+        <ServiceEditor Model="@Model" />
+        <div class="header-top">
+
+            <div class="header-spacer"></div>
+
+            <button class="save-btn" @onclick="HandleSave" disabled="@IsBusy">
+                <span class="save-inner">@(IsBusy ? "Сохраняю..." : "Сохранить")</span>
+            </button>
+            <button class="save-btn" @onclick="HandleBack">
+                <span class="save-inner">Назад</span>
+            </button>
+
+        </div>
+    </div>
+}
+
+@code {
+    public AddServiceVM Model { get; set; } = null;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = new AddServiceVM(new AddNewServiceExampleDM(new ServiceRequestSender(HttpRequestSender)));
+    }
+
+    private bool IsBusy { get; set; } = false;
+
+    private async Task HandleSave()
+    {
+        if (IsBusy) return;
+        int? postId = null;
+
+        IsBusy = true;
+        try
+        {
+            postId = await Model.SavePost();
+        }
+        catch (Exception ex)
+        {
+            NavigationManager.NavigateTo($"/Error/{ex}");
+        }
+        finally
+        {
+            IsBusy = false;
+            if (postId != null)
+            {
+                NavigationManager.NavigateTo($"/service?Id={postId}");
+            }
+        }
+    }
+
+    private void HandleBack()
+    {
+        NavigationManager.NavigateTo("/services");
+    }
+
+}

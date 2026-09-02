@@ -1,0 +1,244 @@
+﻿@inject HttpRequestSender HttpRequestSender
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
+@if (Model is null)
+{
+    <div class="blog-root">
+        <header class="blog-header">
+            <h1 class="blog-title">Блог</h1>
+
+        </header>
+        <div>Загрузка...</div>
+    </div>
+}
+else
+{
+    <div class="blog-root">
+        <header class="blog-header">
+            <h1 class="blog-title">Блог</h1>
+
+            <div class="header-controls">
+                <button id="filterButton" class="header-filter-button" @onclick="OnShowFilters">
+                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 6H19M21 12H16M21 18H16M7 20V13.5612C7 13.3532 7 13.2492 6.97958 13.1497C6.96147 13.0615 6.93151 12.9761 6.89052 12.8958C6.84431 12.8054 6.77934 12.7242 6.64939 12.5617L3.35061 8.43826C3.22066 8.27583 3.15569 8.19461 3.10948 8.10417C3.06849 8.02393 3.03853 7.93852 3.02042 7.85026C3 7.75078 3 7.64677 3 7.43875V5.6C3 5.03995 3 4.75992 3.10899 4.54601C3.20487 4.35785 3.35785 4.20487 3.54601 4.10899C3.75992 4 4.03995 4 4.6 4H13.4C13.9601 4 14.2401 4 14.454 4.10899C14.6422 4.20487 14.7951 4.35785 14.891 4.54601C15 4.75992 15 5.03995 15 5.6V7.43875C15 7.64677 15 7.75078 14.9796 7.85026C14.9615 7.93852 14.9315 8.02393 14.8905 8.10417C14.8443 8.19461 14.7793 8.27583 14.6494 8.43826L11.3506 12.5617C11.2207 12.7242 11.1557 12.8054 11.1095 12.8958C11.0685 12.9761 11.0385 13.0615 11.0204 13.1497C11 13.2492 11 13.3532 11 13.5612V17L7 20Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div id="filterPoints" class="header-filter">
+                    <label>
+                        <input type="checkbox" id="option1" name="mygroup" @bind="Model.ShowAll">
+                        Все
+                    </label>
+                    <label>
+                        <input type="checkbox" id="option2" name="mygroup" @bind="Model.ShowPublished">
+                        Опубликованы
+                    </label>
+                    <label>
+                        <input type="checkbox" id="option3" name="mygroup" @bind="Model.ShowInWork">
+                        В работе
+                    </label>
+
+                    <input type="date" class="date-input" @bind-value="Model.BeginDate" />
+                    <input type="date" class="date-input" @bind-value="Model.EndDate" />
+                    <button @onclick="OnSearchOptionChanged">Применить</button>
+                    <button @onclick="OnHideFilters">x</button>
+                </div>
+                
+
+                @if (Model.Page == 1 && Model.TotalPages > 1)
+                {
+                    @Model.Page
+                    <span>..</span>
+                    <button @onclick="OnNextPage">&#8680;</button>
+                }
+
+
+                @if (Model.Page == Model.TotalPages && Model.TotalPages > 1)
+                {
+                    <button @onclick="OnPreviousPage">&#8678;</button>
+                    <span>..</span>
+                    @Model.Page
+                }
+
+                @if (Model.Page > 1 && Model.Page < Model.TotalPages && Model.TotalPages > 2)
+                {
+                    <button @onclick="OnPreviousPage">&#8678;</button>
+                    <span>..</span>
+                    @Model.Page
+                    <span>..</span>
+                    <button @onclick="OnNextPage">&#8680;</button>
+                }
+
+            </div>
+        </header>
+        
+        <div class="blog-actions">
+            <button class="add-post" @onclick="OnAddPost">Добавить пост</button>
+        </div>
+
+        <main class="blog-list">
+            @foreach (var item in Model.BlogItemVMs)
+            {
+                <AuthBlogItem Model="@item" />
+            }
+        </main>
+    </div>
+}
+
+<style>
+    .blog-root { max-width: 2200px; margin: 16px; }
+
+    .blog-header { display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #b2d8d8; padding:8px 0; }
+    .blog-title { color: CadetBlue; font-size:22px; margin:0; }
+
+    .header-controls { display:flex; gap:8px; }
+    .date-input { height:32px; }
+
+    .blog-actions { display:flex; justify-content:flex-end; margin:10px 0; }
+    .add-post { background: CadetBlue; color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; }
+
+    .blog-list { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
+
+    .header-filter-button {
+        display: block;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .header-filter {
+        display: none;
+        position: relative;
+        border: 1px solid #ccc;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+</style>
+
+@code {
+    AuthBlogListVM? Model = null;
+
+    string SearchKey = "SearchKey_forAuth";
+    string BeginDateKey = "BeginDateKey_forAuth";
+    string EndDateKey = "EndDateKey_forAuth";
+    string PageKey = "PageKey_forAuth";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var blogDM = new BlogListDM(new BlogRequestSender(HttpRequestSender));
+        Model = new AuthBlogListVM(blogDM);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            string searchKey = await JS.InvokeAsync<string>("localStorage.getItem", SearchKey);
+            string beginDateKey = await JS.InvokeAsync<string>("localStorage.getItem", BeginDateKey);
+            string endDateKey = await JS.InvokeAsync<string>("localStorage.getItem", EndDateKey);
+            string pageKey = await JS.InvokeAsync<string>("localStorage.getItem", PageKey);
+            if (searchKey != null)
+            {
+                Model.Search = searchKey;
+            }
+            if (beginDateKey != null)
+            {
+                Model.BeginDate = DateTime.ParseExact(beginDateKey, "yyyy-MM-ddTHH:mm:ss", null);
+            }
+            if (endDateKey != null)
+            {
+                Model.EndDate = DateTime.ParseExact(endDateKey, "yyyy-MM-ddTHH:mm:ss", null);
+            }
+            if (pageKey != null)
+            {
+                Model.Page = int.Parse(pageKey);
+            }
+
+            try
+            {
+                await Model.SetListAsync();
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception ex)
+            {
+                NavigationManager.NavigateTo($"/Error/{ex}");
+            }
+        }
+
+    }
+
+    protected async Task OnNextPage()
+    {
+        Model.Page++;
+        try
+        {
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+
+            await Model.SetListAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            NavigationManager.NavigateTo($"/Error/{ex}");
+        }
+    }
+
+    protected async Task OnPreviousPage()
+    {
+        Model.Page--;
+        try
+        {
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+
+            await Model.SetListAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            NavigationManager.NavigateTo($"/Error/{ex}");
+        }
+    }
+
+
+
+    protected async Task OnSearchOptionChanged()
+    {
+        Model.Page = 1;
+        try
+        {
+            await JS.InvokeAsync<string>("localStorage.setItem", SearchKey, Model.Search);
+            await JS.InvokeAsync<string>("localStorage.setItem", BeginDateKey, Model.BeginDate?.ToString("yyyy-MM-ddTHH:mm:ss"));
+            await JS.InvokeAsync<string>("localStorage.setItem", EndDateKey, Model.EndDate?.ToString("yyyy-MM-ddTHH:mm:ss"));
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+
+            await Model.SetListAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            NavigationManager.NavigateTo($"/Error/{ex}");
+        }
+    }
+
+    private async Task OnHideFilters()
+    {
+        if (JS != null)
+        {
+            await JS.InvokeVoidAsync("hideFilters");
+        }
+    }
+
+    private async Task OnShowFilters()
+    {
+        if (JS != null)
+        {
+            await JS.InvokeVoidAsync("showFilters");
+        }
+    }
+
+    private void OnAddPost()
+    {
+        NavigationManager.NavigateTo("/post");
+    }
+}

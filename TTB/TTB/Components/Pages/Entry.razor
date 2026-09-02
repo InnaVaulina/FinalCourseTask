@@ -1,0 +1,159 @@
+﻿@page "/entry"
+@rendermode InteractiveServer
+
+@inject NavigationManager Navigation
+@inject TokenProcessing TokenProcessor
+@inject HttpRequestSender HttpRequestSender
+@inject IJSRuntime JS
+
+<style>
+	.entry-root {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 100vh;
+		padding: 16px;
+		box-sizing: border-box;
+	}
+
+	.entry-panel {
+		width: 400px;
+		margin: 0 50px;
+	}
+
+	.entry-title {
+		margin: 0 0 8px 0;
+		font-size: 18px;
+	}
+
+	.entry-border {
+		border: 1px solid #000;
+		border-radius: 10px;
+		padding: 20px;
+		margin: 5px 0 15px 0;
+		background: #fff;
+		box-sizing: border-box;
+	}
+
+	.entry-grid {
+		display: grid;
+		grid-template-columns: 0.5fr 0.5fr;
+		gap: 8px 12px;
+		align-items: center;
+	}
+
+		.entry-grid label {
+			font-size: 14px;
+		}
+
+		.entry-grid input {
+			width: 100%;
+			padding: 6px 8px;
+			box-sizing: border-box;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+		}
+
+	.entry-button {
+		display: block;
+		width: calc(100% - 100px);
+		margin: 15px 50px 10px 50px;
+		padding: 10px 12px;
+		background-color: #3172B9;
+		color: #fff;
+		border: none;
+		border-radius: 4px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+		.entry-button:active,
+		.entry-button:focus {
+			outline: none;
+		}
+</style>
+
+<AuthorizeView>
+    <Authorized Context="auth">
+		<h3>Страница @auth.User.Identity?.Name</h3>
+		<p>Добро пожаловать на страницу пользователя!</p>
+	</Authorized>
+
+	<NotAuthorized>
+		<div class="entry-root">
+			<div class="entry-panel">
+				<h3 class="entry-title">Вход:</h3>
+				<div class="entry-border">
+					<div class="entry-grid" role="form" aria-label="Форма входа">
+						<label for="login">Логин</label>
+						<input id="login" @bind="model.LoginProp" />
+
+						<label for="password">Пароль</label>
+						<input id="password" type="password" @bind="model.PassWord" />
+					</div>
+				</div>
+
+				<button type="button" class="entry-button" @onclick="LogUser" disabled="@isBusy">
+					@(isBusy ? "Вхожу..." : "Войти")
+				</button>
+
+				<div style="color:crimson;margin-top:8px">@errorMessage</div>
+			</div>
+		</div>
+	</NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+	private UserEntryM model = new UserEntryM()
+	{
+		LoginProp = "Admin",
+		PassWord = "123qwe"
+	};
+	private AuthorizeRequestSender AccountClient = null;
+	private bool isBusy = false;
+	private string? errorMessage ="";
+
+	protected override void OnInitialized()
+	{
+		model ??= new();
+		AccountClient = new AuthorizeRequestSender(HttpRequestSender);
+	}
+
+	private async Task LogUser()
+	{
+		if (isBusy) return;
+		isBusy = true;
+
+		try
+		{
+			var result = await AccountClient.Login(model);
+
+			if (!result.IsSuccessStatusCode)
+			{
+				var err = await result.Content.ReadAsStringAsync();
+				errorMessage = $"Ошибка входа: {(string.IsNullOrWhiteSpace(err) ? result.ReasonPhrase : err)}";
+				return;
+			}
+
+
+			var token =  AccountClient.DeserializeToken(result);
+			if (!string.IsNullOrEmpty(token))
+			{
+				await JS.InvokeAsync<string>("localStorage.setItem", TokenProcessor.TokenKey, token);
+				TokenProcessor.SetToken(token);
+			}
+		}
+		catch (Exception ex)
+		{
+			errorMessage = "Ошибка при попытке входа: " + ex.Message;
+		}
+		finally
+		{
+			isBusy = false;
+			
+		}
+	}
+}
+

@@ -1,0 +1,14 @@
+﻿<UserControl x:Class="WpfBLazorHybridClient.Functions.Contacts.Control.UC_ShowSocialLink"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfBLazorHybridClient.Functions.Contacts.Control"
+             mc:Ignorable="d" 
+             d:DesignHeight="40" d:DesignWidth="40">
+    <Grid>
+        <Border DockPanel.Dock="Left" Width="40" Height="40" Margin="5,0,0,0" Style="{StaticResource map1Background}">
+            <Image Source="{Binding IconWorldNetBitmap}" Width="40" Height="40" Stretch="Uniform"/>
+        </Border>
+    </Grid>
+</UserControl>

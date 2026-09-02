@@ -1,0 +1,113 @@
+﻿@inject HttpRequestSender HttpRequestSender
+@inject NavigationManager NavigationManager
+
+
+<div class="tabs area">
+	@if (Tab == "Show")
+	{
+		<input type="radio" name="tab-btn" id="tab-btn-single" value="" checked>
+		<label for="tab-btn-single">Просмотр</label>
+
+		<input type="radio" name="tab-btn" id="tab-btn-edit" value="">
+		<label for="tab-btn-edit">Редактирование</label>
+	}
+
+	@if (Tab == "Edit")
+	{
+		<input type="radio" name="tab-btn" id="tab-btn-single" value="">
+		<label for="tab-btn-single">Просмотр</label>
+
+		<input type="radio" name="tab-btn" id="tab-btn-edit" value="" checked>
+		<label for="tab-btn-edit">Редактирование</label>
+	}
+
+	<section id="content-single" class="record-looking">
+		<ProgectExample Model="@ShowModel" />
+	</section>
+
+	<section id="content-edit" class="record-change">
+		<div class="uc-header">
+			<ProgectEditor Model="@EditModel" />
+			<div class="header-top">
+
+				<div class="header-spacer"></div>
+
+				<button class="save-btn" @onclick="HandleSave" disabled="@IsBusy">
+					<span class="save-inner">@(IsBusy ? "Сохраняю..." : "Сохранить")</span>
+				</button>
+				<button class="save-btn" @onclick="HandleBack">
+					<span class="save-inner">Назад</span>
+				</button>
+
+			</div>
+		</div>
+	</section>
+
+</div>
+
+
+	
+
+
+@code {
+	[Parameter]
+	public int? Id { get; set; } = null;
+
+	[Parameter]
+	public string Tab { get; set; } = "";
+
+	ProgectItemVM? ShowModel = null;
+	EditProgectVM? EditModel = null;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			var dm = await ProgectExampleDM.CreateAsync(new ProgectRequestSender(HttpRequestSender), Id.Value);
+			ShowModel = new ProgectItemVM(dm);
+			EditModel = new EditProgectVM(dm);
+		}
+		catch (Exception ex)
+		{
+			NavigationManager.NavigateTo($"/Error/{ex}");
+		}
+	}
+
+	private bool IsBusy { get; set; } = false;
+
+	private async Task HandleSave()
+	{
+		if (IsBusy) return;
+
+		IsBusy = true;
+		try
+		{
+			await EditModel.SavePost();
+
+			// Обновляем модель из источника данных, чтобы получить актуальную иллюстрацию и другие поля
+			if (Id.HasValue)
+			{
+				var dm = await ProgectExampleDM.CreateAsync(new TTClassLibrary.Functions.Progect.ProgectRequestSender(HttpRequestSender), Id.Value);
+				ShowModel = new TTB.VModel.ProgectVM.ProgectItemVM(dm);
+				EditModel = new TTB.Client.VModel.Progect.EditProgectVM(dm);
+			}
+
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			NavigationManager.NavigateTo($"/Error/{ex}");
+		}
+		finally
+		{
+
+			IsBusy = false;
+			NavigationManager.NavigateTo($"/progect?Id={Id}&Tab=Show");
+		}
+	}
+
+	private void HandleBack()
+	{
+		NavigationManager.NavigateTo("/progects");
+	}
+}

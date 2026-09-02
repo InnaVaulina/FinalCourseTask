@@ -1,0 +1,226 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+
+    <Style TargetType="{x:Type TabControl}" x:Key="mainTabControlStyle">
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type TabItem}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type TabItem}">
+                                <Grid>
+                                    <Border 
+                                    x:Uid="Border" Name="Border"
+                                    Background="#F0F0F0"
+                                    BorderBrush="LightGray" 
+                                    BorderThickness="0,0,2,0" 
+                                    CornerRadius="0,0,20,0" 
+                                    Margin="0,0,2,0" SnapsToDevicePixels="True" >
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock x:Uid="TextBlock" FontSize="15" 
+                                            HorizontalAlignment="Center" 
+                                            Name="TextBlock" 
+                                            Foreground="DarkGray">  
+                                        <ContentPresenter x:Uid="ContentSite" x:Name="ContentSite"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            ContentSource="Header"
+                                            Margin="12,2,12,2"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="White" />
+                                        <Setter TargetName="Border" Property="BorderBrush" Value="Gray" />
+                                        <Setter TargetName="TextBlock" Property="Foreground" Value="Black" />
+                                        <Setter TargetName="Border" Property="Margin" Value="0,0,2,-1" />
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True" SourceName="Border" >
+                                        <Setter TargetName="Border" Property="Background" Value="White" />
+                                        <Setter TargetName="Border" Property="BorderBrush" Value="DarkGray" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <Style TargetType="{x:Type TabControl}" x:Key="insideTabControlStyle">
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type TabItem}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type TabItem}">
+                                <Grid>
+                                    <Border 
+                                    x:Uid="Border" Name="Border"
+                                    Background="#F0F0F0"
+                                    BorderBrush="LightGray" 
+                                    BorderThickness="0,0,2,0" 
+                                    CornerRadius="0,20,0,0" 
+                                    Margin="0,0,2,0" SnapsToDevicePixels="True" >
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock x:Uid="TextBlock" FontSize="15" 
+                                            HorizontalAlignment="Center" 
+                                            Name="TextBlock" 
+                                            Foreground="DarkGray">  
+                                        <ContentPresenter x:Uid="ContentSite" x:Name="ContentSite"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            ContentSource="Header"
+                                            Margin="12,2,12,2"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="White" />
+                                        <Setter TargetName="Border" Property="BorderBrush" Value="Gray" />
+                                        <Setter TargetName="TextBlock" Property="Foreground" Value="Black" />
+                                        <Setter TargetName="Border" Property="Margin" Value="0,0,2,-1" />
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True" SourceName="Border" >
+                                        <Setter TargetName="Border" Property="Background" Value="White" />
+                                        <Setter TargetName="Border" Property="BorderBrush" Value="DarkGray" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <Style TargetType="{x:Type Border}" x:Key="illustrationBackground">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <DrawingBrush Viewbox="0 0 16 16" Viewport="0,0,0.2,0.2" ViewportUnits="RelativeToBoundingBox" TileMode="Tile" Stretch="Fill" ViewboxUnits="Absolute">
+                    <DrawingBrush.Drawing>
+                        <DrawingGroup>
+                            <GeometryDrawing Brush="AntiqueWhite"  Geometry="M15.833,13.042 C15.316,13.221 14.295,13.592 13.121,11.606 C11.947,9.622 10.395,10.083 10.395,10.083 C10.308,10.098 10.234,10.127 10.157,10.153 C8.405,7.658 3.478,2.224 3.044,1.789 C2.421,1.167 1.375,0.583 0.5,1.5 C-0.323,2.362 0.099,3.487 0.722,4.11 C1.16,4.548 6.624,9.5 9.118,11.246 C9.066,11.397 9.042,11.521 9.042,11.583 C9.042,15.229 12.771,15.036 13.542,14.895 C14.917,14.646 16.35,12.865 15.833,13.042 L15.833,13.042 Z"/>
+                            <GeometryDrawing Brush="AntiqueWhite"  Geometry="M5.613,10.73 L5.386,11.482 L5.872,11.968 L2.061,13.624 L1.311,12.905 L3.032,9.278 L3.014,9.984 L4.012,9.97 L4.865,9.125 C4.335,8.675 3.807,8.219 3.303,7.778 L2.469,8.613 C2.469,8.613 0.157,13.933 3.29099005e-11,14.363 C-0.125,14.703 0.306,15.134 0.604,14.988 C1.084,14.751 6.344,12.468 6.344,12.468 L7.512,11.296 C7.088,10.967 6.627,10.595 6.151,10.202 L5.613,10.73 L5.613,10.73 Z"/>
+                            <GeometryDrawing Brush="AntiqueWhite"  Geometry="M12.147,1.92 L13.406,3.156 L9.176,7.263 C9.554,7.723 9.91,8.165 10.227,8.574 L14.488,4.299 C14.99,3.797 15.018,3.073 14.48,2.536 L12.475,0.546 C11.936,0.00899999997 11.092,-0.019 10.591,0.482 L6.71,4.37 C7.156,4.88 7.619,5.415 8.074,5.951 L12.147,1.92 L12.147,1.92 Z"/>
+                        </DrawingGroup>
+                    </DrawingBrush.Drawing>
+                </DrawingBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <Style TargetType="TextBlock" x:Key="requestHeader">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="CadetBlue"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style TargetType="{x:Type Border}" x:Key="map1Background">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <DrawingBrush Viewbox="0 0 512 512" ViewboxUnits="Absolute">
+                    <DrawingBrush.Drawing>
+                        <DrawingGroup>
+                            <GeometryDrawing Brush="#FFFFFF" Geometry="M256,0C114.842,0,0,114.842,0,256s114.842,256,256,256s256-114.842,256-256S397.158,0,256,0z"/>
+                            <GeometryDrawing Brush="Lavender" Geometry="M256,406.974c-30.351,0-59.375-2.687-86.385-7.662c3.352,8.361,7.01,16.35,10.98,23.893
+                          c20.917,39.744,48.401,62.537,75.404,62.537s54.487-22.793,75.404-62.537c3.97-7.543,7.629-15.532,10.98-23.893
+                          C315.375,404.287,286.351,406.974,256,406.974z"/>
+                            <GeometryDrawing Brush="LightGray" Geometry="M256,485.744c27.003,0,54.487-22.793,75.404-62.537c3.97-7.543,7.629-15.532,10.98-23.893
+                          c-27.01,4.974-56.034,7.662-86.385,7.662"/>
+                            <GeometryDrawing Brush="Lavender" Geometry="M88.794,180.596C49.051,201.513,26.256,228.998,26.256,256c0,27.002,22.795,54.487,62.538,75.404
+                          c7.543,3.97,15.532,7.63,23.893,10.98c-4.974-27.01-7.662-56.034-7.662-86.385s2.687-59.375,7.662-86.385
+                          C104.326,172.967,96.337,176.626,88.794,180.596z"/>
+                            <GeometryDrawing Brush="LightGray" Geometry="M505.435,313.737c-22.881,31.854-64.358,57.986-117.304,74.395
+                          c-16.41,52.945-42.541,94.423-74.395,117.306C408.621,483.48,483.48,408.622,505.435,313.737z"/>
+                            <GeometryDrawing Brush="Lavender" Geometry="M123.87,388.13C70.924,371.721,29.447,345.59,6.564,313.737
+                       c21.956,94.885,96.814,169.744,191.701,191.699C166.411,482.553,140.28,441.076,123.87,388.13z"/>
+                            <GeometryDrawing Brush="Lavender" Geometry="M180.596,88.794c-3.97,7.543-7.63,15.532-10.982,23.893c27.01-4.974,56.035-7.662,86.386-7.662
+                       v39.385c-35.26,0-69.247,3.969-100.099,11.492C148.379,186.754,144.41,220.742,144.41,256s3.969,69.246,11.491,100.097
+                       C186.753,363.62,220.74,367.59,256,367.59c35.258,0,69.247-3.969,100.099-11.492c7.522-30.851,11.491-64.839,11.491-100.097h39.385
+                       c0,30.351-2.687,59.375-7.662,86.385c8.361-3.352,16.35-7.01,23.893-10.98c39.743-20.917,62.537-48.402,62.537-75.404H512
+                       C512,114.842,397.158,0,256,0v26.256C228.997,26.256,201.513,49.05,180.596,88.794z"/>
+                            <GeometryDrawing Brush="Lavender" Geometry="M123.87,123.87c16.41-52.946,42.541-94.425,74.395-117.306
+                       C103.378,28.52,28.52,103.378,6.564,198.265C29.447,166.411,70.924,140.28,123.87,123.87z"/>
+                            <GeometryDrawing Brush="LightGray" Geometry="M256,0v26.256v78.769v39.385V367.59c35.258,0,69.247-3.969,100.099-11.492
+                          c7.522-30.851,11.491-64.839,11.491-100.097h39.385c0,30.351-2.687,59.375-7.662,86.385c8.361-3.352,16.35-7.01,23.893-10.98
+                          c39.743-20.917,62.537-48.402,62.537-75.404H512C512,114.842,397.158,0,256,0z"/>
+                            <GeometryDrawing Brush="#FFFFFF" Geometry="M446.359,256h-39.385c0-83.247-67.727-150.974-150.974-150.974V65.641
+                       C360.964,65.641,446.359,151.036,446.359,256z"/>
+                            <GeometryDrawing Brush="#FFFFFF" Geometry="M367.59,256h-39.385c0-39.814-32.391-72.205-72.205-72.205V144.41
+                       C317.531,144.41,367.59,194.469,367.59,256z"/>
+                            <GeometryDrawing Brush="#FFFFFF">
+                                <GeometryDrawing.Geometry>
+                                    <EllipseGeometry RadiusX="32.821" RadiusY="32.821" Center="256,256"/>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                        </DrawingGroup>
+                    </DrawingBrush.Drawing>
+                </DrawingBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type Border}" x:Key="map2Background">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <DrawingBrush Viewbox="0 0 512 512" ViewboxUnits="Absolute">
+                    <DrawingBrush.Drawing>
+                        <DrawingGroup>
+                            <GeometryDrawing Brush="Lavender" Geometry="M495.304,133.565H389.856l8.647-15.092c0.301-0.525,0.573-1.066,0.815-1.622C423.317,61.871,382.822,0,322.783,0
+		                c-61.165,0-101.708,64.05-75.415,119.308c0.186,0.392,0.387,0.776,0.603,1.151l7.539,13.106h-90.232
+		                c-7.757-38.057-41.485-66.783-81.799-66.783C37.448,66.783,0,104.231,0,150.261v278.261C0,474.535,37.422,511.973,83.428,512
+		                c0.009,0,0.017,0,0.025,0h411.852c9.22,0,16.696-7.475,16.696-16.696V150.261C512,141.04,504.525,133.565,495.304,133.565z
+		                 M322.783,33.391c35.626,0,59.977,36.41,46.264,69.327l-46.292,80.79l-45.492-79.094C262.03,71.386,286.298,33.391,322.783,33.391
+		                z M33.391,150.261c0-27.618,22.469-50.087,50.087-50.087c27.618,0,50.087,22.469,50.087,50.087v211.518
+		                c-13.961-10.503-31.311-16.736-50.087-16.736s-36.126,6.233-50.087,16.736V150.261z M478.609,478.609H83.478
+		                c-27.618,0-50.087-22.469-50.087-50.087s22.469-50.087,50.087-50.087c27.618,0,50.087,22.469,50.087,50.087
+		                c0,9.22,7.475,16.696,16.696,16.696s16.696-7.475,16.696-16.696V166.957h107.757l33.596,58.411
+		                c3.019,5.247,8.625,8.371,14.473,8.371c0.004,0,0.009,0,0.013,0h66.769c18.412,0,33.391,14.979,33.391,33.391
+		                c0,18.412-14.979,33.391-33.391,33.391H278.261c-36.824,0-66.783,29.959-66.783,66.783s29.959,66.783,66.783,66.783h89.043
+		                c9.22,0,16.696-7.475,16.696-16.696s-7.475-16.696-16.696-16.696h-89.043c-18.412,0-33.391-14.979-33.391-33.391
+		                c0-18.412,14.979-33.391,33.391-33.391h111.304c36.824,0,66.783-29.959,66.783-66.783s-29.959-66.783-66.783-66.783h-37.974
+		                l19.132-33.391h107.885V478.609z"/>
+
+                            <GeometryDrawing Brush="Lavender">
+                                <GeometryDrawing.Geometry>
+                                    <EllipseGeometry RadiusX="16.696" RadiusY="16.696" Center="428.522,417.391"/>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                            <GeometryDrawing Brush="Lavender">
+                                <GeometryDrawing.Geometry>
+                                    <EllipseGeometry RadiusX="16.696" RadiusY="16.696" Center="250.435,217.043"/>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                            <GeometryDrawing Brush="Lavender">
+                                <GeometryDrawing.Geometry>
+                                    <EllipseGeometry RadiusX="16.696" RadiusY="16.696" Center="322.783,83.478"/>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                        </DrawingGroup>
+                    </DrawingBrush.Drawing>
+                </DrawingBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="UserControl" x:Key="editParagraphText">
+        <Setter Property="Foreground" Value="Gray"/>
+        <Setter Property="FontSize" Value="14"/>
+    </Style>
+
+</ResourceDictionary>

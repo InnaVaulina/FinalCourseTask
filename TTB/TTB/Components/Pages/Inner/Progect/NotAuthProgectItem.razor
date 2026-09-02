@@ -1,0 +1,102 @@
+﻿<style>
+
+    /* карточки похожие на UC_Blog Item: фиксированная ширина/высота и отступы */
+    .blog-card {
+        width: 250px;
+        height: 200px;
+        border: 0;
+        margin: 10px;
+        padding: 10px;
+        box-sizing: border-box;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        position: relative;
+        border: 1px solid transparent;
+    }
+
+    .card-media {
+        width: 100%;
+        height: 150px;
+        overflow: hidden;
+        border-radius: 4px;
+        border: 1px solid #8a2be2;
+    }
+
+        .card-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        text-align: center;
+        margin: 8px 0;
+    }
+
+ 
+
+    a,
+    a:focus,
+    a:hover,
+    a:active {
+        color: inherit;
+        text-decoration: none;
+        background-color: transparent;
+        cursor: pointer;
+    }
+
+    .blog-card-link {
+        position: relative;
+        width: 100%;
+    }
+
+        .blog-card-link:focus {
+            background-color: #3172B9;
+            border: 1px solid #3172B9;
+        }
+
+        .blog-card-link:hover {
+            background-color: #71A7E2;
+            border: 1px solid #71A7E2;
+        }
+
+        .blog-card-link:active {
+            background-color: #0E3B6C;
+            border: dashed 1px #0E3B6C;
+        }
+</style>
+
+
+@if (Model is null)
+{
+    <div class="blog-card">
+        <div>Загрузка...</div>
+    </div>
+}
+else
+{
+    <article class="blog-card">
+        <a href="/progect?Id=@Model.Id" class="blog-card-link">
+            <div class="card-media">
+                <img src="@Model.ImagePath" alt="Иллюстрация" />
+            </div>
+
+            <h2 class="card-title">@Model.Title</h2>
+
+        </a>
+    </article>
+
+}
+
+
+@code {
+
+    [Parameter]
+    public INotAuthProgectItemVM? Model { get; set; } = null;
+
+
+
+}

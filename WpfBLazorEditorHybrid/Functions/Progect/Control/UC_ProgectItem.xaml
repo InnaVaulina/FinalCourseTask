@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="WpfBLazorHybridClient.Functions.Progect.Control.UC_ProgectItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfBLazorHybridClient.Functions.Progect.Control"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="300">
+    <DockPanel>
+
+        <StackPanel DockPanel.Dock="Bottom" 
+                Orientation="Horizontal" 
+                VerticalAlignment="Stretch" HorizontalAlignment="Right"  Margin="20,5,5,5">
+
+            <Button BorderThickness="0" Command="{Binding OpenEditingPage}" Style="{StaticResource ButtonStyle}">
+                <Border CornerRadius="20" BorderThickness="1" Background="Gray">
+                    <Grid Height="40" Width="40" Style="{StaticResource editBackground}"/>
+                </Border>
+            </Button>
+
+            <Button BorderThickness="0" Command="{Binding DeleteItem}" Style="{StaticResource ButtonStyle}">
+                <Border CornerRadius="20" BorderThickness="1" Background="Gray">
+                    <Grid Height="40" Width="40" Style="{StaticResource deleteBackground}"/>
+                </Border>
+            </Button>
+
+        </StackPanel>
+        <DockPanel DockPanel.Dock="Bottom" Height="40" Background="Gray">
+            <TextBlock                                  
+           FontWeight="Bold" FontSize="16" 
+           VerticalAlignment="Center" HorizontalAlignment="Center"
+           Text="{Binding Title}" TextWrapping="Wrap"
+           />
+        </DockPanel>
+
+        <Border DockPanel.Dock="Bottom" BorderBrush="BlueViolet" BorderThickness="1" 
+                Style="{StaticResource illustrationBackground}" Margin="20,5,20,5">
+            <Image Source="{Binding Picture}" Stretch="UniformToFill"/>
+        </Border>
+
+
+
+    </DockPanel>
+</UserControl>

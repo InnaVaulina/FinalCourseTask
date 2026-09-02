@@ -1,0 +1,24 @@
+﻿@using WpfBLazorHybridClient.Functions.Blog.AVM
+
+    <Editor ContentChanged="HandleDataChanged" Content="@article"/>
+
+
+@code {
+
+    [Parameter]
+    public IBlogEdit Model { get; set; }
+
+    string article;
+
+    protected override async Task OnInitializedAsync()
+    {
+        article = Model.Article;
+    }
+
+    private void HandleDataChanged(string data)
+    {
+        Model.Article = data;
+    }
+
+}
+

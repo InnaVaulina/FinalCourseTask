@@ -1,0 +1,135 @@
+﻿<UserControl x:Class="WpfBLazorHybridClient.Functions.Work.Control.UC_WorkMenu"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfBLazorHybridClient.Functions.Work.Control"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <DockPanel Margin="20,20,20,20"
+               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+
+        <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" Height="50"
+                BorderBrush="CadetBlue">
+
+            <TextBlock FontSize="22" FontWeight="Bold" Foreground="CadetBlue"
+                HorizontalAlignment="Left" VerticalAlignment="Center">
+                Обработка заявок.               
+                Статус: <Run Text="{Binding SelectedStatus}"/>
+                За период с <Run Text="{Binding StartTimeText}"/>
+                по <Run Text="{Binding EndTimeText}"/>
+            </TextBlock>
+        </Border>
+
+        
+
+
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Margin="0,0,15,0" Header="Критерии выборки:">
+                <MenuItem>
+                    <MenuItem.Header>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Статус"/>
+                            <TextBox Grid.Column="1" Text="{Binding DesiredStatus}" IsReadOnly="True"/>
+                        </Grid>
+                    </MenuItem.Header>
+                    <MenuItem Header="Все заявки" Command="{Binding SelectAll}"/>
+                    <MenuItem Header="Поступило" Command="{Binding SelectReceived}"/>
+                    <MenuItem Header="В работе" Command="{Binding SelectTakenOnWork}"/>
+                    <MenuItem Header="Выполнена" Command="{Binding SelectFinished}"/>
+                    <MenuItem Header="Отклонена" Command="{Binding SelectRejected}"/>
+                    <MenuItem Header="Отменена" Command="{Binding SelectCancelled}"/>
+                </MenuItem>
+                <MenuItem>
+                    <MenuItem.Header>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Начало" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <DatePicker x:Name="startDate" Grid.Row="0" Grid.Column="1" SelectedDate="{Binding StartTime}"
+                                        DisplayDateEnd="{Binding EndTime}"
+                                SelectedDateFormat="Short">
+                                
+                            </DatePicker>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Конец" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <DatePicker x:Name="endDate" Grid.Row="1" Grid.Column="1" SelectedDate="{Binding EndTime}"
+                                        DisplayDateStart="{Binding StartTime}"
+                                SelectedDateFormat="Short"/>
+                        </Grid>
+                    </MenuItem.Header>
+                    <MenuItem Header="Сегодня" Command="{Binding SetThatDay}"/>
+                    <MenuItem Header="Вчера" Command="{Binding SetYesterday}"/>
+                    <MenuItem Header="Неделя" Command="{Binding SetWeek}"/>
+                    <MenuItem Header="Месяц" Command="{Binding SetMonth}"/>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Margin="0,0,15,0" Header="Обновить" Command="{Binding UpdateList}"/>
+
+        </Menu>
+
+        <Grid DockPanel.Dock="Top" Margin="10,10,10,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="760"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="60"/>
+                </Grid.ColumnDefinitions>
+
+
+                <TextBlock Grid.Column="1" Style="{StaticResource requestHeader}">№</TextBlock>
+                <TextBlock Grid.Column="2" Style="{StaticResource requestHeader}">Время заявки</TextBlock>
+                <TextBlock Grid.Column="3" Style="{StaticResource requestHeader}">Имя</TextBlock>
+                <TextBlock Grid.Column="4" Style="{StaticResource requestHeader}">Контакты</TextBlock>
+                <TextBlock Grid.Column="5" Style="{StaticResource requestHeader}">Тема</TextBlock>
+                <TextBlock Grid.Column="6" Style="{StaticResource requestHeader}">Статус</TextBlock> 
+
+            </Grid>
+        </Grid>
+
+
+        <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Auto">
+
+                <ListBox ItemsSource="{Binding List}"                    
+                    BorderThickness="0,0,0,0">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Margin" Value="10,10,10,10"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,0"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <ContentControl Content="{Binding}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+        </ScrollViewer>
+
+
+
+
+    </DockPanel>
+</UserControl>

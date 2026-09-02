@@ -1,0 +1,172 @@
+﻿@rendermode InteractiveAuto
+
+<style>
+    .blog-item-add {
+        margin: 20px;
+        display: flex;
+        flex-direction: column;
+        min-height: 400px;
+    }
+
+    .title-group {
+        margin-bottom: 10px;
+    }
+
+    .field-label {
+        font-size: 16px;
+        font-weight: 700;
+        color: BlueViolet;
+    }
+
+    .title-input {
+        display: block;
+        width: 100%;
+        height: 36px;
+        font-size: 20px;
+        font-weight: 600;
+        margin-top: 6px;
+        padding: 6px;
+    }
+
+    .title-wrapper {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .left-col {
+        flex-grow: 1;
+        gap: 8px;
+    }
+
+    
+    .right-col {
+        display: flex;
+        gap: 8px;
+    }
+
+    
+    .illustration {
+        border: 1px solid BlueViolet;
+        padding: 6px;
+        display: flex;
+        align-items: center;
+    }
+
+        .illustration img {
+            max-width: 150px;
+            max-height: 50px;
+            object-fit: contain;
+        }
+
+    .no-image {
+        color: #888;
+        font-size: 14px;
+    }
+
+</style>
+
+@if (Model is null)
+{
+    <div class="post-article">
+        <div>Загрузка...</div>
+    </div>
+}
+else
+{
+
+    <div class="blog-item-add">
+       
+
+        <div class="title-wrapper">
+            <!-- Левая колонка: заголовок -->
+            <div class="left-col">
+                <div class="title-group">
+                    <label class="field-label">Заголовок</label>
+                    <input @bind="Model.Title" class="title-input" />
+                </div>
+
+            </div>
+            <!-- Правая колонка: изображение -->
+            <div class="right-col">
+                    <div class="illustration">
+                        @if (!string.IsNullOrEmpty(Model.ImagePath))
+                        {
+                            <img src="@Model.ImagePath" />
+                        }
+                        else
+                        {
+                            <div class="no-image">Нет изображения</div>
+                        }
+                    </div>
+                    <Dovnload_button Design="@buttonDesign" OnChange="OnDownloadButtonChanged" />
+            </div>
+
+        </div>
+        <div class="title-group">
+            <label class="field-label">Содержимое поста</label>
+        </div>
+        <Editor ContentChanged="HandleDataChanged" Content="@description" />
+        <label>
+            <input type="checkbox" @bind="Model.State">
+            В работе
+        </label>
+    </div>
+}
+
+
+
+@code {
+
+    [Parameter]
+    public IProgectEdit Model { get; set; } = null;
+
+    bool initialized = false;
+
+    SVGparameters buttonDesign = new SVGparameters()
+    {
+        Width = "20px",
+        Height = "20px",
+        ColorStyle1 = "fill:CadetBlue;",
+        ColorStyle2 = "fill:BlueViolet;"
+    };
+
+    string description;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Model is null)
+        {
+            return;
+        }
+        description = Model.Description;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender || !initialized)
+        {
+            if (Model is null)
+            {
+                return;
+            }
+            description = Model.Description;
+            StateHasChanged();
+            initialized = true;
+        }
+    }
+
+    private void HandleDataChanged(string data)
+    {
+        Model.Description = data;
+    }
+
+    private void OnDownloadButtonChanged(MakeImageContent makeImageContent)
+    {
+        if (makeImageContent is null) return;
+        Model.SaveImageContent(makeImageContent);
+        StateHasChanged();
+    }
+
+}

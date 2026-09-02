@@ -1,0 +1,17 @@
+﻿@page "/progects"
+
+@rendermode InteractiveServer
+
+
+<PageTitle>Progects</PageTitle>
+
+<AuthorizeView Roles="admin, progect">
+	<NotAuthorized>
+		<NotAuthProgectList />
+	</NotAuthorized>
+	<Authorized>
+		<AuthProgectList />
+	</Authorized>
+</AuthorizeView>
+
+

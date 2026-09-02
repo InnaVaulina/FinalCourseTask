@@ -1,0 +1,23 @@
+﻿@using WpfBLazorHybridClient.Functions.Service.AVM
+
+<Editor ContentChanged="HandleDataChanged" Content="@description" />
+
+
+@code {
+
+    [Parameter]
+    public IServiceEdit Model { get; set; }
+
+    string description;
+
+    protected override async Task OnInitializedAsync()
+    {
+        description = Model.Description;
+    }
+
+    private void HandleDataChanged(string data)
+    {
+        Model.Description = data;
+    }
+
+}

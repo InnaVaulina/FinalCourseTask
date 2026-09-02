@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\img\103150131.webp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="IMG\noimage.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\img\103150131.webp" />
+  </ItemGroup>
+
+  
+    
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" Version="8.0.100" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.3.9" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2592.51" />
+  </ItemGroup>
+
+  
+    
+
+  <ItemGroup>
+    <ProjectReference Include="..\TTClassLibrary\TTClassLibrary.csproj" />
+  </ItemGroup>
+
+  
+    
+
+  <ItemGroup>
+    <Resource Include="IMG\noimage.jpg" />
+  </ItemGroup>
+
+  
+    
+
+  <ItemGroup>
+    <Compile Update="MainWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,17 @@
+﻿@page "/services"
+
+@rendermode InteractiveServer
+
+
+<PageTitle>Services</PageTitle>
+
+<AuthorizeView Roles="admin, service">
+	<NotAuthorized>
+		<NotAuthServiceList />
+	</NotAuthorized>
+	<Authorized>
+		<AuthServiceList />
+	</Authorized>
+</AuthorizeView>
+
+

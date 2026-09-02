@@ -1,0 +1,371 @@
+﻿@inject IJSRuntime JSRuntime
+
+
+
+<style>
+
+
+
+    .menu_ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap:10px;
+        padding: 5px;
+    }
+
+    .menu_ul li {
+        display: flex;
+        gap: 2px;
+    }
+
+    .menu_ul button {
+        background: transparent;
+        padding: 3px;
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(80, 124, 92, 0.2), 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .menu_ul button:hover {
+        box-shadow: 0 6px 12px rgba(80, 124, 92, 0.3);
+        transform: translateY(2px);
+    }
+
+
+    .menu_ul button:active {
+        box-shadow: 0 2px 4px rgba(80, 124, 92, 0.3);
+        transform: translateY(0);
+    }
+
+
+    .edit {
+        border: 3px solid BlueViolet;
+        overflow-y: auto;
+        background-color: white;
+        padding: 10px;
+        min-height: 80vh;
+        max-height: 80vh;
+        border-radius: 5px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+        .edit:focus {
+            outline: none;
+            box-shadow: 0 0 8px rgba(76, 124, 92, 0.5);
+        }
+
+ 
+    .customMenu {
+        display: none;
+        position: absolute;
+        background: white;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .customMenu_ul {
+        list-style: none;
+        padding: 5px;
+        margin: 0;
+    }
+
+        .customMenu_ul > li {
+            padding: 0;
+            margin: 0;
+        }
+
+        .customMenu_ul button {
+            width: 100%;
+            background: transparent;
+            padding: 3px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(80, 124, 92, 0.2), 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            color: #333333;
+        }
+
+            .customMenu_ul button:hover {
+                box-shadow: 0 6px 12px rgba(80, 124, 92, 0.3);
+                transform: translateY(2px);
+            }
+
+
+            .customMenu_ul button:active {
+                box-shadow: 0 2px 4px rgba(80, 124, 92, 0.3);
+                transform: translateY(0);
+            }
+
+            .customMenu_ul button table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+                .customMenu_ul button table tr {
+                    padding: 2px;
+                    box-sizing: border-box;
+                }
+
+                .customMenu_ul button table td {
+                    padding: 0px;
+                    text-align: left;
+                    box-sizing: border-box;
+                }
+
+                    .customMenu_ul button table td:nth-child(1) {
+                        width: 30px;
+                    }
+
+                    .customMenu_ul button table td:nth-child(2) {
+                        width: 150px;
+                    }
+
+                    .customMenu_ul button table td:nth-child(3) {
+                        width: 50px;
+                    }
+
+
+</style>
+
+<section class="editor_section container">
+    <div class="row">
+        <div>
+            <ul class="menu_ul">
+                <li>
+                    <TakeUndo_button OnClick="@(async () => await TakeUndo())" Design="@buttonDesign" />
+                    <TakeRedo_button OnClick="@(async () => await TakeRedo())" Design="@buttonDesign" />
+                </li>
+
+                <li>
+                    <CutText_button OnClick="@(async () => await CutText())" Design="@buttonDesign" />
+                    <CopyText_button OnClick="@(async () => await CopyText())" Design="@buttonDesign" />
+                    <PasteText_button OnClick="@(async () => await PasteText())" Design="@buttonDesign" />
+                </li>
+                <li>
+                    <SetItalic_button OnClick="@(async () => await SetTextStyle("i"))" Design="@buttonDesign" />
+                    <SetBold_button OnClick="@(async () => await SetTextStyle("b"))" Design="@buttonDesign" />
+                    <SetUnderline_button OnClick="@(async () => await SetTextStyle("u"))" Design="@buttonDesign" />
+                    <SetStrike_button OnClick="@(async () => await SetTextStyle("strike"))" Design="@buttonDesign" />
+                </li>
+                <li>
+                    <SetTextAlignLeft_button OnClick="@(async () => await SetTextAlign("left"))" Design="@buttonDesign" />
+                    <SetTextAlignCenter_button OnClick="@(async () => await SetTextAlign("center"))" Design="@buttonDesign" />
+                    <SetTextAlignRight_button OnClick="@(async () => await SetTextAlign("right"))" Design="@buttonDesign" />
+                    <SetTextAlignJustify_button OnClick="@(async () => await SetTextAlign("justify"))" Design="@buttonDesign" />
+                </li>
+                <li>
+                    <SetOrderedList_button OnClick="@(async () => await SetList("ol"))" Design="@buttonDesign" />
+                    <SetUnorderedList_button OnClick="@(async () => await SetList("ul"))" Design="@buttonDesign" />
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div>
+            <div @ref="_divElement"
+                 id="editor"
+                 contenteditable="true"
+                 placeholder="Введите текст здесь..."
+                 @oncontextmenu="@(async () => await ShowContextMenu())"
+                 @oninput="@(async () => await HandleInput())"
+                 class="edit">
+            </div>
+
+            <Context_menu 
+                OnCutClick="@(async () => await CutText())"
+                OnCopyClick="@(async () => await CopyText())"
+                OnPasteClick="@(async () => await PasteText())"
+                Design="@buttonDesign" />
+
+        </div>
+    </div>
+
+</section>
+
+
+
+
+
+
+@code {
+
+    private ElementReference _divElement;
+
+    [Parameter]
+    public string Content { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<string> ContentChanged { get; set; }
+    private bool isInitialized = false;
+
+    private PasteHandler? _pasteHandler;
+
+    SVGparameters buttonDesign = new SVGparameters()
+    {
+    Width = "20px",
+    Height = "20px",
+    ColorStyle1 = "fill:CadetBlue;",  
+    ColorStyle2 = "fill:BlueViolet;"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !isInitialized)
+        {
+            isInitialized = true;
+            await JSRuntime.InvokeVoidAsync(
+                "initializeEditableWithParagraph",
+                _divElement,Content
+            );
+            await JSRuntime.InvokeVoidAsync(
+                "initializeEditableWithContext",
+                _divElement
+            );
+
+            _pasteHandler = new PasteHandler(JSRuntime);
+            _pasteHandler.Notify += HandleInput;
+            await _pasteHandler.InitializeAsync();
+
+            await JSRuntime.InvokeVoidAsync("undoRedo.saveState", _divElement);
+            Content = await JSRuntime.InvokeAsync<string>("getDivInnerText", _divElement);
+            await ContentChanged.InvokeAsync(Content);
+        }
+    }
+
+    public void Dispose()
+    {
+        _pasteHandler?.Dispose();
+    }
+
+    
+
+
+
+    public async Task HandleInput()
+    {
+        if (JSRuntime != null)
+        {
+            await JSRuntime.InvokeVoidAsync("undoRedo.saveState", _divElement);
+            Content = await JSRuntime.InvokeAsync<string>("getDivInnerText", _divElement);
+            await ContentChanged.InvokeAsync(Content);
+        }
+    }
+
+    public async Task ShowContextMenu()
+    {
+        if (JSRuntime != null)
+        {
+            var position = await JSRuntime.InvokeAsync<CursorPosition>("getCursorPosition");
+            await JSRuntime.InvokeVoidAsync("showContextMenu", _divElement, position);
+        }
+    }
+
+    public async ValueTask TakeUndo()
+    {
+        if (JSRuntime != null)
+        {
+            await JSRuntime.InvokeVoidAsync("undoRedo.undo", _divElement);
+            Content = await JSRuntime.InvokeAsync<string>("getDivInnerText", _divElement);
+            await ContentChanged.InvokeAsync(Content);
+        }
+    }
+
+    public async ValueTask TakeRedo()
+    {
+        if (JSRuntime != null)
+        {
+            await JSRuntime.InvokeVoidAsync("undoRedo.redo", _divElement);
+            Content = await JSRuntime.InvokeAsync<string>("getDivInnerText", _divElement);
+            await ContentChanged.InvokeAsync(Content);
+        }
+    }
+
+    public async ValueTask SetTextStyle(string style)
+    {
+        if (JSRuntime != null)
+        {
+            await JSRuntime.InvokeVoidAsync("insertTextStyle", _divElement, style);
+            await JSRuntime.InvokeVoidAsync("undoRedo.saveState", _divElement);
+            Content = await JSRuntime.InvokeAsync<string>("getDivInnerText", _divElement);
+            await ContentChanged.InvokeAsync(Content);
+        }
+    }
+
+
+    public async ValueTask SetTextAlign(string align)
+    {
+        if (JSRuntime != null)
+        {
+            await JSRuntime.InvokeVoidAsync("alignText", _divElement, align);
+            await JSRuntime.InvokeVoidAsync("undoRedo.saveState", _divElement);
+            Content = await JSRuntime.InvokeAsync<string>("getDivInnerText", _divElement);
+            await ContentChanged.InvokeAsync(Content);
+        }
+    }
+
+    public async ValueTask SetList(string typeofList)
+    {
+        if (JSRuntime != null)
+        {
+            await JSRuntime.InvokeVoidAsync("putList", _divElement, typeofList);
+            await JSRuntime.InvokeVoidAsync("undoRedo.saveState", _divElement);
+            Content = await JSRuntime.InvokeAsync<string>("getDivInnerText", _divElement);
+            await ContentChanged.InvokeAsync(Content);
+        }
+    }
+
+
+    public async ValueTask CutText()
+    {
+        if (JSRuntime != null)
+        {
+            await JSRuntime.InvokeAsync<bool>("cutText", _divElement);
+            await JSRuntime.InvokeVoidAsync("undoRedo.saveState", _divElement);
+            Content = await JSRuntime.InvokeAsync<string>("getDivInnerText", _divElement);
+            await ContentChanged.InvokeAsync(Content);
+        }
+    }
+
+    public async ValueTask CopyText()
+    {
+        if (JSRuntime != null)
+        {
+            await JSRuntime.InvokeVoidAsync("copyText", _divElement);
+        }
+    }
+
+    public async ValueTask PasteText()
+    {
+        if (JSRuntime != null)
+        {
+            await JSRuntime.InvokeAsync<bool>("pasteText", _divElement);
+        }
+    }
+
+    public async ValueTask SetContentAsync(string content)
+    {
+        if (JSRuntime != null)
+        {
+            await JSRuntime.InvokeVoidAsync("setDivInnerText", _divElement, content);
+        }
+    }
+
+    public async ValueTask<string> GetContentAsync()
+    {
+        return JSRuntime != null
+            ? await JSRuntime.InvokeAsync<string>("getDivInnerText", _divElement)
+            : Content;
+    }
+
+}

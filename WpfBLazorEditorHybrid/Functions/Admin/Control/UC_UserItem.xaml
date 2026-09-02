@@ -1,0 +1,131 @@
+﻿<UserControl x:Class="WpfBLazorHybridClient.Functions.Admin.Control.UC_UserItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfBLazorHybridClient.Functions.Admin.Control"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="serviseBackgroundColorStile">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=arrowDownButton, Path=Visibility}" Value="Visible">
+                    <Setter Property="Control.Foreground" Value="White" />
+                    <Setter Property="Control.Background" Value="CadetBlue" />
+                    <Setter Property="Control.BorderBrush" Value="CadetBlue" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=arrowUpButton, Path=Visibility}" Value="Visible">
+                    <Setter Property="Control.Foreground" Value="CadetBlue" />
+                    <Setter Property="Control.Background" Value="White" />
+                    <Setter Property="Control.BorderBrush" Value="CadetBlue" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="8*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" CornerRadius="10" 
+            x:Name="serviseElement"
+            Style="{StaticResource serviseBackgroundColorStile}"
+            BorderThickness="1" 
+            >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="500"/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+
+
+
+
+                <Button Grid.Column="0" Grid.Row="0"
+                    x:Name="arrowDownButton"
+                    Width="40" Height="40"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    BorderThickness="0" 
+                    Click="arrowDownButton_Click"
+                    Style="{StaticResource ButtonStyle}">
+                    <Border CornerRadius="20" BorderThickness="1">
+                        <Grid Height="40" Width="40" Style="{StaticResource arrowDownBackground}"/>
+                    </Border>
+                </Button>
+
+
+
+                <Button Grid.Column="0" Grid.Row="0" 
+                    x:Name="arrowUpButton"
+                    Width="40" Height="40" VerticalAlignment="Center"
+                    BorderThickness="0" 
+                    Click="arrowUpButton_Click"
+                    Visibility="Hidden" 
+                    Style="{StaticResource ButtonStyle}">
+                    <Border CornerRadius="20" BorderThickness="1">
+                        <Grid Height="40" Width="40" Style="{StaticResource arrowUpBackground}"/>
+                    </Border>
+                </Button>
+
+
+                <TextBlock Grid.Column="1" Grid.Row="0" 
+               x:Name="serviseTitleBlock"                          
+               FontWeight="Bold" FontSize="16" VerticalAlignment="Center"
+               Text="{Binding UserName}"
+               />
+
+                <StackPanel x:Name="serviseDescriptionBlock" Grid.Column="1" Grid.Row="1"
+                          Visibility="Collapsed" Margin="0, 0, 0, 30">
+                    <TextBlock Text="Роли пользователя:"/>
+                    <ListBox                            
+                        Foreground="CadetBlue" 
+                        ItemsSource="{Binding UserRoles}">
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+
+                                <TextBlock Text="{Binding Role}"/>
+
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+                
+
+            </Grid>
+
+        </Border >
+        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="20,5,5,5">
+
+            <Button BorderThickness="0" Style="{StaticResource ButtonStyle}"
+                    Command="{Binding EditUserRoles}">
+                <Border CornerRadius="20" BorderThickness="1" Background="CadetBlue">
+                    <Grid Height="40" Width="40" Style="{StaticResource editBackground}"/>
+                </Border>
+            </Button>
+
+            <Button BorderThickness="0" Style="{StaticResource ButtonStyle}"
+                    Command="{Binding DeleteUser}">
+                <Border CornerRadius="20" BorderThickness="1" Background="CadetBlue">
+                    <Grid Height="40" Width="40" Style="{StaticResource deleteBackground}"/>
+                </Border>
+            </Button>
+
+            <Button BorderThickness="0" Style="{StaticResource ButtonStyle}"
+                    Command="{Binding ResetPassword}">
+                <Border CornerRadius="20" BorderThickness="1" Background="CadetBlue">
+                    <Grid Height="40" Width="40" Style="{StaticResource resetPasswordBackground}"/>
+                </Border>
+            </Button>
+
+        </StackPanel>
+
+    </Grid>
+</UserControl>

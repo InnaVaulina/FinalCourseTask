@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="E:/C#/TaskTotal/FinalCourseTask/TTB/TTB.Client/TTB.Client.csproj" />
+  <Project Path="E:/C#/TaskTotal/FinalCourseTask/TTB/TTB/TTB.csproj" />
+  <Project Path="E:/C#/TaskTotal/FinalCourseTask/TTClassLibrary/TTClassLibrary.csproj" />
+  <Project Path="E:/C#/TaskTotal/FinalCourseTask/WpfBLazorEditorHybrid/WpfBLazorHybridClient.csproj" />
+  <Project Path="WebApplication1/WebApplication1/WebApplication1.csproj" />
+</Solution>

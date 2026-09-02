@@ -1,0 +1,157 @@
+﻿@inject NavigationManager NavigationManager
+
+<style>
+
+    /* карточки похожие на UC_Blog Item: фиксированная ширина/высота и отступы */
+    .blog-card {
+        width: 250px;
+        height: 400px;
+        border: 0;
+        margin: 10px;
+        padding: 10px;
+        box-sizing: border-box;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        position: relative;
+        border: 1px solid transparent;
+    }
+
+    .card-media {
+        width: 100%;
+        height: 150px;
+        overflow: hidden;
+        border-radius: 4px;
+        border: 1px solid #8a2be2;
+    }
+
+        .card-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        text-align: justify;
+        margin: 8px 0;
+    }
+
+    .card-date {
+        font-size: 12px;
+        color: gray;
+        text-align: left;
+        margin-bottom: 6px;
+    }
+
+    .card-snippet .snippet-scroll {
+        padding-right: 6px;
+        max-height: 150px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 10;
+        -webkit-box-orient: vertical;
+        font-size: 10px;
+        text-align: justify;
+    }
+
+    .card-actions {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        border: 1px solid #ccc;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+        .btn.edit {
+            background: gray;
+        }
+
+        .btn.delete {
+            background: #c0392b;
+        }
+</style>
+
+
+@if (Model is null)
+{
+    <div class="blog-card">
+        <div>@hello</div>
+    </div>
+}
+else
+{
+    <article class="blog-card">
+        <div class="card-media">
+            <img src="@Model.ImagePath" alt="Иллюстрация" />
+        </div>
+
+        <h2 class="card-title">@Model.Title</h2>
+
+        <div class="card-date">@Model.PostDate</div>
+
+        <div class="card-snippet">
+            <div class="snippet-scroll">
+                @Model.Fragment
+            </div>
+        </div>
+
+        <div class="card-actions">
+            <button class="btn edit" @onclick="OpenEditPostPage">✎</button>
+            <button class="btn delete" @onclick="DeletePost">✖</button>
+        </div>
+    </article>
+    
+}
+
+
+@code {
+
+    [Parameter]
+    public BlogItemVM? Model { get; set; } = null;
+
+    string hello = "Загрузка...";
+
+    protected void OpenEditPostPage()
+    {
+        if (Model != null)
+        {
+            NavigationManager.NavigateTo($"/post?Id={Model.Id}&Tab=Edit");
+        }
+    }
+
+    protected async Task DeletePost()
+    {
+        if (Model != null)
+        {
+            try
+            {
+                await Model.DeletePost();
+            }
+            catch (Exception ex)
+            {
+                NavigationManager.NavigateTo($"/Error/{ex}");
+            }
+            finally
+            {
+                Model = null;
+                hello = "Пост удален.";
+                NavigationManager.Refresh();
+            }
+        }
+    }
+
+}

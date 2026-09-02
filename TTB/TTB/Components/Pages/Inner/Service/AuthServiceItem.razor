@@ -1,0 +1,182 @@
+﻿@inject NavigationManager NavigationManager
+
+<style>
+
+    /* карточки похожие на UC_Blog Item: фиксированная ширина/высота и отступы */
+    .service-card {
+        border: 1;
+        margin: 10px;
+        padding: 10px;
+        box-sizing: border-box;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        position: relative;
+        border: 1px solid transparent;
+    }
+
+    .service-tittle-card {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        position: relative;
+        padding-right: 60px; 
+    }
+
+    
+
+    .service-tittle {
+        display: flex;
+        flex-direction: row;
+    }
+      
+    .service-tittle-card > input[type="checkbox"] {
+        display: none;
+    }
+
+    .service-tittle-card > input[type="checkbox"]:checked ~ .tittle-input-label {
+        transform: rotate(135deg);
+    }
+
+ 
+
+    .tittle-input-label {
+        width: 20px;
+        height: 20px;
+        border-bottom: 3px solid #000; /* Нижняя граница */
+        border-left: 3px solid #000;
+        background-color: white;
+        transform: rotate(-45deg);
+        margin: 20px;
+    }
+
+    
+
+    .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        text-align: justify;
+        margin: 8px 0;
+    }
+
+    .card-actions {
+        display:flex;
+        flex-direction: row;
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        gap: 8px;
+    }
+
+    .btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        border: 1px solid #ccc;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+        .btn.edit {
+            background: gray;
+        }
+
+        .btn.delete {
+            background: #c0392b;
+        }
+</style>
+
+
+@if (Model is null)
+{
+    <div class="blog-card">
+        <div>@hello</div>
+    </div>
+}
+else
+{
+    <article class="service-card">
+
+        
+
+        <div class="service-tittle-card">
+            <input type="checkbox" name="tab-btn" id="tab-btn-single-@Model.Id" @bind="Model.Show">
+            <label for="tab-btn-single-@Model.Id" class="tittle-input-label"> </label>
+
+            <div class="service-tittle">     
+                <h2 class="card-title">@Model.Title</h2>
+            </div>
+            
+            
+            <div class="card-actions">
+                <button class="btn edit" @onclick="OpenEditPostPage">✎</button>
+                <button class="btn delete" @onclick="DeletePost">✖</button>
+            </div>
+        </div>
+        
+        @if (Model.Show)
+        {
+            <section>
+                <div class="snippet-scroll">
+                    @Model.Fragment
+                </div>
+            </section>
+        }
+        else
+        {
+            <section style="display:none">
+                <div class="snippet-scroll">
+                    @Model.Fragment
+                </div>
+            </section>
+        }
+        
+    </article>
+
+}
+
+
+@code {
+
+    [Parameter]
+    public ServiceItemVM? Model { get; set; } = null;
+
+    string hello = "Загрузка...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model.OnShow += () => NavigationManager.Refresh();
+    }
+
+    protected void OpenEditPostPage()
+    {
+        if (Model != null)
+        {
+            NavigationManager.NavigateTo($"/service?Id={Model.Id}&Tab=Edit");
+        }
+    }
+
+    protected async Task DeletePost()
+    {
+        if (Model != null)
+        {
+            try
+            {
+                await Model.DeletePost();
+            }
+            catch (Exception ex)
+            {
+                NavigationManager.NavigateTo($"/Error/{ex}");
+            }
+            finally
+            {
+                Model = null;
+                hello = "Проект удален.";
+                NavigationManager.Refresh();
+            }
+        }
+    }
+
+}

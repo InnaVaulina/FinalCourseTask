@@ -1,0 +1,46 @@
+﻿@rendermode InteractiveServer
+
+
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject TokenProcessing TokenProcessor
+
+
+<AuthorizeView>
+    <Authorized Context="auth">
+        <div>
+            <nav class="d-flex flex-row-reverse">
+
+                <div class="nav-item px-3">
+                    <button class="nav-link" @onclick="LogoutUser"> Выход </button>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink href="/entry" class="nav-link">@auth.User.Identity?.Name в системе</NavLink>
+                </div>
+            </nav>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div>
+            <nav class="d-flex flex-row-reverse">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/entry">
+                        Вход
+                    </NavLink>
+                </div>
+            </nav>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+
+    private async Task LogoutUser()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", TokenProcessor.TokenKey);
+        TokenProcessor.RemoveToken();
+        Navigation.Refresh();
+    }
+}

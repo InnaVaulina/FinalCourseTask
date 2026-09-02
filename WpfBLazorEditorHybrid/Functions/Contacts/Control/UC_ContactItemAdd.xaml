@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="WpfBLazorHybridClient.Functions.Contacts.Control.UC_ContactItemAdd"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfBLazorHybridClient.Functions.Contacts.Control"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <DockPanel Margin="20,20,20,20"
+      VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+
+
+        <DockPanel Height="100" DockPanel.Dock="Top">
+            <Label DockPanel.Dock="Top" HorizontalAlignment="Left"
+                FontSize="16" FontWeight="Bold" Foreground="BlueViolet">
+                Название подразделения
+            </Label>
+
+            <TextBox DockPanel.Dock="Top" Height="30" FontSize="22" FontWeight="Bold" Foreground="Black"
+                HorizontalAlignment="Stretch"  Margin="0,0,10,0" 
+                 Text="{Binding Title}"
+            />
+
+            <Label DockPanel.Dock="Top" HorizontalAlignment="Left"
+                FontSize="16" FontWeight="Bold" Foreground="BlueViolet">
+                Контактная информация
+            </Label>
+
+
+        </DockPanel>
+
+
+
+        <DockPanel DockPanel.Dock="Bottom">
+
+            <Button DockPanel.Dock="Right"
+              BorderThickness="0" Style="{StaticResource ButtonStyle}"
+              Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"
+              Command="{Binding SaveContact}">
+                <Border CornerRadius="10" BorderThickness="1" Background="CadetBlue">
+                    <Grid Height="40" Width="180" >
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                      FontSize="16" FontWeight="Bold" Foreground="White">
+                      Сохранить
+                        </TextBlock>
+                    </Grid>
+                </Border>
+            </Button>
+        </DockPanel>
+
+        <DockPanel>
+            <TabControl Style="{StaticResource insideTabControlStyle}">
+
+                <TabItem Header="Местонахождение">
+                    <ContentControl Content="{Binding UC_address}" />
+                </TabItem>
+                <TabItem Header="Телефоны">
+                    <ContentControl Content="{Binding UC_phone}"/> 
+                </TabItem>
+                <TabItem Header="Электронная почта">
+                    <ContentControl Content="{Binding UC_mail}"/>
+                </TabItem>
+                <TabItem Header="Социальные сети">
+                    <ContentControl Content="{Binding UC_link}"/>
+                </TabItem>
+
+            </TabControl>
+
+
+        </DockPanel>
+
+
+    </DockPanel>
+</UserControl>

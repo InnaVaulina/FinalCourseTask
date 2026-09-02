@@ -1,0 +1,23 @@
+﻿@using WpfBLazorHybridClient.Functions.Progect.AVM
+
+<Editor ContentChanged="HandleDataChanged" Content="@description" />
+
+
+@code {
+
+    [Parameter]
+    public IProgectEdit Model { get; set; }
+
+    string description;
+
+    protected override async Task OnInitializedAsync()
+    {
+        description = Model.Description;
+    }
+
+    private void HandleDataChanged(string data)
+    {
+        Model.Description = data;
+    }
+
+}

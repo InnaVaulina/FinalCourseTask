@@ -1,0 +1,113 @@
+﻿@inject NavigationManager NavigationManager
+
+<style>
+    .post-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-top: 6px;
+        border: none;
+        border-bottom: 1px solid BlueViolet;
+    }
+
+    .post-date {
+        font-size: 12px;
+        color: gray;
+        text-align: left;
+        margin-bottom: 6px;
+    }
+
+    
+
+    .content-wrapper {
+        display: flex;
+        flex: 1;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .left-col {
+        flex: 0 0 30%;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+ 
+    }
+
+    .right-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .card-media{
+        width: 100%;
+        height: 150px;
+        overflow: hidden;
+        border-radius: 4px;
+        border: 1px solid #8a2be2;
+    }
+
+    .card-illustration {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+</style>
+
+
+
+
+<div class="uc-header">
+
+    @if (Model is null)
+    {
+        <div class="post-article">
+            <div>Загрузка...</div>
+        </div>
+    }
+    else
+    {
+        <article class="post-article">
+            <h2 class="post-title">@Model.Title</h2>
+            <div class="post-date">@Model.PostDate</div>
+            <div class="content-wrapper">
+                <div class="left-col">
+                    <div class="card-media">
+                        <img src="@Model.ImagePath" alt="Иллюстрация" class="card-illustration" />
+                    </div>
+                </div>
+
+                <div class="right-col">
+                    <div class="snippet-scroll">
+                        @Model.Fragment
+                    </div>
+                </div>
+            </div>
+        </article>
+    }
+    <div class="header-top">
+
+        <div class="header-spacer"></div>
+
+        <button class="save-btn" @onclick="HandleBack">
+            <span class="save-inner">Назад</span>
+        </button>
+
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public BlogItemVM? Model{ get; set; } = null;
+
+    
+    protected void HandleBack()
+    {
+        NavigationManager.NavigateTo("/blog");
+    }
+
+}

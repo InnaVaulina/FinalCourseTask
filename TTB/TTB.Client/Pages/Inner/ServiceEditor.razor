@@ -1,0 +1,100 @@
+﻿@rendermode InteractiveAuto
+
+<style>
+    .blog-item-add {
+        margin: 20px;
+        display: flex;
+        flex-direction: column;
+        min-height: 400px;
+    }
+
+    .title-group {
+        margin-bottom: 10px;
+    }
+
+    .title-wrapper {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+
+</style>
+
+@if (Model is null)
+{
+    <div class="post-article">
+        <div>Загрузка...</div>
+    </div>
+}
+else
+{
+
+    <div class="blog-item-add">
+
+        <div class="title-wrapper">
+            <div class="title-group">
+                <label class="field-label">Заголовок</label>
+                <input @bind="Model.Title" class="title-input" />
+            </div>
+          
+
+        </div>
+        <div class="title-group">
+            <label class="field-label">Содержимое поста</label>
+        </div>
+        <Editor ContentChanged="HandleDataChanged" Content="@description" />
+
+    </div>
+}
+
+
+
+@code {
+
+    [Parameter]
+    public IServiceEdit Model { get; set; } = null;
+
+    bool initialized = false;
+
+    SVGparameters buttonDesign = new SVGparameters()
+    {
+        Width = "20px",
+        Height = "20px",
+        ColorStyle1 = "fill:CadetBlue;",
+        ColorStyle2 = "fill:BlueViolet;"
+    };
+
+    string description;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Model is null)
+        {
+            return;
+        }
+        description = Model.Description;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender || !initialized)
+        {
+            if (Model is null)
+            {
+                return;
+            }
+            description = Model.Description;
+            StateHasChanged();
+            initialized = true;
+        }
+    }
+
+    private void HandleDataChanged(string data)
+    {
+        Model.Description = data;
+    }
+
+
+}
