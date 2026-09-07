@@ -261,6 +261,10 @@ window.getCursorPosition = () => {
 
 window.showContextMenu = (element, position) => {
     const customMenu = document.getElementById("customMenu");
+    if (!customMenu) {
+        console.warn('showContextMenu: #customMenu not found in DOM');
+        return;
+    }
     customMenu.style.display = "block";
     customMenu.style.left = `${position.clientX}px`;
     customMenu.style.top = `${position.clientY}px`;
@@ -269,6 +273,7 @@ window.showContextMenu = (element, position) => {
 
 window.addEventListener("click", () => {
     const customMenu = document.getElementById("customMenu");
+    if (!customMenu) return;
     customMenu.style.display = "none";
 });
 
