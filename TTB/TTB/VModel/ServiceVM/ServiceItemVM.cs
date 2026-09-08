@@ -10,7 +10,7 @@ namespace TTB.VModel.ServiceVM
         string Title { get; }
 
         event ServiceItemVMOnShowHandler OnShow;
-        bool Show { get; set; }
+       
         RenderFragment Fragment { get; }
     }
 
@@ -25,8 +25,6 @@ namespace TTB.VModel.ServiceVM
 
         public event ServiceItemVMOnShowHandler OnShow;
 
-        bool show;
-        public bool Show { get { return show; } set { show = value; OnShow?.Invoke(); } }
 
         RenderFragment fragment;
         public RenderFragment Fragment { get { return fragment; } }
@@ -36,7 +34,7 @@ namespace TTB.VModel.ServiceVM
         {
             serviceExampleDM = _serviceExampleDM;
             fragment = builder => builder.AddMarkupContent(0, serviceExampleDM.Content.Description);
-            show = false;
+
         }
 
         public async Task DeletePost()
