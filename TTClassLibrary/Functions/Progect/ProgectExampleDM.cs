@@ -17,7 +17,7 @@ namespace TTClassLibrary.Functions.Progect
         IProgectRequestSender requestMaker;
 
         ProgectContent content;
-        MultipartFormDataContent formData;
+        ImageFileModel fileInfo;
 
         public ProgectContent Content
         {
@@ -29,7 +29,11 @@ namespace TTClassLibrary.Functions.Progect
         {
             requestMaker = _requestMaker;
             content = _content;
-            formData = new MultipartFormDataContent();
+            fileInfo = new ImageFileModel()
+            {
+                FileName = "",
+                Content = Array.Empty<byte>()
+            };   
         }
 
         public static async Task<ProgectExampleDM> CreateAsync(IProgectRequestSender _requestMaker, ProgectContent _content)
@@ -50,7 +54,11 @@ namespace TTClassLibrary.Functions.Progect
         public async Task UpdateDM(ProgectContent newcontent)
         {
             content = newcontent;
-            formData = new MultipartFormDataContent();
+            fileInfo = new ImageFileModel()
+            {
+                FileName = "",
+                Content = Array.Empty<byte>()
+            };
             await InitializeAsync();
         }
         private async Task InitializeAsync()
@@ -64,17 +72,21 @@ namespace TTClassLibrary.Functions.Progect
             await requestMaker.DeleteProgect(Content.ID);
         }
 
-        public void SaveImageContent(ImageFileModel fileInfo)
+        public void SaveImageContent(ImageFileModel _fileInfo)
         {
-            var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
-            imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            formData.Add(imageContent, "progectPicture", fileInfo.FileName);
+            fileInfo = _fileInfo;
         }
 
         public async Task<HttpResponseMessage> ChangeProgectContentAsync()
         {
+            MultipartFormDataContent formData = new MultipartFormDataContent();
+
             var json = JsonSerializer.Serialize(content);
             formData.Add(new StringContent(json, Encoding.UTF8, "application/json"), "progectContent");
+
+            var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
+            imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            formData.Add(imageContent, "progectPicture", fileInfo.FileName);
 
             var response = await requestMaker.UpdateProgect(formData, Content.ID);
             return response;

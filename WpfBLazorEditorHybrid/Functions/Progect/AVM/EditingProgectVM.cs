@@ -18,6 +18,7 @@ using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Functions.Progect.Control;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 using WpfBLazorHybridClient.Error;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Progect.AVM
 {
@@ -33,28 +34,8 @@ namespace WpfBLazorHybridClient.Functions.Progect.AVM
             progectExampleDM = _progectExampleDM;
             page = _page;
 
-            string imageSavePath = ConfigurationManager.AppSettings["ImageSavePath"];
-            string savePath = @$"{imageSavePath}{progectExampleDM.Content.IllustrationId}";
-            imageFilePath = new FileInfo(savePath);
-
-            if (!imageFilePath.Exists)
-            {
-                Picture = new BitmapImage();
-            }
-            else
-            {
-                using (var fileStream = new FileStream(imageFilePath.FullName, FileMode.Open, FileAccess.Read))
-                {
-                    var bitmapImage = new BitmapImage();
-                    bitmapImage.BeginInit();
-                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImage.StreamSource = fileStream;
-                    bitmapImage.EndInit();
-                    bitmapImage.Freeze();
-
-                    Picture = bitmapImage;
-                }
-            }
+            Picture = PictureLoader.LoadIllustration(progectExampleDM.Content.IllustrationId);
+            
 
             saveProgect = new WCommand(async _ =>
             {

@@ -20,6 +20,7 @@ using WpfBLazorHybridClient.Functions.Blog.Control;
 using WpfBLazorHybridClient.Functions.Progect.Control;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 using WpfBLazorHybridClient.Error;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Progect.AVM
 {
@@ -38,8 +39,8 @@ namespace WpfBLazorHybridClient.Functions.Progect.AVM
             progectExampleDM = _progectExampleDM;
             tab = _tab;
 
-            picture = new BitmapImage();
-            LoadIllustration();
+            picture = PictureLoader.LoadIllustration(progectExampleDM.Content.IllustrationId);
+
 
             openEditingPage = new WCommand(o => {
                 TabVM page = new TabVM()
@@ -102,34 +103,9 @@ namespace WpfBLazorHybridClient.Functions.Progect.AVM
 
         public void NotyfyUpdate()
         {
-            LoadIllustration();
+            Picture = PictureLoader.LoadIllustration(progectExampleDM.Content.IllustrationId);
             OnPropertyChanged("Title");
         }
-
-        public void LoadIllustration()
-        {
-            string imageSavePath = ConfigurationManager.AppSettings["ImageSavePath"];
-            string savePath = @$"{imageSavePath}{progectExampleDM.Content.IllustrationId}";
-            FileInfo fileInfo = new FileInfo(savePath);
-
-            if (!fileInfo.Exists)
-            {
-                Picture = new BitmapImage();
-                return;
-            }
-            using (var fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read))
-            {
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.StreamSource = fileStream;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
-
-                Picture = bitmapImage;
-            }
-        }
-
 
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")
