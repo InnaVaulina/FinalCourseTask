@@ -17,7 +17,7 @@ namespace TTClassLibrary.Functions.Service
 
 
         ServiceContent content;
-        MultipartFormDataContent formData;
+        
 
         public ServiceContent Content
         {
@@ -29,7 +29,6 @@ namespace TTClassLibrary.Functions.Service
         {
             requestMaker = _requestMaker;
             content = _content;
-            formData = new MultipartFormDataContent();
         }
 
         public static async Task<ServiceExampleDM> CreateAsync(IServiceRequestSender _requestMaker, ServiceContent _content)
@@ -49,19 +48,19 @@ namespace TTClassLibrary.Functions.Service
         public async Task UpdateDM(ServiceContent newcontent)
         {
             content = newcontent;
-            formData = new MultipartFormDataContent();
         }
 
 
         public async Task DeleteAsync()
         {
             await requestMaker.DeleteService(Content.ID);
-
         }
 
        
         public async Task<HttpResponseMessage> ChangeServiceContentAsync()
         {
+            MultipartFormDataContent formData = new MultipartFormDataContent();
+
             var json = JsonSerializer.Serialize(content);
             formData.Add(new StringContent(json, Encoding.UTF8, "application/json"), "serviceContent");
 

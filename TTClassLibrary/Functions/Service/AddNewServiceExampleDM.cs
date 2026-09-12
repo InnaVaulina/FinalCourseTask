@@ -17,7 +17,7 @@ namespace TTClassLibrary.Functions.Service
 
 
         ServiceContent content;
-        MultipartFormDataContent formData;
+        
 
         public ServiceContent Content
         {
@@ -34,11 +34,12 @@ namespace TTClassLibrary.Functions.Service
                 Title = "Новая услуга",
                 Description = ""
             };
-            formData = new MultipartFormDataContent();
         }
 
         public async Task<HttpResponseMessage> CreateServiceContentAsync()
         {
+            MultipartFormDataContent formData = new MultipartFormDataContent();
+
             var json = JsonSerializer.Serialize(content);
             formData.Add(new StringContent(json, Encoding.UTF8, "application/json"), "serviceContent");
 
