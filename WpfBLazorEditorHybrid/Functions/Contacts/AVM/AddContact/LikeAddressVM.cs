@@ -3,9 +3,11 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Contacts;
+using TTClassLibrary.Support;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
-using WpfBLazorHybridClient.Functions.Contacts.DM;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
 {
@@ -27,11 +29,20 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
                 return addressDM.Address; 
             } 
         }
-        public LikeAddressVM()
+        public LikeAddressVM(ContactAddressDM? _addressDM)
         {
-            addressDM = new ContactAddressDM();
-            pictureMapBitmap = new BitmapImage();
-
+            addressDM = _addressDM ?? new ContactAddressDM();
+            if (_addressDM != null)
+            {
+                text = addressDM.Address.Address;
+                pictureMapBitmap = PictureLoader.LoadIllustration(addressDM.Address.MapFileName);
+            }
+            else
+            {
+                text = "";
+                pictureMapBitmap = new BitmapImage(); 
+            }
+    
 
             addAddressPanel = new WCommand(o =>
             {
@@ -63,25 +74,29 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
             });
         }
 
-
-        public FileInfo? PictureMapFilePath
-        {
-            get 
-            { 
-                return AddressDM.FileInfo; 
-            }
-            set 
-            {
-                AddressDM.FileInfo = value;
-                AddressDM.Address.MapFileName = "";
-            }
-        }
-
         protected BitmapImage pictureMapBitmap;
         public BitmapImage PictureMapBitmap
         {
             get { return pictureMapBitmap; }
             set { pictureMapBitmap = value; OnPropertyChanged("PictureMapBitmap"); }
+        }
+
+        FileInfo pictureMapFilePath;
+        public FileInfo PictureMapFilePath
+        {
+            get { return pictureMapFilePath; }
+            set { pictureMapFilePath = value; SaveImageContent(pictureMapFilePath); }
+        }
+
+        private void SaveImageContent(FileInfo imageFilePath)
+        {
+            AddressDM.FileInfo = new ImageFileModel()
+            {
+                FileName = imageFilePath.Name,
+                Content = File.ReadAllBytes(imageFilePath.FullName),
+                ContentType = "application/octet-stream"
+            };
+            AddressDM.Address.MapFileName = "";
         }
 
         protected string text;

@@ -6,13 +6,14 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using TTClassLibrary.Functions.Blog;
+using TTClassLibrary.Functions.Contacts;
 using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Blog.AVM;
 using WpfBLazorHybridClient.Functions.Contacts.Control;
-using WpfBLazorHybridClient.Functions.Contacts.DM;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact
@@ -62,15 +63,24 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact
 
                 try
                 {
-                    var changedcontact = contactDM.ChangeContactContentAsync();
-                    if (changedcontact != null)
+                    var response = await contactDM.ChangeContactContentAsync();
+                    var jsonSerializer = new TTClassLibrary.Support.HttpResponseMessageDeserialize<ContactContent>();
+                    var newcontact = await jsonSerializer.DeserealizeResultToContentAsync(response);
+                    if (newcontact != null)
                     {
+                        await contactDM.UpdateDM(newcontact);
                         MessageBox.Show("Запрос выполнен успешно");
                         Notify_update?.Invoke();
                         Notify_close_page?.Invoke(page);
                     }
+
                 }
                 catch (ScopedExeption ex)
+                {
+                    Logger.Log(ex.ToString());
+                    MessageBox.Show(ex.ToString());
+                }
+                catch (Exception ex)
                 {
                     Logger.Log(ex.ToString());
                     MessageBox.Show(ex.ToString());

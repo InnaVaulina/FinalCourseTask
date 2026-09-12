@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shapes;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact;
-using WpfBLazorHybridClient.Functions.Contacts.DM;
+using TTClassLibrary.Functions.Contacts;
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
 {

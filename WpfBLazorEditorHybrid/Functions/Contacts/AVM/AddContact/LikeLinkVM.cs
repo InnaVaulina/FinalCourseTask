@@ -8,9 +8,10 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Contacts;
+using TTClassLibrary.Support;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
-using WpfBLazorHybridClient.Functions.Contacts.DM;
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
 {
@@ -36,6 +37,7 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
             links = new ObservableCollection<EditLinkVM>();
 
             linkDM = null;
+            iconWorldNetFilePath = null;
 
             iconWorldNetBitmap = new BitmapImage();
 
@@ -75,17 +77,32 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
                 Text = "";
                 IconWorldNetBitmap = null;
                 IconWorldNetFilePath = null;
+                linkDM = null;
             });
         }
 
+        FileInfo? iconWorldNetFilePath;
         public FileInfo? IconWorldNetFilePath
         {
-            get { return linkDM.FileInfo; }
+            get { return iconWorldNetFilePath; }
             set 
             {
-                linkDM.FileInfo = value;
-                linkDM.Link.IkonFileName = "";
+                iconWorldNetFilePath = value;
+                if(iconWorldNetFilePath != null)
+                    SaveImageContent(iconWorldNetFilePath);
             }
+        }
+
+        private void SaveImageContent(FileInfo imageFilePath)
+        {
+            linkDM.FileInfo = new ImageFileModel()
+            {
+                FullFileName = imageFilePath.FullName,
+                FileName = imageFilePath.Name,
+                Content = File.ReadAllBytes(imageFilePath.FullName),
+                ContentType = "application/octet-stream"
+            };
+            linkDM.Link.IkonFileName = "";
         }
 
         protected BitmapImage iconWorldNetBitmap;

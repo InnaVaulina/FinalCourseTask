@@ -16,6 +16,7 @@ namespace TTClassLibrary.Support
 
     public class ImageFileModel
     {
+        public string FullFileName { get; set; } = "";
         public string FileName { get; set; } = "";
         public byte[] Content { get; set; } = Array.Empty<byte>();
         public string ContentType { get; set; } = "";

@@ -14,11 +14,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact;
-using WpfBLazorHybridClient.Functions.Contacts.DM;
-using static System.Net.Mime.MediaTypeNames;
+using TTClassLibrary.Functions.Contacts;
+using System.Configuration;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact
 {
@@ -27,12 +28,12 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact
         ContactExampleDM contactDM;
         int contactId;
 
-        public ChangeAddressVM(ContactExampleDM _contactDM) : base()
+        public ChangeAddressVM(ContactExampleDM _contactDM) : base(_contactDM?.AddressDM)
         {
             contactDM = _contactDM;
             AddressDM = contactDM.AddressDM;
             contactId = contactDM.Content.ID;
-            LoadIllustration();
+            PictureMapBitmap = PictureLoader.LoadIllustration(AddressDM.Address.MapFileName);
 
             addAddressPanel = new WCommand(o =>
             {
@@ -42,12 +43,13 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact
                     Address = "",
                     MapFileName = ""
                 };
+               
                 AddressDM = new ContactAddressDM()
                 {
                     Address = address,
                     FileInfo = null
                 };
-                PictureMapBitmap = new BitmapImage();
+                
             });
 
             dislikeText = new WCommand(async _ =>
@@ -58,26 +60,6 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact
                 Text = "";
                 OnPropertyChanged("AddressText");
             });
-        }
-
-        public void LoadIllustration()
-        {
-            if (AddressDM.FileInfo == null)
-            {
-                PictureMapBitmap = new BitmapImage();
-                return;
-            }
-            using (var fileStream = new FileStream(AddressDM.FileInfo.FullName, FileMode.Open, FileAccess.Read))
-            {
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.StreamSource = fileStream;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
-
-                PictureMapBitmap = bitmapImage;
-            }
         }
 
     }

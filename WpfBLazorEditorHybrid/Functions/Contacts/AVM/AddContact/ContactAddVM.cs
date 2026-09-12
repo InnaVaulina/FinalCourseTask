@@ -11,10 +11,10 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Contacts.Control;
-using WpfBLazorHybridClient.Functions.Contacts.DM;
+using TTClassLibrary.Functions.Contacts;
 using WpfBLazorHybridClient.Functions.Service.AVM;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 
@@ -39,7 +39,7 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
             contactDM = _contactDM;
             this.page = page;
 
-            uc_address = new UC_AddAddress(new LikeAddressVM());
+            uc_address = new UC_AddAddress(new LikeAddressVM(null));
             uc_phone = new UC_Phone(new LikePhoneVM());
             uc_mail = new UC_mailUs(new LikeMailVM());
             uc_link = new UC_SocialLink(new LikeLinkVM());

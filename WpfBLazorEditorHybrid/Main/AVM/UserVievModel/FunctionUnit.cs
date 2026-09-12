@@ -14,7 +14,6 @@ using WpfBLazorHybridClient.Functions.Blog.AVM;
 using WpfBLazorHybridClient.Functions.Blog.Control;
 using WpfBLazorHybridClient.Functions.Contacts.Control;
 using WpfBLazorHybridClient.Functions.Contacts.AVM;
-using WpfBLazorHybridClient.Functions.Contacts.DM;
 using WpfBLazorHybridClient.Functions.Header.AVM;
 using WpfBLazorHybridClient.Functions.Header.Control;
 using WpfBLazorHybridClient.Functions.Progect.AVM;
@@ -155,7 +154,8 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
             : base(_tabViewModel)
         {
             functionDisplay = "Контакты";
-            var contactListDM = new ContactListDM(new ContactClient(user));
+            var rs = new TTClassLibrary.Functions.Contacts.ContactsRequestSender(new HttpRequestSender2(user));
+            var contactListDM = new TTClassLibrary.Functions.Contacts.ContactListDM(rs);
             contact = new UC_Contact(new ContactVM(contactListDM, _tabViewModel));
             contact.Model.Notify_new += tabViewModel.TabAdd;
 

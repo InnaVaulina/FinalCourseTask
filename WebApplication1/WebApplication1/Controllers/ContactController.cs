@@ -126,7 +126,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult> UpdateContact(int id, [FromForm] string contactContent, [FromForm] string deletedContactContent, IFormFile? addressPicture, List<IFormFile>? socialIcons)
+        public async Task<ActionResult> UpdateContact(int id, [FromForm] string contactContent, [FromForm] string? deletedContactContent, IFormFile? addressPicture, List<IFormFile>? socialIcons)
         {
             Contact newContent;
             Contact deletedContent;
@@ -154,6 +154,7 @@ namespace WebApplication1.Controllers
                     return BadRequest("Неверный формат файла адреса.");
             foreach (var f in socialIcons ?? Enumerable.Empty<IFormFile>())
             {
+                if (f.Length == 0) continue;
                 if (!FileValidator.IsValidImage(f))
                     return BadRequest("Неверный формат одного из изображений социальных иконок.");
             }

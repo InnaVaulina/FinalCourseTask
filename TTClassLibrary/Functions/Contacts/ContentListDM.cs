@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfBLazorHybridClient.Functions.Contacts.DM
+namespace TTClassLibrary.Functions.Contacts
 {
     public class ContentListDM<T>
     {

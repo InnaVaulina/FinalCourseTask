@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Blog.AVM;
 using WpfBLazorHybridClient.Functions.Blog.Control;
 using WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact;
 using WpfBLazorHybridClient.Functions.Contacts.Control;
-using WpfBLazorHybridClient.Functions.Contacts.DM;
+using TTClassLibrary.Functions.Contacts;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM
@@ -62,6 +62,7 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM
             try
             {
                 await contactListDM.InitializeAsync();
+                List.Clear();
                 foreach (var item in contactListDM.DMList)
                 {
                     var vm = new ContactItemVM(item, tab);

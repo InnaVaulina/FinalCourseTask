@@ -1,30 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WpfBLazorHybridClient.Client;
-using WpfBLazorHybridClient.DataModel;
+﻿using TTClassLibrary.DataModel;
+using TTClassLibrary.Support;
 
-
-namespace WpfBLazorHybridClient.Functions.Contacts.DM
+namespace TTClassLibrary.Functions.Contacts
 {
     public class ContactListDM
     {
-        ContactClient requestMaker;
-        HttpResponseMessageDeserialize<List<ContactContent>> jsonSerializer1;
-        HttpResponseMessageDeserialize<ContactContent> jsonSerializer2;
-
+        IContactRequestSender requestMaker;
 
         List<ContactExampleDM> dmList;
         public List<ContactExampleDM> DMList
         {
             get { return dmList; }
         }
-        public ContactListDM(ContactClient _requestMaker)
+        public ContactListDM(IContactRequestSender requestMaker) 
         {
-            requestMaker = _requestMaker;
-            jsonSerializer1 = new HttpResponseMessageDeserialize<List<ContactContent>>(requestMaker);
+            this.requestMaker = requestMaker;
             dmList = new List<ContactExampleDM>();
         }
 
@@ -32,11 +22,12 @@ namespace WpfBLazorHybridClient.Functions.Contacts.DM
         {
             dmList.Clear();
             var response = await requestMaker.GetAllContacts();
+            var jsonSerializer1 = new HttpResponseMessageDeserialize<List<ContactContent>>();
             var contentList = await jsonSerializer1.DeserealizeResultToContentAsync(response);
             foreach (var content in contentList)
             {
-                var blogDM = await CtreateContactExampleDM(content);
-                dmList.Add(blogDM);
+                var contactDM = await CtreateContactExampleDM(content);
+                dmList.Add(contactDM);
             }
         }
 
@@ -51,5 +42,6 @@ namespace WpfBLazorHybridClient.Functions.Contacts.DM
             var dm = new AddNewContactExampleDM(requestMaker);
             return dm;
         }
+
     }
 }

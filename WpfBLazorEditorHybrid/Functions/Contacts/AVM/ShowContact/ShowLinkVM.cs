@@ -7,9 +7,10 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using WpfBLazorHybridClient.Client;
-using WpfBLazorHybridClient.DataModel;
-using WpfBLazorHybridClient.Functions.Contacts.DM;
+using System.Configuration;
+
+using TTClassLibrary.Functions.Contacts;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ShowContact
 {
@@ -19,8 +20,7 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ShowContact
         public ShowLinkVM(ContactLinkDM _linkDM) 
         {
             linkDM = _linkDM;
-            iconWorldNetBitmap = new BitmapImage();
-            LoadIllustration();
+            IconWorldNetBitmap = PictureLoader.LoadIllustration(linkDM.Link.IkonFileName);
         }
 
         ContactLinkDM linkDM;
@@ -37,25 +37,6 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ShowContact
             }
         }
 
-        public void LoadIllustration()
-        {
-            if (linkDM.FileInfo == null)
-            {
-                IconWorldNetBitmap = new BitmapImage();
-                return;
-            }
-            using (var fileStream = new FileStream(linkDM.FileInfo.FullName, FileMode.Open, FileAccess.Read))
-            {
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.StreamSource = fileStream;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
-
-                IconWorldNetBitmap = bitmapImage;
-            }
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")

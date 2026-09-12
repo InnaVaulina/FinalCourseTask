@@ -13,16 +13,18 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Blog.Control;
 using WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact;
 using WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact;
 using WpfBLazorHybridClient.Functions.Contacts.AVM.ShowContact;
 using WpfBLazorHybridClient.Functions.Contacts.Control;
-using WpfBLazorHybridClient.Functions.Contacts.DM;
+using TTClassLibrary.Functions.Contacts;
 using WpfBLazorHybridClient.Functions.Service.AVM;
 using WpfBLazorHybridClient.Main.AVM.Tab;
+using System.Configuration;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM
 {
@@ -46,9 +48,9 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM
         {
             tab = _tab;
             contactDM = _contactDM;
-            pictureMapBitmap = new BitmapImage();
-            if(contactDM.AddressDM != null && !string.IsNullOrEmpty(contactDM.AddressDM.Address.MapFileName))
-                LoadIllustration();
+            if(contactDM.AddressDM.Address != null)
+                PictureMapBitmap = PictureLoader.LoadIllustration(contactDM.AddressDM.Address.MapFileName);
+            else PictureMapBitmap = new BitmapImage();
 
 
             openEditingPage = new WCommand(o => {
@@ -58,6 +60,7 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM
                 };
 
                 var model = new ContactChangeVM(contactDM, page);
+                model.Notify_update += NotyfyUpdate;
                 model.Notify_close_page += tab.TabClose;
 
                 page.Content = new UC_ContactItemChange(model);
@@ -140,30 +143,18 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM
         public WCommand DeleteItem { get { return deleteItem; } }
 
        
-        public void LoadIllustration()
-        {
-            if (contactDM.AddressDM == null)
-            {
-                PictureMapBitmap = new BitmapImage();
-                return;
-            }
-            using (var fileStream = new FileStream(contactDM.AddressDM.FileInfo.FullName, FileMode.Open, FileAccess.Read))
-            {
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.StreamSource = fileStream;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
-
-                PictureMapBitmap = bitmapImage;
-            }
-        }
 
         public void NotyfyUpdate()
         {
-            ucContactItem.Model = this;
-            LoadIllustration();
+            if (contactDM.AddressDM != null)
+                PictureMapBitmap = PictureLoader.LoadIllustration(contactDM.AddressDM.Address.MapFileName);
+            else PictureMapBitmap = new BitmapImage();
+            OnPropertyChanged("PictureMapBitmap"); 
+            OnPropertyChanged("Title");
+            OnPropertyChanged("AddressText");
+            OnPropertyChanged("Phones");
+            OnPropertyChanged("Emails");
+            OnPropertyChanged("Links");
         }
 
 

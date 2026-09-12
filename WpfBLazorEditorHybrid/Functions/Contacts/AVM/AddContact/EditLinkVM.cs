@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -9,9 +10,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Contacts;
+using TTClassLibrary.Support;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
-using WpfBLazorHybridClient.Functions.Contacts.DM;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
 {
@@ -25,7 +28,21 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
         public EditLinkVM(ContactLinkDM _linkDM)
         {
             linkDM = _linkDM;
-            iconWorldNetBitmap = new BitmapImage(new Uri(linkDM.FileInfo.FullName, UriKind.Absolute));
+            iconWorldNetFilePath = null;
+            if(linkDM.FileInfo == null)
+                IconWorldNetBitmap = PictureLoader.LoadIllustration(linkDM.Link.IkonFileName);
+            else 
+            {
+                using (var fileStream = new FileStream(linkDM.FileInfo.FullFileName, FileMode.Open, FileAccess.Read))
+                {
+                    IconWorldNetBitmap = new BitmapImage();
+                    IconWorldNetBitmap.BeginInit();
+                    IconWorldNetBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    IconWorldNetBitmap.StreamSource = fileStream;
+                    IconWorldNetBitmap.EndInit();
+                    IconWorldNetBitmap.Freeze();
+                }
+            } 
             text = "";
 
             editText = new WCommand(o =>
@@ -53,10 +70,22 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
             });
         }
 
+        FileInfo iconWorldNetFilePath;
         public FileInfo IconWorldNetFilePath
         {
-            get { return linkDM.FileInfo; }
-            
+            get { return iconWorldNetFilePath; }
+            set { iconWorldNetFilePath = value; SaveImageContent(iconWorldNetFilePath); }
+        }
+
+        private void SaveImageContent(FileInfo imageFilePath)
+        {
+            LinkDM.FileInfo = new ImageFileModel()
+            {
+                FileName = imageFilePath.Name,
+                Content = File.ReadAllBytes(imageFilePath.FullName),
+                ContentType = "application/octet-stream"
+            };
+            LinkDM.Link.IkonFileName = "";
         }
 
         BitmapImage iconWorldNetBitmap;
