@@ -12,7 +12,7 @@ namespace TTClassLibrary.Functions.Blog
         IBlogRequestSender requestMaker;
 
         BlogContent content;
-        MultipartFormDataContent formData;
+        ImageFileModel fileInfo;
 
         public BlogContent Content 
         { 
@@ -24,7 +24,11 @@ namespace TTClassLibrary.Functions.Blog
         {
             requestMaker = _requestMaker;
             content = _content;
-            formData = new MultipartFormDataContent();
+            fileInfo = new ImageFileModel()
+            {
+                FileName = "",
+                Content = Array.Empty<byte>()
+            };
         }
 
         public static async Task<BlogExampleDM> CreateAsync(IBlogRequestSender _requestMaker, BlogContent _content)
@@ -45,7 +49,7 @@ namespace TTClassLibrary.Functions.Blog
         public async Task UpdateDM(BlogContent newcontent) 
         {
             content = newcontent;
-            formData = new MultipartFormDataContent();
+            fileInfo = new ImageFileModel() { FileName = "", Content = Array.Empty<byte>() };
             await InitializeAsync();
         }
 
@@ -60,17 +64,21 @@ namespace TTClassLibrary.Functions.Blog
             await requestMaker.DeleteBlog(Content.ID);
         }
 
-        public void SaveImageContent(ImageFileModel fileInfo)
+        public void SaveImageContent(ImageFileModel _fileInfo)
         {
-            var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
-            imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            formData.Add(imageContent, "blogPicture", fileInfo.FileName);
+            fileInfo = _fileInfo;
         }
 
         public async Task<HttpResponseMessage> ChangeBlogContentAsync()
         {
+            MultipartFormDataContent formData = new MultipartFormDataContent();
+
             var json = JsonSerializer.Serialize(content);
             formData.Add(new StringContent(json, Encoding.UTF8, "application/json"), "blogContent");
+
+            var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
+            imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            formData.Add(imageContent, "blogPicture", fileInfo.FileName);
 
             var response = await requestMaker.UpdateBlog(formData, Content.ID);
             return response;

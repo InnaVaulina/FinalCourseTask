@@ -13,7 +13,8 @@ namespace TTClassLibrary.Functions.Blog
         IBlogRequestSender requestMaker;
 
         BlogContent content;
-        MultipartFormDataContent formData;
+        ImageFileModel fileInfo;
+       
 
         public BlogContent Content
         {
@@ -34,20 +35,28 @@ namespace TTClassLibrary.Functions.Blog
                 Status = "InWork",
                 IllustrationId = ""
             };
-            formData = new MultipartFormDataContent();
+            fileInfo = new ImageFileModel()
+            {
+                FileName = "",
+                Content = Array.Empty<byte>()
+            };
         }
 
-        public void SaveImageContent(ImageFileModel fileInfo)
+        public void SaveImageContent(ImageFileModel _fileInfo)
         {
-            var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
-            imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            formData.Add(imageContent, "blogPicture", fileInfo.FileName);
+            fileInfo = _fileInfo;
         }
 
         public async Task<HttpResponseMessage> CreateBlogContentAsync()
         {
+            MultipartFormDataContent formData = new MultipartFormDataContent();
+
             var json = JsonSerializer.Serialize(content);
             formData.Add(new StringContent(json, Encoding.UTF8, "application/json"), "blogContent");
+
+            var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
+            imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            formData.Add(imageContent, "blogPicture", fileInfo.FileName);
 
             var response = await requestMaker.SaveBlog(formData);
             return response;

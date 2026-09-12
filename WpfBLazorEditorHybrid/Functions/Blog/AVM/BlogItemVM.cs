@@ -22,6 +22,7 @@ using WpfBLazorHybridClient.Functions.Blog.Control;
 using TTClassLibrary.Functions.Blog;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 using System.Configuration;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Blog.AVM
 {
@@ -42,8 +43,7 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
             blogExampleDM = _blogExampleDM;
             tab = _tab;
 
-            picture = new BitmapImage();
-            LoadIllustration();
+            picture = PictureLoader.LoadIllustration(blogExampleDM.Content.IllustrationId);
 
 
             openEditingPage = new WCommand(o => {
@@ -121,36 +121,13 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
 
         public void NotyfyUpdate() 
         {
-            LoadIllustration();
+            Picture = PictureLoader.LoadIllustration(blogExampleDM.Content.IllustrationId);
             OnPropertyChanged("Document");
             OnPropertyChanged("Title");
             OnPropertyChanged("PostDate");
         }
 
-        public void LoadIllustration()
-        {
-            string imageSavePath = ConfigurationManager.AppSettings["ImageSavePath"];
-            string savePath = @$"{imageSavePath}{blogExampleDM.Content.IllustrationId}";
-            FileInfo fileInfo = new FileInfo(savePath);
-
-
-            if (!fileInfo.Exists)
-            {
-                Picture = new BitmapImage();
-                return;
-            }
-            using (var fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read))
-            {
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.StreamSource = fileStream;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
-
-                Picture = bitmapImage;
-            }
-        }
+        
 
 
         public event PropertyChangedEventHandler PropertyChanged;
