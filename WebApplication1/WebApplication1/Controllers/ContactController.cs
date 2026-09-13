@@ -78,44 +78,24 @@ namespace WebApplication1.Controllers
                     return BadRequest("Неверный формат одного из изображений социальных иконок.");
             }
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "IMG");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
             try
             {
                 await _collection.AddContact(_context, newContent);
                 newContent = await _collection.SelectLastContact(_context);
 
                 if (addressPicture != null && addressPicture.Length != 0)
-                {
-                    var newMapFileName = $"mapImage_{newContent.ID}_{newContent.Address.ID}{Path.GetExtension(addressPicture.FileName)}";
-                    var addressFilePath = Path.Combine(uploadsFolder, newMapFileName);
-                    using (var stream = new FileStream(addressFilePath, FileMode.Create))
-                    {
-                        await addressPicture.CopyToAsync(stream);
-                    }
-                    newContent.Address.MapFileName = newMapFileName;
-
-                    await _context.SaveChangesAsync();
-                }
+                    newContent.Address.MapFileName = await SavePicture(newContent.ID, newContent.Address.ID, addressPicture, "mapImage");
+                
 
                 if (newContent.Links.Count > 0)
                 {
                     for (int i = 0; i < newContent.Links.Count; i++)
                     {
-                        var link = newContent.Links[i];
-                        var socialIconFile = socialIcons[i];
-                        var newIconFileName = $"socialIcon_{newContent.ID}_{link.ID}{Path.GetExtension(socialIconFile.FileName)}";
-                        var iconFilePath = Path.Combine(uploadsFolder, newIconFileName);
-                        using (var stream = new FileStream(iconFilePath, FileMode.Create))
-                        {
-                            await socialIconFile.CopyToAsync(stream);
-                        }
-                        link.IkonFileName = newIconFileName;
+                        var link = newContent.Links[i];    
+                        link.IkonFileName = await SavePicture(newContent.ID, link.ID, socialIcons[i], "socialIcon");
                     }
-                    await _context.SaveChangesAsync();
                 }
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -123,6 +103,29 @@ namespace WebApplication1.Controllers
                 return BadRequest(ModelState);
             }
             return Ok(newContent);
+        }
+
+        private async Task<string> SavePicture(int contactId,int elementId, IFormFile file, string fileName) 
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "IMG");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var newFileName = $"{fileName}_{contactId}_{elementId}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, newFileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            return newFileName;
+        }
+
+        private async Task DeletePicture(string fileName)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "IMG");
+            var filePath = Path.Combine(uploadsFolder, fileName);
+            if (System.IO.File.Exists(filePath))
+                System.IO.File.Delete(filePath);
         }
 
         [HttpPut]
@@ -137,7 +140,7 @@ namespace WebApplication1.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("десериализация");
+                return BadRequest("Ошибка десериализации");
             }
 
             if (newContent == null)
@@ -159,20 +162,31 @@ namespace WebApplication1.Controllers
                     return BadRequest("Неверный формат одного из изображений социальных иконок.");
             }
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "IMG");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
+            Contact? content;
 
             try
             {
-                string? addressFilePath = null;
-                List<string> socialIconFilePaths = new List<string>();
+                content = await _collection.SelectContact(_context, id);
+                if (content == null)
+                    return BadRequest("Объект для изменения не найден.");
+                content.Name = newContent.Name;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Объект для изменения не найден.");
+            }
 
+            try
+            {
                 if (deletedContent.Address != null)
                 {
+                    string? addressFileName = null;
                     if (deletedContent.Address.MapFileName != "")
-                        addressFilePath = Path.Combine(uploadsFolder, deletedContent.Address.MapFileName);
+                        addressFileName = deletedContent.Address.MapFileName;
                     await _collection.DeleteAddress(_context, deletedContent.Address.ID);
+                    if(addressFileName != null)
+                        await DeletePicture(addressFileName);
                 }
 
                 foreach (var phone in deletedContent.Phones)
@@ -180,76 +194,54 @@ namespace WebApplication1.Controllers
                 foreach (var mail in deletedContent.Mails)
                     await _collection.DeleteMail(_context, mail.ID);
 
-
                 foreach (var link in deletedContent.Links)
                 {
-                    socialIconFilePaths.Add(Path.Combine(uploadsFolder, link.IkonFileName));
+                    List<string> socialIconFileNames = new List<string>();
+                    socialIconFileNames.Add(link.IkonFileName);
                     await _collection.DeleteSocialLink(_context, link.ID);
+                    foreach(var fileName in socialIconFileNames)
+                        await DeletePicture(fileName);
                 }
-                if (addressFilePath != null && System.IO.File.Exists(addressFilePath))
-                    System.IO.File.Delete(addressFilePath);
-                foreach (var path in socialIconFilePaths)
-                    if (System.IO.File.Exists(path))
-                        System.IO.File.Delete(path);
             }
             catch (Exception ex)
             {
-                return BadRequest("десериализация");
+                return BadRequest("Ошибка при удалении данных");
             }
 
             try 
             {
-                string? addressFilePath = null;
-
-                var content = await _collection.SelectContact(_context, id);
-                if(content == null)
-                    return BadRequest("Объект для изменения не найден.");
-
-                content.Name = newContent.Name;
-
                 if (newContent.Address != null)
                 {
+                    ContactAddress? addressContent = null;
                     if (newContent.Address.ID == 0)
                     {
                         if(!_context.Addresses.Any(a => a.ContactId == id))
-                            await _collection.AddAddress(_context, newContent.Address);
+                            addressContent = await _collection.AddAddress(_context, newContent.Address);
                     }
                     else
                     {
-                        var desired = _context.Addresses.FirstOrDefault(a => a.ID == newContent.Address.ID);
-                        if (desired != null)
+                        addressContent = _context.Addresses.FirstOrDefault(a => a.ID == newContent.Address.ID);
+                        if (addressContent != null)
                         {
-                            desired.Address = newContent.Address.Address;
-                            desired.MapFileName = newContent.Address.MapFileName;
-                            await _context.SaveChangesAsync();
+                            addressContent.Address = newContent.Address.Address;
+                            addressContent.MapFileName = newContent.Address.MapFileName;
                         }
                     }
-                    
-                    var addressContent = _context.Addresses.FirstOrDefault(a => a.ContactId == id);
 
                     if (addressContent.MapFileName == "")
                         if (addressPicture != null && addressPicture.Length != 0)
-                        {
-                            var newMapFileName = $"mapImage_{addressContent.ID}_{addressContent.ID}{Path.GetExtension(addressPicture.FileName)}";
-                            addressFilePath = Path.Combine(uploadsFolder, newMapFileName);
-                            using (var stream = new FileStream(addressFilePath, FileMode.Create))
-                            {
-                                await addressPicture.CopyToAsync(stream);
-                            }
-                            addressContent.MapFileName = newMapFileName;
-                            await _context.SaveChangesAsync();
-                        }
+                            addressContent.MapFileName = await SavePicture(newContent.ID, addressContent.ID, addressPicture, "mapImage");
+                            
+                    await _context.SaveChangesAsync();
                 }
-
             }
             catch (Exception ex)
             {
-                return BadRequest("блок адреса");
+                return BadRequest("Ошибка в блоке адреса");
             }
 
             try
             {
-
                 foreach (var phone in newContent.Phones)
                 {
                     if (phone.ID == 0)
@@ -260,22 +252,18 @@ namespace WebApplication1.Controllers
                     {
                         var existingPhone = _context.Phones.FirstOrDefault(p => p.ID == phone.ID);
                         if (existingPhone != null)
-                        {
                             existingPhone.Phone = phone.Phone;
-                            await _context.SaveChangesAsync();
-                        }
                     }
+                    await _context.SaveChangesAsync();
                 }
-
             }
             catch (Exception ex)
             {
-                return BadRequest("блок телефоны");
+                return BadRequest("Ошибка в блоке телефоны");
             }
 
             try
             {
-
                 foreach (var mail in newContent.Mails)
                 {
                     if (mail.ID == 0)
@@ -286,18 +274,14 @@ namespace WebApplication1.Controllers
                     {
                         var existingMail = _context.Mails.FirstOrDefault(m => m.ID == mail.ID);
                         if (existingMail != null)
-                        {
-                            existingMail.Mail = mail.Mail;
-                            await _context.SaveChangesAsync();
-                        }
+                            existingMail.Mail = mail.Mail;                          
                     }
+                    await _context.SaveChangesAsync();
                 }
-
-
             }
             catch (Exception ex)
             {
-                return BadRequest("блок почта");
+                return BadRequest("Ошибка в блоке почта");
             }
 
             try
@@ -316,62 +300,51 @@ namespace WebApplication1.Controllers
                         if (link != null)
                         {
                             link.SocialLink = newlink.SocialLink;
-                            link.IkonFileName = newlink.IkonFileName;
-                            await _context.SaveChangesAsync();
+                            link.IkonFileName = newlink.IkonFileName;                      
                         }
                     }
 
-                    if(link.IkonFileName == "")
-                    {
-                        var socialIconFile = socialIcons[i];
-                        var newIconFileName = $"socialIcon_{newContent.ID}_{newlink.ID}{Path.GetExtension(socialIconFile.FileName)}";
-                        var iconFilePath = Path.Combine(uploadsFolder, newIconFileName);
-                        using (var stream = new FileStream(iconFilePath, FileMode.Create))
-                        {
-                            await socialIconFile.CopyToAsync(stream);
-                        }
-                        link.IkonFileName = newIconFileName;
-                        await _context.SaveChangesAsync();
-                    }
+                    if (link.IkonFileName == "")
+                        link.IkonFileName = await SavePicture(newContent.ID, link.ID, socialIcons[i], "socialIcon");
+                    
+                    await _context.SaveChangesAsync();
                 }
-
-
             }
             catch (Exception ex)
             {
-                
-
-                return BadRequest("блок  сслылки");
+                return BadRequest("Ошибка в блоке ссылки");
             }
-            return Ok(newContent);
+
+            content = await _collection.SelectContact(_context, id);
+            return Ok(content);
         }
 
         [HttpDelete]
         public async Task<ActionResult> DeleteContact(int id)
         {
-            Contact contact;
-            string? addressFilePath = null;
-            List<string> socialIconFilePaths = new List<string>();
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "IMG");
+            string? addressFileName = null;
+            List<string> socialIconFileNames = new List<string>();
 
             try
             {
-                contact = await _collection.SelectContact(_context, id);
+                Contact contact = await _collection.SelectContact(_context, id);
+                if(contact == null)
+                    throw new Exception("Не найден объект для удаления");
+
                 if (contact.Address != null && contact.Address.MapFileName != "")
-                    addressFilePath = Path.Combine(uploadsFolder, contact.Address.MapFileName);
+                    addressFileName = contact.Address.MapFileName;
 
                 foreach (var link in contact.Links)
-                    socialIconFilePaths.Add(Path.Combine(uploadsFolder, link.IkonFileName));
+                    socialIconFileNames.Add(link.IkonFileName);
 
                 await _collection.DeleteContact(_context, id);
+
                 contact = await _collection.SelectContact(_context, id);
                 if (contact == null)
                 {
-                    if (addressFilePath != null && System.IO.File.Exists(addressFilePath))
-                        System.IO.File.Delete(addressFilePath);
-                    foreach (var path in socialIconFilePaths)
-                        if (System.IO.File.Exists(path))
-                            System.IO.File.Delete(path);
+                    if(addressFileName!=null) await DeletePicture(addressFileName);
+                    foreach (var fileName in socialIconFileNames)
+                        if (fileName != null) await DeletePicture(fileName);
                     return NoContent();
                 }
                 else
@@ -384,119 +357,6 @@ namespace WebApplication1.Controllers
             }
         }
 
-        [HttpDelete]
-        public async Task<ActionResult> DeleteAddress(int id)
-        {
-            ContactAddress? address;
-            string? addressFilePath = null;
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "IMG");
-            try
-            {
-                address = await _context.Addresses.AsNoTracking().FirstOrDefaultAsync(a => a.ID == id);
-                if (address == null)
-                    return BadRequest("Не найден объект для удаления");
-                
-                if (address.MapFileName != "")
-                    addressFilePath = Path.Combine(uploadsFolder, address.MapFileName);
 
-                await _collection.DeleteAddress(_context, id);
-                address = await _context.Addresses.AsNoTracking().FirstOrDefaultAsync(a => a.ID == id);
-                if (address == null)
-                {
-                    if (addressFilePath != null && System.IO.File.Exists(addressFilePath))
-                        System.IO.File.Delete(addressFilePath);
-                    
-                    return NoContent();
-                }
-                else
-                    throw new Exception("Не удалось удалить объект");
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return BadRequest(ModelState);
-            }
-            
-        }
-
-        [HttpDelete]
-        public async Task<ActionResult> DeletePhone(int id)
-        {
-            ContactPhone? phone = null;
-            try
-            {
-                phone = await _context.Phones.AsNoTracking().FirstOrDefaultAsync(p => p.ID == id);
-                if(phone == null)
-                    return BadRequest("Не найден объект для удаления");
-
-                await _collection.DeletePhone(_context, id);
-                phone = await _context.Phones.AsNoTracking().FirstOrDefaultAsync(p => p.ID == id);
-                if (phone == null)
-                    return NoContent();
-                else
-                    throw new Exception("Не удалось удалить объект");
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return BadRequest(ModelState);
-            }
-        }
-
-        [HttpDelete]
-        public async Task<ActionResult> DeleteMail(int id)
-        {
-            ContactMail? mail = null;
-            try
-            {
-                mail = await _context.Mails.AsNoTracking().FirstOrDefaultAsync(m => m.ID == id);
-                if(mail == null)
-                    return BadRequest("Не найден объект для удаления");
-                
-                await _collection.DeleteMail(_context, id);
-                mail = await _context.Mails.AsNoTracking().FirstOrDefaultAsync(m => m.ID == id);
-                if (mail == null)
-                    return NoContent();
-                else
-                    throw new Exception("Не удалось удалить объект");
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return BadRequest(ModelState);
-            }
-        }
-
-        [HttpDelete]
-        public async Task<ActionResult> DeleteSocialLink(int id)
-        {
-            string? iconFilePath = null;
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "IMG");
-            try
-            {
-                var link = await _context.SocialLinks.AsNoTracking().FirstOrDefaultAsync(l => l.ID == id);
-                if(link == null)
-                    return BadRequest("Не найден объект для удаления");
-                
-                if (link.IkonFileName != "")
-                    iconFilePath = Path.Combine(uploadsFolder, link.IkonFileName);
-                await _collection.DeleteSocialLink(_context, id);
-                link = await _context.SocialLinks.AsNoTracking().FirstOrDefaultAsync(l => l.ID == id);
-                if (link == null)
-                {
-                    if (iconFilePath != null && System.IO.File.Exists(iconFilePath))
-                        System.IO.File.Delete(iconFilePath);
-                    return NoContent();
-                }
-                else
-                    throw new Exception("Не удалось удалить объект");
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return BadRequest(ModelState);
-            }
-
-        }
     }
 }
