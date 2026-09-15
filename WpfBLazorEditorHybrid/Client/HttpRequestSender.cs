@@ -14,7 +14,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using TTClassLibrary.IServices;
-using WpfBLazorHybridClient.Client.Work;
 using WpfBLazorHybridClient.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact;

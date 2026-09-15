@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Main.AVM.Tab;
-using WpfBLazorHybridClient.DataModel;
-using WpfBLazorHybridClient.Client.Work;
+using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Work;
 using WpfBLazorHybridClient.Functions.Work.Control;
 
 namespace WpfBLazorHybridClient.Functions.Work.AVM
@@ -15,17 +15,15 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
     {
         public event TabAddHandler Notify_new;
 
-        WorkTableClient queryMaker;
+        RequestExampleDM requestDM;
 
-        Request request;
-
-        public int ID { get { return request.ID; } }
-        public DateTime RequestIn { get { return request.RequestIn; } }
-        public string ClientFullName { get { return request.FullName; } }
-        public string Contact { get { return request.Contact; } }
-        public string RequestText { get { return request.RequestText; } }
-        public string PerformingInfo { get { return request.PerformingInfo; } }
-        public string Status { get { return request.Status; } }
+        public int ID { get { return requestDM.Content.ID; } }
+        public DateTime RequestIn { get { return requestDM.Content.RequestIn; } }
+        public string ClientFullName { get { return requestDM.Content.FullName; } }
+        public string Contact { get { return requestDM.Content.Contact; } }
+        public string RequestText { get { return requestDM.Content.RequestText; } }
+        public string PerformingInfo { get { return requestDM.Content.PerformingInfo; } }
+        public string Status { get { return requestDM.Content.Status; } }
 
 
         string statusTranslated;
@@ -46,20 +44,17 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
             }
         }
 
-        public RequestItemVM(Request _request, WorkTableClient _queryMaker) 
+        public RequestItemVM(RequestExampleDM _requestDM) 
         {
-            request = _request;
-            StatusTranslated = request.Status;
-            queryMaker = _queryMaker;
-
-
+            requestDM = _requestDM;
+            StatusTranslated = requestDM.Content.Status;
 
             editRequesteItem = new WCommand(o =>
             {
                 TabVM page = new TabVM()
                 {
                     Header = "Редактировать запрос",
-                    Content = new UC_RequestTreating(new RequestTreatingVM(request,queryMaker))
+                    Content = new UC_RequestTreating(new RequestTreatingVM(requestDM))
                 };
                 Notify_new?.Invoke(page);
             });

@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using WpfBLazorHybridClient.Main.AVM.Tab;
-using WpfBLazorHybridClient.DataModel;
+using System.Windows;
+using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Work;
+using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Work.Control;
-using WpfBLazorHybridClient.Client.Work;
-using WpfBLazorHybridClient.Command;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using WpfBLazorHybridClient.Client;
+using WpfBLazorHybridClient.Main.AVM.Tab;
+
 
 namespace WpfBLazorHybridClient.Functions.Work.AVM
 {
@@ -22,13 +23,8 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
     {
         public event TabAddHandler Notify_new;
 
-        WorkTableClient queryMaker;
-        HttpResponseMessageDeserialize<List<Request>> jsonSerializer;
-
+        WorkTableDM workTableDM;
         ListTabVM tabViewModel;
-
-        User user;
-        public User User { set { user = value; } }
 
         ObservableCollection<UC_RequestItem> list;
         public ObservableCollection<UC_RequestItem> List { get { return list; } }
@@ -89,12 +85,9 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
 
 
 
-        public WorkTableVM(User _user)
+        public WorkTableVM(WorkTableDM _workTableDM, ListTabVM _tab)
         {
-            user = _user;
-
-            queryMaker = new WorkTableClient(user);
-            jsonSerializer = new HttpResponseMessageDeserialize<List<Request>>(queryMaker);
+            workTableDM = _workTableDM;
             list = new ObservableCollection<UC_RequestItem>();
 
             StartTime = DateTime.Today;
@@ -133,85 +126,72 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
                 EndTime = DateTime.Today;
             });
 
-            updateList = new WCommand(o =>
+            updateList = new WCommand(async _ =>
             {
                 RequestRange range = new RequestRange(){ Start = StartTime, End = EndTime };
-                switch (desiredStatus)
+                try 
                 {
-                    case "Все заявки":                      
-                        NewList(jsonSerializer.DeserializeResponce(SelectAllRequests(range)));
-                        SelectedStatus = "Все заявки";
-                        break;
-                    case "Поступило":
-                        NewList(jsonSerializer.DeserializeResponce(SelectReceivedRequests(range)));
-                        SelectedStatus = "Поступило";
-                        break;
-                    case "В работе":
-                        NewList(jsonSerializer.DeserializeResponce(SelectTakenOnWorkRequests(range)));
-                        SelectedStatus = "В работе";
-                        break;
-                    case "Отклонена":
-                        NewList(jsonSerializer.DeserializeResponce(SelectRejectedRequests(range)));
-                        SelectedStatus = "Отклонена";
-                        break;
-                    case "Выполнена":
-                        NewList(jsonSerializer.DeserializeResponce(SelectFinishedRequests(range)));
-                        SelectedStatus = "Выполнена";
-                        break;
-                    case "Отменена":
-                        NewList(jsonSerializer.DeserializeResponce(SelectCancelledRequests(range)));
-                        SelectedStatus = "Отменена";
-                        break;
+                    List<RequestExampleDM> dmlist;
+                    switch (desiredStatus)
+                    {
+                        case "Все заявки":
+                            dmlist = await workTableDM.SelectAllRequests(range);
+                            SetNewList(dmlist);
+                            SelectedStatus = "Все заявки";
+                            break;
+                        case "Поступило":
+                            dmlist = await workTableDM.SelectReceivedRequests(range);
+                            SetNewList(dmlist);
+                            SelectedStatus = "Поступило";
+                            break;
+                        case "В работе":
+                            dmlist = await workTableDM.SelectTakenOnWorkRequests(range);
+                            SetNewList(dmlist);
+                            SelectedStatus = "В работе";
+                            break;
+                        case "Отклонена":
+                            dmlist = await workTableDM.SelectRejectedRequests(range);
+                            SetNewList(dmlist);
+                            SelectedStatus = "Отклонена";
+                            break;
+                        case "Выполнена":
+                            dmlist = await workTableDM.SelectFinishedRequests(range);
+                            SetNewList(dmlist);
+                            SelectedStatus = "Выполнена";
+                            break;
+                        case "Отменена":
+                            dmlist = await workTableDM.SelectCancelledRequests(range);
+                            SetNewList(dmlist);
+                            SelectedStatus = "Отменена";
+                            break;
+                    }
+                } 
+                catch (ScopedExeption ex)
+                {
+                    Logger.Log(ex.ToString());
+                    MessageBox.Show(ex.ToString());
                 }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex.ToString());
+                    MessageBox.Show(ex.ToString());
+                }
+            
             });
 
         }
 
-
-
-        public void NewList(List<Request>? requestList)
+        public void SetNewList(List<RequestExampleDM> dmList)
         {
-            if(requestList == null)
-            {
-                return;
-            }
             list.Clear();
-            foreach (var item in requestList)
+            foreach (var item in dmList)
             {
-                list.Add(new UC_RequestItem(new RequestItemVM(item, queryMaker)));
+                list.Add(new UC_RequestItem(new RequestItemVM(item)));
                 list.Last().Model.Notify_new += TabNotify;
             }
         }
 
-        public HttpResponseMessage SelectAllRequests(RequestRange range)
-        {
-            return Task.Run(() => queryMaker.GetAllRequests(range).GetAwaiter().GetResult()).Result;
-        }
-
-        public HttpResponseMessage SelectReceivedRequests(RequestRange range)
-        {
-            return Task.Run(() => queryMaker.GetReceivedRequests(range).GetAwaiter().GetResult()).Result;
-        }
-
-        public HttpResponseMessage SelectTakenOnWorkRequests(RequestRange range)
-        {
-            return Task.Run(() => queryMaker.GetTakenOnWorkRequests(range).GetAwaiter().GetResult()).Result;
-        }
-
-        public HttpResponseMessage SelectRejectedRequests(RequestRange range)
-        {
-            return Task.Run(() => queryMaker.GetRejectedRequests(range).GetAwaiter().GetResult()).Result;
-        }
-
-        public HttpResponseMessage SelectFinishedRequests(RequestRange range)
-        {
-            return Task.Run(() => queryMaker.GetFinishedRequests(range).GetAwaiter().GetResult()).Result;
-        }
-
-        public HttpResponseMessage SelectCancelledRequests(RequestRange range)
-        {
-            return Task.Run(() => queryMaker.GetCancelledRequests(range).GetAwaiter().GetResult()).Result;
-        }
+       
 
 
         WCommand selectAll;

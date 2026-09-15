@@ -1,0 +1,15 @@
+﻿@page "/contacts"
+
+@rendermode InteractiveServer
+
+
+<PageTitle>Contacts</PageTitle>
+
+<AuthorizeView Roles="admin, contact">
+	<NotAuthorized>
+		<NotAuthContactsList/>
+	</NotAuthorized>
+	<Authorized>
+		<AuthContactsList/>
+	</Authorized>
+</AuthorizeView>

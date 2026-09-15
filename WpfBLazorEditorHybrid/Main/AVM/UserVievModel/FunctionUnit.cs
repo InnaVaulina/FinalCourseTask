@@ -47,22 +47,7 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
     }
 
 
-    public class WorkFUnit : FunctionUnit
-    {
-        UC_WorkMenu workTablePage;
-        public WorkFUnit(ListTabVM _tabViewModel, User user)
-            : base(_tabViewModel)
-        {
-            functionDisplay = "Рабочий стол";
-            workTablePage = new UC_WorkMenu(new WorkTableVM(user));
-            workTablePage.Model.Notify_new += tabViewModel.TabAdd;
-            menuCommand = new WCommand(o =>
-            {
-                workTablePage.Model.UpdateList.Execute(null);
-                tabViewModel.TabAdd(functionDisplay, workTablePage);
-            });
-        }
-    }
+    
 
 
    
@@ -146,6 +131,25 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
         }
     }
 
+
+    public class WorkFUnit : FunctionUnit
+    {
+        UC_WorkMenu workTablePage;
+        public WorkFUnit(ListTabVM _tabViewModel, User user)
+            : base(_tabViewModel)
+        {
+            functionDisplay = "Рабочий стол";
+            var rs = new TTClassLibrary.Functions.Work.WorkRequestSender(new HttpRequestSender2(user));
+            var workTableDM = new TTClassLibrary.Functions.Work.WorkTableDM(rs);
+            workTablePage = new UC_WorkMenu(new WorkTableVM(workTableDM, _tabViewModel));
+            workTablePage.Model.Notify_new += tabViewModel.TabAdd;
+            menuCommand = new WCommand(o =>
+            {
+                workTablePage.Model.UpdateList.Execute(null);
+                tabViewModel.TabAdd(functionDisplay, workTablePage);
+            });
+        }
+    }
 
     public class ContactFUnit : FunctionUnit
     {

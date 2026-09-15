@@ -20,6 +20,11 @@ namespace TTClassLibrary.Functions.Contacts
 
         public async Task InitializeAsync()
         {
+            await SetListAsync();
+        }
+
+        public async Task SetListAsync()
+        {
             dmList.Clear();
             var response = await requestMaker.GetAllContacts();
             var jsonSerializer1 = new HttpResponseMessageDeserialize<List<ContactContent>>();
