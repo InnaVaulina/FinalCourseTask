@@ -25,32 +25,31 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact
 {
     public class ChangeAddressVM: LikeAddressVM
     {
-        ContactExampleDM contactDM;
         int contactId;
-
-        public ChangeAddressVM(ContactExampleDM _contactDM) : base(_contactDM?.AddressDM)
+        public ChangeAddressVM(ContactExampleDM _contactDM) : base(_contactDM.AddressDM)
         {
-            contactDM = _contactDM;
-            AddressDM = contactDM.AddressDM;
-            contactId = contactDM.Content.ID;
-            PictureMapBitmap = PictureLoader.LoadIllustration(AddressDM.Address.MapFileName);
+            if (addressDM.Address != null)
+            {
+                contactId = _contactDM.Content.ID;
+                text = addressDM.Address.Address;
+                pictureMapBitmap = PictureLoader.LoadIllustration(addressDM.Address.MapFileName);
+            }
+            else 
+            {
+                contactId = _contactDM.Content.ID;
+            }
 
             addAddressPanel = new WCommand(o =>
             {
-                var address = new ContactAddress()
+                AddressDM.Address = new ContactAddress()
                 {
                     ContactId = contactId,
                     Address = "",
                     MapFileName = ""
                 };
-               
-                AddressDM = new ContactAddressDM()
-                {
-                    Address = address,
-                    FileInfo = null
-                };
-                
+                PictureMapBitmap = new BitmapImage();
             });
+
 
             dislikeText = new WCommand(async _ =>
             {

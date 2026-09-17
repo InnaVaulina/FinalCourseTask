@@ -18,6 +18,7 @@ using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Blog.AVM
 {
@@ -51,29 +52,19 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
                     return;
                 }
 
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async () =>
                 {
                     newBlogDM.Content.PostDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
                     var response = await newBlogDM.CreateBlogContentAsync();
                     var jsonSerializer = new TTClassLibrary.Support.HttpResponseMessageDeserialize<BlogContent>();
                     var newblog = await jsonSerializer.DeserealizeResultToContentAsync(response);
-                    if(newblog != null) 
+                    if (newblog != null)
                     {
                         MessageBox.Show("Запрос выполнен успешно");
                         Notify_add?.Invoke(newblog);
                         Notify_close_page?.Invoke(page);
-                    } 
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
+                    }
+                });
             });
         }
 

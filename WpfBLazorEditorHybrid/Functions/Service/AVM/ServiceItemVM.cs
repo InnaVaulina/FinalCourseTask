@@ -23,6 +23,7 @@ using WpfBLazorHybridClient.Functions.Blog.Control;
 using WpfBLazorHybridClient.Functions.Progect.AVM;
 using WpfBLazorHybridClient.Functions.Service.Control;
 using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Service.AVM
 {
@@ -62,23 +63,12 @@ namespace WpfBLazorHybridClient.Functions.Service.AVM
             });
 
             deleteItem = new WCommand(async _ => {
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async () => 
                 {
                     await serviceExampleDM.DeleteAsync();
                     MessageBox.Show("Запрос выполнен успешно");
                     Notify_delete?.Invoke(ucServiceItem);
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-
+                });
             });
         }
 

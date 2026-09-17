@@ -11,6 +11,7 @@ using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Error;
 using System.Configuration;
+using WpfBLazorHybridClient.Service;
 
 
 namespace WpfBLazorHybridClient.Functions.Header.AVM
@@ -32,19 +33,13 @@ namespace WpfBLazorHybridClient.Functions.Header.AVM
             
             saveForm = new WCommand(async _ =>
             {
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async () => 
                 {
                     editCollectionFormDM.HtmlPattern = RemoveExcessive(editCollectionFormDM.HtmlPattern);
                     var result = await editCollectionFormDM.SaveCollectionFormContentAsync();
                     ChangeModel?.Invoke();
                     MessageBox.Show("Запрос выполнен успешно");
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-
+                });
             });
         }
 

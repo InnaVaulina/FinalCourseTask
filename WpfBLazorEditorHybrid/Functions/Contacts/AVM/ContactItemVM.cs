@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
@@ -11,20 +12,20 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Contacts;
 using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Command;
-using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Blog.Control;
 using WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact;
 using WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact;
 using WpfBLazorHybridClient.Functions.Contacts.AVM.ShowContact;
 using WpfBLazorHybridClient.Functions.Contacts.Control;
-using TTClassLibrary.Functions.Contacts;
 using WpfBLazorHybridClient.Functions.Service.AVM;
 using WpfBLazorHybridClient.Main.AVM.Tab;
-using System.Configuration;
 using WpfBLazorHybridClient.Service;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM
 {
@@ -68,7 +69,7 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM
             });
 
             deleteItem = new WCommand(async _ => {
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async () =>
                 {
                     var status = await contactDM.DeleteAsync();
                     if (status)
@@ -76,12 +77,7 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM
                         MessageBox.Show("Запрос выполнен успешно");
                         Notify_delete?.Invoke(ucContactItem);
                     }
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
+                });
             });
         }
 
@@ -146,7 +142,7 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM
 
         public void NotyfyUpdate()
         {
-            if (contactDM.AddressDM != null)
+            if (contactDM.AddressDM != null && contactDM.AddressDM.Address != null && !string.IsNullOrEmpty(contactDM.AddressDM.Address.MapFileName))
                 PictureMapBitmap = PictureLoader.LoadIllustration(contactDM.AddressDM.Address.MapFileName);
             else PictureMapBitmap = new BitmapImage();
             OnPropertyChanged("PictureMapBitmap"); 

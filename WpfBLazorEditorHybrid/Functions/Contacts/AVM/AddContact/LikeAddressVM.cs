@@ -13,8 +13,7 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
 {
     public class LikeAddressVM : INotifyPropertyChanged
     {
-
-        ContactAddressDM addressDM;
+        protected ContactAddressDM addressDM;
         public ContactAddressDM AddressDM
         {
             get { return addressDM; }
@@ -29,20 +28,12 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
                 return addressDM.Address; 
             } 
         }
-        public LikeAddressVM(ContactAddressDM? _addressDM)
+        public LikeAddressVM(ContactAddressDM _addressDM)
         {
-            addressDM = _addressDM ?? new ContactAddressDM();
-            if (_addressDM != null)
-            {
-                text = addressDM.Address.Address;
-                pictureMapBitmap = PictureLoader.LoadIllustration(addressDM.Address.MapFileName);
-            }
-            else
-            {
-                text = "";
-                pictureMapBitmap = new BitmapImage(); 
-            }
-    
+            addressDM = _addressDM;
+            text = "";
+            pictureMapBitmap = new BitmapImage();
+
 
             addAddressPanel = new WCommand(o =>
             {

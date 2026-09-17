@@ -6,15 +6,16 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using TTClassLibrary.DataModel;
 using TTClassLibrary.Functions.Blog;
 using TTClassLibrary.Functions.Contacts;
 using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Command;
-using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Blog.AVM;
 using WpfBLazorHybridClient.Functions.Contacts.Control;
 using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact
 {
@@ -59,9 +60,7 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact
                     return;
                 }
 
-                
-
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async () =>
                 {
                     var response = await contactDM.ChangeContactContentAsync();
                     var jsonSerializer = new TTClassLibrary.Support.HttpResponseMessageDeserialize<ContactContent>();
@@ -73,18 +72,7 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.ChangeContact
                         Notify_update?.Invoke();
                         Notify_close_page?.Invoke(page);
                     }
-
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
+                });
 
             });
 

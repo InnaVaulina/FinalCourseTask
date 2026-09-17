@@ -59,22 +59,12 @@ namespace WpfBLazorHybridClient.Functions.Progect.AVM
             });
 
             deleteItem = new WCommand(async _ => {
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async () => 
                 {
                     await progectExampleDM.DeleteAsync();
                     MessageBox.Show("Запрос выполнен успешно");
                     Notify_delete?.Invoke(ucProgectItem);
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
+                });               
             });
         }
 

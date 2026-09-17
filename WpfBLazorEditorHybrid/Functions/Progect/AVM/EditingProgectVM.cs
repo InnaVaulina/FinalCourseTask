@@ -50,7 +50,7 @@ namespace WpfBLazorHybridClient.Functions.Progect.AVM
                     return;
                 }
 
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async () => 
                 {
                     progectExampleDM.Content.PostDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
                     var response = await progectExampleDM.ChangeProgectContentAsync();
@@ -63,17 +63,7 @@ namespace WpfBLazorHybridClient.Functions.Progect.AVM
                         Notify_update?.Invoke();
                         Notify_close_page?.Invoke(page);
                     }
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
+                }); 
             });
         }
 

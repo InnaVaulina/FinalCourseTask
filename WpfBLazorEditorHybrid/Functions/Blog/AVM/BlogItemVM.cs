@@ -63,22 +63,12 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
             });
 
             deleteItem = new WCommand(async _ => {
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async () =>
                 {
                     await blogExampleDM.DeleteAsync();
                     MessageBox.Show("Запрос выполнен успешно");
                     Notify_delete?.Invoke(ucBlogItem);
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
+                });            
             });
         }
 

@@ -17,6 +17,7 @@ using WpfBLazorHybridClient.Functions.Contacts.Control;
 using TTClassLibrary.Functions.Contacts;
 using WpfBLazorHybridClient.Functions.Service.AVM;
 using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
 
 
 namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
@@ -61,15 +62,15 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
                     return;
                 }
 
-                contactDM.AddressDM = UC_address.Model.AddressDM;
-                contactDM.Content.Address = contactDM.AddressDM.Address;
-                contactDM.Content.Mails = UC_mail.Model.Mails.Select(m => m.Mail).ToList();
-                contactDM.Content.Phones = UC_phone.Model.Phones.Select(p => p.Phone).ToList();
-                contactDM.SocialLinksListDM = UC_link.Model.Links.Select(l => l.LinkDM).ToList();
-                contactDM.Content.Links = contactDM.SocialLinksListDM.Select(l => l.Link).ToList();
-
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async () =>
                 {
+                    contactDM.AddressDM = UC_address.Model.AddressDM;
+                    contactDM.Content.Address = contactDM.AddressDM.Address;
+                    contactDM.Content.Mails = UC_mail.Model.Mails.Select(m => m.Mail).ToList();
+                    contactDM.Content.Phones = UC_phone.Model.Phones.Select(p => p.Phone).ToList();
+                    contactDM.SocialLinksListDM = UC_link.Model.Links.Select(l => l.LinkDM).ToList();
+                    contactDM.Content.Links = contactDM.SocialLinksListDM.Select(l => l.Link).ToList();
+
                     var newcontact = await contactDM.CreateContactContentAsync();
                     if (newcontact != null)
                     {
@@ -77,12 +78,9 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
                         Notify_add?.Invoke(newcontact);
                         Notify_close_page?.Invoke(page);
                     }
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
+                });
+
+               
             });
         }
 

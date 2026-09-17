@@ -16,6 +16,7 @@ using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Progect.AVM
 {
@@ -49,8 +50,7 @@ namespace WpfBLazorHybridClient.Functions.Progect.AVM
                     return;
                 }
 
-
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async () => 
                 {
                     newProgectDM.Content.PostDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
                     var response = await newProgectDM.CreateProgectContentAsync();
@@ -62,18 +62,7 @@ namespace WpfBLazorHybridClient.Functions.Progect.AVM
                         Notify_add?.Invoke(newprogect);
                         Notify_close_page?.Invoke(page);
                     }
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-
+                });
             });
         }
 

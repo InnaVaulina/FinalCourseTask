@@ -18,6 +18,7 @@ using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Service.AVM;
 using WpfBLazorHybridClient.Functions.Service.Control;
 using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Service.AVM
 {
@@ -48,7 +49,7 @@ namespace WpfBLazorHybridClient.Functions.Service.AVM
                     return;
                 }
 
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async () => 
                 {
                     var response = await serviceExampleDM.ChangeServiceContentAsync();
                     var jsonSerializer = new TTClassLibrary.Support.HttpResponseMessageDeserialize<ServiceContent>();
@@ -60,18 +61,7 @@ namespace WpfBLazorHybridClient.Functions.Service.AVM
                         Notify_update?.Invoke();
                         Notify_close_page?.Invoke(page);
                     }
-
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
+                });
             });
         }
 
