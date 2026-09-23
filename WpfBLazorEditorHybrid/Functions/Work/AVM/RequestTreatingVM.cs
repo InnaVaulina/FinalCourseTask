@@ -14,20 +14,27 @@ using TTClassLibrary.Functions.Work;
 using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Error;
+using WpfBLazorHybridClient.Functions.Blog.AVM;
+using WpfBLazorHybridClient.Functions.Work.Control;
+using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Work.AVM
 {
     public class RequestTreatingVM: INotifyPropertyChanged
     {
         RequestExampleDM requestDM;
+        TabVM page;
 
+        public event UpdateWorkHandler Notify_update;
+        public event TabCloseHandler Notify_close_page;
         public int ID 
         { 
             get { return requestDM.Content.ID; }
         }
         public string RequestIn 
         { 
-            get { return requestDM.Content.RequestIn.ToString("dd.MM.yyyy"); }
+            get { return requestDM.Content.RequestIn; }
         }
         public string ClientFullName 
         { 
@@ -76,9 +83,11 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
             }           
         }
 
-        public RequestTreatingVM(RequestExampleDM _requestDM) 
+        public RequestTreatingVM(RequestExampleDM _requestDM, TabVM _page) 
         {
             requestDM = _requestDM;
+            page = _page;
+
             StatusTranslated = requestDM.Content.Status;
 
             changeStatusTakeOnWork = new WCommand(o => 
@@ -104,61 +113,29 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
 
             updateRequest = new WCommand(async _ => 
             {
-                try
+                await CatchExeption.ExecuteWithCatchAsync(async() =>
                 {
                     var response = await requestDM.UpdateRequestEx();
                     var jsonSerializer = new TTClassLibrary.Support.HttpResponseMessageDeserialize<Request>();
                     var newcontent = await jsonSerializer.DeserealizeResultToContentAsync(response);
                     if (newcontent != null)
                     {
+                        requestDM.UpdateDM(newcontent);
                         MessageBox.Show("Запрос выполнен успешно");
-                        //Notify_add?.Invoke(newcontent);
-                        //Notify_close_page?.Invoke(page);
+                        Notify_update?.Invoke();
+                        Notify_close_page?.Invoke(page);
                     }
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
+                });
             });
 
-
-            saveRequest = new WCommand(async _ =>
-            {
-                try 
-                {
-                    var response = await requestDM.SaveRequestEx();
-                    var jsonSerializer = new TTClassLibrary.Support.HttpResponseMessageDeserialize<Request>();
-                    var newcontent = await jsonSerializer.DeserealizeResultToContentAsync(response);
-                    if (newcontent != null)
-                    {
-                        MessageBox.Show("Запрос выполнен успешно");
-                        //Notify_add?.Invoke(newcontent);
-                        //Notify_close_page?.Invoke(page);
-                    }
-                }
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                 
-            });
         }
 
-        
 
+        UC_RequestItem uC_RequestItem;
+        public UC_RequestItem UC_RequestItem
+        {
+            set { uC_RequestItem = value; }
+        }
 
 
         WCommand changeStatusTakeOnWork;

@@ -1,24 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.Main.AVM.Tab;
 using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Blog;
 using TTClassLibrary.Functions.Work;
+using WpfBLazorHybridClient.Command;
+using WpfBLazorHybridClient.Functions.Blog.AVM;
+using WpfBLazorHybridClient.Functions.Blog.Control;
 using WpfBLazorHybridClient.Functions.Work.Control;
+using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Work.AVM
 {
-    public class RequestItemVM
+    public class RequestItemVM: INotifyPropertyChanged
     {
         public event TabAddHandler Notify_new;
 
+        ListTabVM tab;
         RequestExampleDM requestDM;
 
         public int ID { get { return requestDM.Content.ID; } }
-        public DateTime RequestIn { get { return requestDM.Content.RequestIn; } }
+        public string RequestIn { get { return requestDM.Content.RequestIn; } }
         public string ClientFullName { get { return requestDM.Content.FullName; } }
         public string Contact { get { return requestDM.Content.Contact; } }
         public string RequestText { get { return requestDM.Content.RequestText; } }
@@ -44,24 +51,48 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
             }
         }
 
-        public RequestItemVM(RequestExampleDM _requestDM) 
+        public RequestItemVM(RequestExampleDM _requestDM, ListTabVM _tab) 
         {
             requestDM = _requestDM;
+            tab = _tab;
             StatusTranslated = requestDM.Content.Status;
 
             editRequesteItem = new WCommand(o =>
             {
                 TabVM page = new TabVM()
                 {
-                    Header = "Редактировать запрос",
-                    Content = new UC_RequestTreating(new RequestTreatingVM(requestDM))
+                    Header = "Редактировать запрос"
                 };
+                var _workVM = new RequestTreatingVM(requestDM, page);
+                _workVM.UC_RequestItem = uC_RequestItem;
+                _workVM.Notify_update += NotyfyUpdate;
+                _workVM.Notify_close_page += tab.TabClose;
+                page.Content = new UC_RequestTreating(_workVM);
+
                 Notify_new?.Invoke(page);
             });
+        }
+
+        public void NotyfyUpdate()
+        {
+            OnPropertyChanged("RequestText");
+        }
+
+        UC_RequestItem uC_RequestItem;
+        public UC_RequestItem UC_RequestItem
+        {
+            set { uC_RequestItem = value; }
         }
 
 
         WCommand editRequesteItem;
         public WCommand EditRequesteItem { get { return editRequesteItem; } }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged([CallerMemberName] string prop = "")
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(prop));
+        }
     }
 }

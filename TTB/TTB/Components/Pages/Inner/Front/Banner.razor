@@ -11,31 +11,51 @@
 		display: flex;
 	}
 
-	.hero_section {
-		/* Базовый стиль фона (будет переопределён инлайн-стилем при рантайме) */
-		background-size: cover;
-		background-repeat: no-repeat;
-		background-position: center;
+    .stretch {
+        align-content: stretch;
+    }
+
+	.container {
 		width: 1200px;
 		padding: 0 15px;
 		margin: 0 auto;
+	}
+
+	.hero_section {
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: center;
+		box-sizing: border-box;
+		width: calc(100vw - 250px);
+		height: calc(100vh - 3.5rem);
+		padding: 0 15px;
+		margin: 0 auto;
+		display: flex;
+	}
+
+	.hero-container {
 		display: flex;
 		justify-content: space-between;
 	}
+
 
 	.hero-content {
 		padding-left: 20px;
 		background-color: white;
 		clip-path: polygon(0 0, 100% 0, 50% 0, 100% 70%, 70% 100%, 0 100%);
 		opacity: 0.7;
+		align-content: stretch;
+		display: flex;
 	}
 
 	.hero-content-inside {
-		padding-top: 100px;
-		padding-bottom: 100px;
+		padding-top: 5vh;
+		padding-bottom: 5vh;
 		max-width: 70%;
 		flex-direction: column;
-		align-content: flex-start;
+		align-content: stretch;
+		box-sizing: border-box;
+		display: flex;
 	}
 
 	.hero-content_2 {
@@ -44,6 +64,7 @@
 		flex-direction: column;
 		padding-top: 100px;
 		padding-bottom: 50px;
+		box-sizing: border-box;
 	}
 
 
@@ -52,33 +73,23 @@
 		padding: 10px;
 	}
 
-		.hero-descr:hover {
-			background-color: rgba(128, 128, 128, 0.5);
-			cursor: text;
-		}
-
 		.hero-descr p {
 			margin: 0;
-			margin-bottom: 34px;
-			font-size: 16px;
-			line-height: 155%;
+			margin-bottom: 3vh;
+			font-size: 1rem;
+			line-height: 1.2;
 			color: #787878;
 		}
 
 	.hero-title-place {
 		padding: 10px;
-		margin-bottom: 25px;
+		margin-bottom: 2vh;
 	}
-
-		.hero-title-place:hover {
-			background-color: rgba(128, 128, 128, 0.5);
-			cursor: text;
-		}
 
 	.hero-title {
 		font-weight: 300;
-		font-size: 40px;
-		line-height: 130%;
+		font-size: 2rem;
+		line-height: 1.2;
 	}
 
 	.hero-motto {
@@ -94,11 +105,6 @@
 			font-size: 16px;
 			color: #787878;
 			line-height: 155%;
-		}
-
-		.hero-motto:hover {
-			background-color: rgba(128, 128, 128, 0.5);
-			cursor: text;
 		}
 
 	.hero-wrapper {
@@ -138,6 +144,8 @@
 			text-transform: uppercase;
 		}
 
+
+	
 </style>
 
 @if (Model is null)
@@ -148,18 +156,18 @@
 }
 else
 {
-
-	<div class="hero_section" style="@HeroSectionStyle">
-		@Model.Fragment
-		
-	</div>
-
+	<section class="hero_section" style="@HeroSectionStyle">
+		@Model.Fragment		
+	</section>
 }
+
 
 @code {
 
 	[Parameter]
 	public ShowCollectionFormVM? Model { get; set; } = null;
+
+	
 
 	private string _heroImage = "";
 
@@ -170,7 +178,6 @@ else
 
 
 	private bool isInitialized = false;
-	private CallHandler? _callHandler;
 
 
 	protected override void OnInitialized()
@@ -182,9 +189,6 @@ else
 			Model.ChangeModel += OnModelChange;
 			isInitialized = true;
 		}
-		_callHandler = new CallHandler(JSRuntime);
-		_callHandler.Notify += OpenDialogPage;
-
 	}
 
 
@@ -210,12 +214,5 @@ else
 			_heroImage = "/img/" + Model.ShowCollectionFormDM.ImagePath + "?t=" + DateTime.UtcNow.Ticks;
 		StateHasChanged();
 	}
-
-
-	public async Task OpenDialogPage()
-	{
-
-	}
-
 
 }

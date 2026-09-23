@@ -13,13 +13,6 @@ window.setDivInnerText = (element, text) => {
 
 
 
-window.initializeCallHandler = function (dotNetHelper) {
-    var btn = document.getElementById("button");
-    btn.addEventListener("click", function () {
-        dotNetHelper.invokeMethodAsync("HandleCallEvent");
-    });
-
-};
 
 
 window.initializeEditableWithParagraph = (element, htmltext) => {

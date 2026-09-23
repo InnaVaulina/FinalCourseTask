@@ -1,0 +1,33 @@
+﻿@page "/requestform"
+
+@rendermode InteractiveServer
+
+
+<PageTitle>Request</PageTitle>
+
+<div>
+    <label>
+        <input type="radio" name="service" value="service1"> Мужской
+    </label>
+    <label>
+        <input type="radio" name="service" value="service2"> Женский
+    </label>
+    <label>
+        <input type="radio" name="service" value="other"> Другое
+    </label>
+
+    <label for="request">Запрос:</label>
+    <input type="text" id="request" name="request" required placeholder="Введите ваш запрос">
+
+    <label for="name">Имя:</label>
+    <input type="text" id="name" name="name" required placeholder="Введите ваше имя">
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="phone">Телефон:</label>
+    <input type="tel" id="phone" name="phone" required placeholder="Введите ваш телефон">
+
+    <button>Отправить</button>
+
+</div>

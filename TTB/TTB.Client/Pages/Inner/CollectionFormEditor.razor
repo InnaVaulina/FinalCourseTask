@@ -6,6 +6,10 @@
 		display: flex;
 	}
 
+	.stretch {
+		align-content: stretch;
+	}
+
 	.container {
 		width: 1200px;
 		padding: 0 15px;
@@ -19,6 +23,13 @@
 		background-size: cover;
 		background-repeat: no-repeat;
 		background-position: center;
+		/* Занимает не менее половины высоты экрана, но адаптивна */
+		width: calc(100vw - 250px);
+		min-height: 50vh;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+		box-sizing: border-box;
+		display:flex;
 	}
 
 	.hero-container {
@@ -34,19 +45,21 @@
 	}
 
 	.hero-content-inside {
-		padding-top: 100px;
-		padding-bottom: 100px;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
 		max-width: 70%;
 		flex-direction: column;
 		align-content: flex-start;
+		box-sizing: border-box;
 	}
 
 	.hero-content_2 {
 		align-self: flex-end;
 		display: flex;
 		flex-direction: column;
-		padding-top: 100px;
-		padding-bottom: 50px;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+		box-sizing: border-box;
 	}
 
 	
@@ -80,17 +93,19 @@
 
 	.hero-title {
 		font-weight: 300;
-		font-size: 40px;
-		line-height: 130%;
+		/* Адаптивный размер заголовка */
+		font-size: clamp(20px, 4vw, 32px);
+		line-height: 1.2;
 	}
 
 
 	.btn {
 		position: relative;
 		outline: none;
-		padding: 20px 10px;
-		margin-bottom: 14px;
-		min-width: 250px;
+		/* Меньшие паддинги для встраивания в меньшую высоту */
+		padding: 10px 12px;
+		margin-bottom: 10px;
+		min-width: 180px;
 		background-color: #3172B9;
 		border-radius: 3px;
 		color: #fff;
@@ -114,10 +129,10 @@
 	.hero-motto span {
 		display: inline-block;
 		min-width: 1px;
-		font-size: 16px;
+		font-size: clamp(12px, 2.2vw, 14px);
 		color: #787878;
-		line-height: 155%;
-    }
+		line-height: 1.4;
+	}
 
 	.hero-motto:hover {
 		background-color: rgba(128, 128, 128, 0.5);
@@ -128,11 +143,6 @@
 		display: flex;
 		justify-content: flex-end;
 	}
-
-
-
-	
-
 
 	.hero-secure {
 		font-size: 11px;
@@ -151,10 +161,10 @@
 
 
 <section @ref="heroSectionRef" class="hero_section container hero-container" style="@HeroSectionStyle">
-	<div class="row">
-		<div class="col-6">
+	<div class="row stretch">
+		<div class="col-6 stretch flex">
 			<div class="hero-content">
-				<div class="hero-content-inside flex">
+				<div class="hero-content-inside ">
 					<div class="hero-title-place"
 						@onclick="@(async () => await SetTitleFocus())">
 						<h1 @ref="titleTextRef"
@@ -194,15 +204,15 @@
 					</span>
 				</div>
 				<div class="hero-wrapper">
-					<button id="button" class="btn" type="button"
+					<label for="openformchecker" class="btn"
 							@onclick="@(async () => await SetButtonFocus())">
-						<span @ref="buttonTextRef"
-							  contenteditable="true"
-							  @oninput="@(async () => await HandleInput())">
-							  Заказать услугу
-						</span>
-					</button>
-
+						
+							<span @ref="buttonTextRef"
+								  contenteditable="true"
+								  @oninput="@(async () => await HandleInput())">
+								Заказать услугу
+							</span>						
+					</label>
 				</div>
 			</div>
 		</div>

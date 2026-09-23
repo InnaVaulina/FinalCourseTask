@@ -15,10 +15,12 @@ using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Work.Control;
 using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
 
 
 namespace WpfBLazorHybridClient.Functions.Work.AVM
 {
+    public delegate void UpdateWorkHandler();
     public class WorkTableVM: INotifyPropertyChanged
     {
         public event TabAddHandler Notify_new;
@@ -88,6 +90,7 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
         public WorkTableVM(WorkTableDM _workTableDM, ListTabVM _tab)
         {
             workTableDM = _workTableDM;
+            tabViewModel = _tab;
             list = new ObservableCollection<UC_RequestItem>();
 
             StartTime = DateTime.Today;
@@ -129,7 +132,8 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
             updateList = new WCommand(async _ =>
             {
                 RequestRange range = new RequestRange(){ Start = StartTime, End = EndTime };
-                try 
+
+                await CatchExeption.ExecuteWithCatchAsync(async () =>
                 {
                     List<RequestExampleDM> dmlist;
                     switch (desiredStatus)
@@ -165,18 +169,7 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
                             SelectedStatus = "Отменена";
                             break;
                     }
-                } 
-                catch (ScopedExeption ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(ex.ToString());
-                    MessageBox.Show(ex.ToString());
-                }
-            
+                });
             });
 
         }
@@ -186,7 +179,7 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
             list.Clear();
             foreach (var item in dmList)
             {
-                list.Add(new UC_RequestItem(new RequestItemVM(item)));
+                list.Add(new UC_RequestItem(new RequestItemVM(item, tabViewModel)));
                 list.Last().Model.Notify_new += TabNotify;
             }
         }

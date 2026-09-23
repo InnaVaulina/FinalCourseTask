@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Context.DBQuery;
-using WebApplication1.Context;
-using Microsoft.AspNetCore.Authorization;
-using WebApplication1.Models;
-using System.Diagnostics.Eventing.Reader;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
+using System.Net.NetworkInformation;
+using System.Text.Json;
+using WebApplication1.Context;
+using WebApplication1.Context.DBQuery;
 using WebApplication1.Controllers.RequestModel;
+using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
 {
@@ -25,29 +27,47 @@ namespace WebApplication1.Controllers
             _collection = collection;
         }
 
+       
+
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult> AddRequest(RequestReceived model)
+        public async Task<ActionResult> SaveRequest([FromForm] string workContent)
         {
-            Request request = new Request()
-            {
-                RequestIn = DateTime.Now,
-                FullName = model.FullName,
-                Contact = model.Contact,
-                RequestText = model.RequestText,
-                Status = "received"
-            };
-
+            Request request = new Request();
             try
             {
+                request = JsonSerializer.Deserialize<Request>(workContent);
+                request.Status = "received";
                 await _collection.AddRequest(_context, request);
+                return Ok();
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return BadRequest(ModelState);
             }
-            return CreatedAtAction(nameof(this.AddRequest), model);
+
+        }
+
+       
+
+        [HttpPut]
+        [Authorize(Roles = "admin, work")]
+        public async Task<ActionResult> UpdateRequest([FromForm] string workContent, int id)
+        {
+            Request request = new Request();
+            try
+            {
+                request = JsonSerializer.Deserialize<Request>(workContent);
+                await _collection.SaveRequest(_context, request);
+                request = await _collection.SelectExample(_context, id);
+                return Ok(request);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return BadRequest(ModelState);
+            }       
         }
 
 
@@ -167,39 +187,7 @@ namespace WebApplication1.Controllers
         }
 
 
-        [HttpGet]
-        [Authorize(Roles = "admin, work")]
-        public async Task<ActionResult<Request>> UpdateRequest(int id)
-        {           
-            try
-            {
-                var curRequest = await _collection.UpdateRequest(_context, id);
-                return Ok(curRequest);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return BadRequest(ModelState);
-            }
-        }
-
-        [HttpPut]
-        [Authorize(Roles = "admin, work")]
-        public async Task<ActionResult> SaveRequest(int id, Request request)
-        {
-            try
-            {
-                if (id == request.ID)
-                    await _collection.SaveRequest(_context, request);
-                else throw new Exception($"Невозможно изменить запись с id ={id} на запись с id ={request.ID}."); 
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return BadRequest(ModelState);
-            }
-            return Ok();
-        }
+       
 
     }
 }

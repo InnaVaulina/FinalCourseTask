@@ -4,7 +4,7 @@ namespace TTClassLibrary.DataModel
     public class Request
     {
         public int ID { get; set; }
-        public DateTime RequestIn { get; set; }
+        public string RequestIn { get; set; }
         public string FullName { get; set; }
         public string Contact { get; set; }
         public string RequestText { get; set; }

@@ -15,7 +15,7 @@ namespace WebApplication1.Context.DBQuery
         Task<List<Request>> SelectFinished(ServiceContext context, RequestRange range);
         Task<List<Request>> SelectCancelled(ServiceContext context, RequestRange range);
 
-
+        Task<Request> SelectExample(ServiceContext context, int id);
         Task AddRequest(ServiceContext context, Request note);
 
         Task<Request> UpdateRequest(ServiceContext context, int id);
@@ -27,6 +27,11 @@ namespace WebApplication1.Context.DBQuery
     {
 
         public RequestQuery() { }
+
+        public async Task<Request> SelectExample(ServiceContext context, int id) 
+        {
+            return await context.Requests.Where(r => r.ID == id).SingleAsync();
+        }
 
         public async Task<List<Request>> SelectAllRequests(ServiceContext context, RequestRange range)
         {

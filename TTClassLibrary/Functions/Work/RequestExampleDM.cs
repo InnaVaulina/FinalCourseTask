@@ -21,6 +21,17 @@ namespace TTClassLibrary.Functions.Work
             get { return content; }
         }
 
+        public RequestExampleDM(IWorkRequestSender _requestMaker)
+        {
+            requestMaker = _requestMaker;
+            content = new Request();
+        }
+
+        public void UpdateDM(Request _content)
+        {
+            content = _content;
+        }
+
         public RequestExampleDM(IWorkRequestSender _requestMaker, Request _content)
         {
             requestMaker = _requestMaker;
