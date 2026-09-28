@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using WpfBLazorHybridClient.Functions.Work.AVM;
 
@@ -23,6 +24,5 @@ namespace WpfBLazorHybridClient.Functions.Work.Control
         WorkTableVM model;
         public WorkTableVM Model { get { return model; } }
 
-       
     }
 }

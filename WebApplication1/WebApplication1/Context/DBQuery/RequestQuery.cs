@@ -8,12 +8,12 @@ namespace WebApplication1.Context.DBQuery
 
     public interface IRequestQuery
     {
-        Task<List<Request>> SelectAllRequests(ServiceContext context, RequestRange range);
-        Task<List<Request>> SelectReceived(ServiceContext context, RequestRange range);
-        Task<List<Request>> SelectTakenOnWork(ServiceContext context, RequestRange range);
-        Task<List<Request>> SelectRejected(ServiceContext context, RequestRange range);
-        Task<List<Request>> SelectFinished(ServiceContext context, RequestRange range);
-        Task<List<Request>> SelectCancelled(ServiceContext context, RequestRange range);
+        Task<List<Request>> SelectAllRequests(ServiceContext context, DateTime beginDate, DateTime endDate);
+        Task<List<Request>> SelectReceived(ServiceContext context, DateTime beginDate, DateTime endDate);
+        Task<List<Request>> SelectTakenOnWork(ServiceContext context, DateTime beginDate, DateTime endDate);
+        Task<List<Request>> SelectRejected(ServiceContext context, DateTime beginDate, DateTime endDate);
+        Task<List<Request>> SelectFinished(ServiceContext context, DateTime beginDate, DateTime endDate);
+        Task<List<Request>> SelectCancelled(ServiceContext context, DateTime beginDate, DateTime endDate);
 
         Task<Request> SelectExample(ServiceContext context, int id);
         Task AddRequest(ServiceContext context, Request note);
@@ -33,47 +33,47 @@ namespace WebApplication1.Context.DBQuery
             return await context.Requests.Where(r => r.ID == id).SingleAsync();
         }
 
-        public async Task<List<Request>> SelectAllRequests(ServiceContext context, RequestRange range)
+        public async Task<List<Request>> SelectAllRequests(ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.
-                Where(r => (r.RequestIn <= range.End)&& (r.RequestIn >= range.Start)).
+                Where(r => (r.RequestIn <= endDate)&& (r.RequestIn >= beginDate)).
                 ToListAsync();
         }
 
-        public async Task<List<Request>> SelectReceived(ServiceContext context, RequestRange range)
+        public async Task<List<Request>> SelectReceived(ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.Where(r => EF.Functions.Like(r.Status, "received")).
-                Where(r => (r.RequestIn <= range.End) && (r.RequestIn >= range.Start)).
+                Where(r => (r.RequestIn <= endDate) && (r.RequestIn >= beginDate)).
                 ToListAsync();
         }
 
-        public async Task<List<Request>> SelectTakenOnWork(ServiceContext context, RequestRange range)
+        public async Task<List<Request>> SelectTakenOnWork(ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.Where(r => EF.Functions.Like(r.Status, "taken")).
-                Where(r => (r.RequestIn <= range.End) && (r.RequestIn >= range.Start)).
+                Where(r => (r.RequestIn <= endDate) && (r.RequestIn >= beginDate)).
                 ToListAsync();
         }
 
 
-        public async Task<List<Request>> SelectRejected(ServiceContext context, RequestRange range)
+        public async Task<List<Request>> SelectRejected(ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.Where(r => EF.Functions.Like(r.Status, "rejected")).
-                Where(r => (r.RequestIn <= range.End) && (r.RequestIn >= range.Start)).
+                Where(r => (r.RequestIn <= endDate) && (r.RequestIn >= beginDate)).
                 ToListAsync();
         }
 
 
-        public async Task<List<Request>> SelectFinished(ServiceContext context, RequestRange range)
+        public async Task<List<Request>> SelectFinished(ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.Where(r => EF.Functions.Like(r.Status, "finished")).
-                Where(r => (r.RequestIn <= range.End) && (r.RequestIn >= range.Start)).
+                Where(r => (r.RequestIn <= endDate) && (r.RequestIn >= beginDate)).
                 ToListAsync();
         }
 
-        public async Task<List<Request>> SelectCancelled(ServiceContext context, RequestRange range)
+        public async Task<List<Request>> SelectCancelled(ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.Where(r => EF.Functions.Like(r.Status, "cancelled")).
-                Where(r => (r.RequestIn <= range.End) && (r.RequestIn >= range.Start)).
+                Where(r => (r.RequestIn <= endDate) && (r.RequestIn >= beginDate)).
                 ToListAsync();
         }
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Blog;
 using TTClassLibrary.Functions.Service;
 using TTClassLibrary.Functions.Work;
 using TTClassLibrary.Support;
@@ -17,64 +18,56 @@ namespace TTClassLibrary.Functions.Work
 
         List<RequestExampleDM> requests;
 
+        public List<RequestExampleDM> DMList
+        {
+            get { return requests; }
+        }
+
+        WorkFilter requestParametres;
+
+        public WorkFilter Parametres
+        {
+            get { return requestParametres; }
+        }
+
+        int totalPages;
+        public int TotalPages { get { return totalPages; } }
+
         public WorkTableDM(IWorkRequestSender _requestMaker)
         {
             requestMaker = _requestMaker;
             requests = new List<RequestExampleDM>();
+            requestParametres = new WorkFilter()
+            {
+                Search = "ShowAll",
+                BeginDate = DateTime.MinValue,
+                EndDate = DateTime.Now,
+                Page = 1
+            };
+            totalPages = 1;
         }
 
-        public async Task SetExampleDMList(HttpResponseMessage response)
+
+        public async Task SelectRequests()
         {
+            if (requestParametres.EndDate.Value.Date == DateTime.Today.Date)
+            {
+                requestParametres.EndDate = DateTime.Now;
+            }
+            else requestParametres.EndDate = requestParametres.EndDate.Value.Date.AddDays(1).AddSeconds(-1);
+
+            var response = await requestMaker.GetRequests(requestParametres);
+
             requests.Clear();
-            var jsonSerializer = new HttpResponseMessageDeserialize<List<Request>>();
-            var contentList = await jsonSerializer.DeserealizeResultToContentAsync(response);
-            foreach (var content in contentList)
+            var jsonSerializer = new HttpResponseMessageDeserialize<GetAllWorkResponseParamertes>();
+            var responseParametres = await jsonSerializer.DeserealizeResultToContentAsync(response);
+            totalPages = responseParametres.TotalPages;
+            Parametres.Page = responseParametres.CurrentPage;
+            foreach (var content in responseParametres.Requests)
             {
                 var requestExampleDM = CreateRequestExampleDM(content);
                 requests.Add(requestExampleDM);
             }
-        }
-
-        public async Task<List<RequestExampleDM>> SelectAllRequests(RequestRange range)
-        {
-            var response = await requestMaker.GetAllRequests(range);
-            await SetExampleDMList(response);
-            return requests;
-        }
-
-        public async Task<List<RequestExampleDM>> SelectReceivedRequests(RequestRange range)
-        {
-            var response = await requestMaker.GetReceivedRequests(range);
-            await SetExampleDMList(response);
-            return requests;
-        }
-
-        public async Task<List<RequestExampleDM>> SelectTakenOnWorkRequests(RequestRange range)
-        {
-            var response = await requestMaker.GetTakenOnWorkRequests(range);
-            await SetExampleDMList(response);
-            return requests;
-        }
-
-        public async Task<List<RequestExampleDM>> SelectRejectedRequests(RequestRange range)
-        {
-            var response = await requestMaker.GetRejectedRequests(range);
-            await SetExampleDMList(response);
-            return requests;
-        }
-
-        public async Task<List<RequestExampleDM>> SelectFinishedRequests(RequestRange range)
-        {
-            var response = await requestMaker.GetFinishedRequests(range);
-            await SetExampleDMList(response);
-            return requests;
-        }
-
-        public async Task<List<RequestExampleDM>> SelectCancelledRequests(RequestRange range)
-        {
-            var response = await requestMaker.GetCancelledRequests(range);
-            await SetExampleDMList(response);
-            return requests;
         }
 
         public RequestExampleDM CreateRequestExampleDM(Request content)

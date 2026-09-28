@@ -39,7 +39,7 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
             blogListDM = _blogListDM;
             tab = _tab;
             list = new ObservableCollection<UC_BlogItem2>();
-            ShowAll = true;
+
             isBackButtonEnabled = false;
             isNextButtonEnabled = false;
             pageNumber = 1;
@@ -78,7 +78,35 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
                     blogListDM.Parametres.Page--;
                     await InitializeAsync();
                 }
-            }); 
+            });
+
+            selectAll = new WCommand(o => { DesiredStatus = "ShowAll"; });
+            selectPublished = new WCommand(o => { DesiredStatus = "ShowPublished"; });
+            selectTakenOnWork = new WCommand(o => { DesiredStatus = "ShowInWork"; });
+
+            setThatDay = new WCommand(o =>
+            {
+                BeginDate = DateTime.Today;
+                EndDate = DateTime.Today;
+            });
+
+            setYesterday = new WCommand(o =>
+            {
+                BeginDate = DateTime.Today.AddDays(-1);
+                EndDate = DateTime.Today.AddDays(-1);
+            });
+
+            setWeek = new WCommand(o =>
+            {
+                BeginDate = DateTime.Today.AddDays(-7);
+                EndDate = DateTime.Today;
+            });
+
+            setMonth = new WCommand(o =>
+            {
+                BeginDate = DateTime.Today.AddMonths(-1);
+                EndDate = DateTime.Today;
+            });
         }
 
         
@@ -95,9 +123,31 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
         WCommand goPreviousPage;
         public WCommand GoPreviousPage { get { return goPreviousPage; } }
 
+
+        WCommand selectAll;
+        public WCommand SelectAll { get { return selectAll; } }
+
+        WCommand selectPublished;
+        public WCommand SelectPublished { get { return selectPublished; } }
+
+        WCommand selectTakenOnWork;
+        public WCommand SelectTakenOnWork { get { return selectTakenOnWork; } }
+
+        WCommand setThatDay;
+        public WCommand SetThatDay { get { return setThatDay; } }
+
+        WCommand setYesterday;
+        public WCommand SetYesterday { get { return setYesterday; } }
+
+        WCommand setWeek;
+        public WCommand SetWeek { get { return setWeek; } }
+
+        WCommand setMonth;
+        public WCommand SetMonth { get { return setMonth; } }
+
         public async Task InitializeAsync() 
         {
-            try
+            await CatchExeption.ExecuteWithCatchAsync(async () => 
             {
                 await blogListDM.SetListAsync();
                 List.Clear();
@@ -113,18 +163,7 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
                     ucitem.Model.Notify_delete += DeleteItem;
                     List.Add(ucitem);
                 }
-            }
-            catch (ScopedExeption ex)
-            {
-                Logger.Log(ex.ToString());
-                MessageBox.Show(ex.ToString());
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(ex.ToString());
-                MessageBox.Show(ex.ToString());
-            }
-            
+            });
         }
 
         public void DeleteItem(UC_BlogItem2 item) 
@@ -134,7 +173,7 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
 
         public async Task AddItem(BlogContent blog)
         {
-            try 
+            await CatchExeption.ExecuteWithCatchAsync(async () =>
             {
                 var dm = await blogListDM.CtreateBlogExampleDM(blog);
                 var vm = new BlogItemVM(dm, tab);
@@ -143,58 +182,24 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
                 ucitem.Model.Notify_new_page += tab.TabAdd;
                 ucitem.Model.Notify_delete += DeleteItem;
                 List.Insert(0, ucitem);
-            }
-            catch (ScopedExeption ex)
-            {
-                Logger.Log(ex.ToString());
-                MessageBox.Show(ex.ToString());
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(ex.ToString());
-                MessageBox.Show(ex.ToString());
-            }
+            });
         }
 
-        bool showAll;
-        public bool ShowAll
+        public string DesiredStatus
         {
-            get { return showAll; }
-            set
+            get 
             {
-                showAll = value;
-                if (showAll)
+                switch (blogListDM.Parametres.Search) 
                 {
-                    blogListDM.Parametres.Search = "ShowAll";
+                    case "ShowAll": return "Все";
+                    case "ShowPublished": return "Опубликовано";
+                    case "ShowInWork": return "В работе";
+                    default: return "Все";
                 }
             }
-        }
-
-        bool showPublished;
-        public bool ShowPublished
-        {
-            get { return showPublished; }
-            set
+            set 
             {
-                showPublished = value;
-                if (showPublished)
-                {
-                    blogListDM.Parametres.Search = "ShowPublished";
-                }
-            }
-        }
-
-        bool showInWork;
-        public bool ShowInWork
-        {
-            get { return showInWork; }
-            set
-            {
-                showInWork = value;
-                if (showInWork)
-                {
-                    blogListDM.Parametres.Search = "ShowInWork";
-                }
+                blogListDM.Parametres.Search = value; OnPropertyChanged("DesiredStatus");
             }
         }
 

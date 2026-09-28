@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.DirectoryServices.ActiveDirectory;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TTClassLibrary.DataModel;
 using TTClassLibrary.Functions.Blog;
@@ -25,7 +28,14 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
         RequestExampleDM requestDM;
 
         public int ID { get { return requestDM.Content.ID; } }
-        public string RequestIn { get { return requestDM.Content.RequestIn; } }
+        public string RequestIn 
+        {
+            get
+            {
+                DateTime result = DateTime.ParseExact(requestDM.Content.RequestIn, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
+                return result.ToString("D");
+            }
+        }
         public string ClientFullName { get { return requestDM.Content.FullName; } }
         public string Contact { get { return requestDM.Content.Contact; } }
         public string RequestText { get { return requestDM.Content.RequestText; } }

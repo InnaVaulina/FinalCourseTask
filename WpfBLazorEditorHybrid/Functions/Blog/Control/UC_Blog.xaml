@@ -36,11 +36,11 @@
     <DockPanel Margin="20,20,20,20"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
 
-        <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" Height="50"
+        <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" Height="60"
            BorderBrush="CadetBlue">
             <DockPanel>
 
-                <TextBlock DockPanel.Dock="Left"
+                <TextBlock DockPanel.Dock="Top"
                    FontSize="22" FontWeight="Bold" Foreground="CadetBlue"
                    HorizontalAlignment="Left" VerticalAlignment="Center">
                    Блог
@@ -64,7 +64,53 @@
                     </Button>
                 </DockPanel>
 
-                <Button x:Name="FilterButton" DockPanel.Dock="Right"
+                <Menu DockPanel.Dock="Bottom" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="Transparent">
+                    <MenuItem>
+                        <MenuItem.Header>
+                            <Border CornerRadius="20" BorderThickness="1">
+                                <Grid Height="24" Width="24" Style="{StaticResource filterBackground}"/>
+                            </Border>
+                        </MenuItem.Header>
+                        <MenuItem FontSize="16" Foreground="CadetBlue" StaysOpenOnClick="True">
+                            <MenuItem.Header>
+                                <TextBlock> 
+                                Выборка: <Run Text="{Binding DesiredStatus}"/>
+                                </TextBlock>
+                            </MenuItem.Header>
+                            <MenuItem Header="Все" Command="{Binding SelectAll}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="В работе" Command="{Binding SelectTakenOnWork}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="Опубликовано" Command="{Binding SelectPublished}" StaysOpenOnClick="True"/>
+                        </MenuItem>
+                        <MenuItem FontSize="16" Foreground="CadetBlue" StaysOpenOnClick="True">
+                            <MenuItem.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Начало" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <DatePicker x:Name="startDate" Grid.Column="1" SelectedDate="{Binding BeginDate}"
+                                        DisplayDateEnd="{Binding EndDate}" SelectedDateFormat="Short"/>
+                                    <TextBlock Grid.Column="2" Text="Конец" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <DatePicker x:Name="endDate" Grid.Column="3" SelectedDate="{Binding EndDate}"
+                                        DisplayDateStart="{Binding BeginDate}" SelectedDateFormat="Short"/>
+                                </Grid>
+                            </MenuItem.Header>
+                            <MenuItem Header="Сегодня" Command="{Binding SetThatDay}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="Вчера" Command="{Binding SetYesterday}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="Неделя" Command="{Binding SetWeek}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="Месяц" Command="{Binding SetMonth}" StaysOpenOnClick="True"/>
+
+                        </MenuItem>
+                        <MenuItem Header="Применить фильтр" Command="{Binding LoadNewList}"
+                                  FontWeight="Bold" FontSize="16" Foreground="CadetBlue"/>
+                        <MenuItem Header="Закрыть" FontSize="12" Foreground="CadetBlue"/>
+                    </MenuItem>
+                </Menu>
+
+                <!--<Button x:Name="FilterButton" DockPanel.Dock="Right"
                     Click="FilterButton_Click" Style="{StaticResource ButtonStyle}">
                     <Border CornerRadius="20" BorderThickness="1">
                         <Grid Height="24" Width="24" Style="{StaticResource filterBackground}"/>
@@ -92,7 +138,7 @@
                         <Button Content="Применить" Command="{Binding LoadNewList}"/>
 
                     </DockPanel>
-                </Grid>
+                </Grid>-->
 
             </DockPanel>
 

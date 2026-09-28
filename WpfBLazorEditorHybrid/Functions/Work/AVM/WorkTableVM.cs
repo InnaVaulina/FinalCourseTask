@@ -10,9 +10,12 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Blog;
 using TTClassLibrary.Functions.Work;
 using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Error;
+using WpfBLazorHybridClient.Functions.Blog.AVM;
+using WpfBLazorHybridClient.Functions.Blog.Control;
 using WpfBLazorHybridClient.Functions.Work.Control;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 using WpfBLazorHybridClient.Service;
@@ -26,63 +29,70 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
         public event TabAddHandler Notify_new;
 
         WorkTableDM workTableDM;
-        ListTabVM tabViewModel;
+        ListTabVM tab;
 
         ObservableCollection<UC_RequestItem> list;
         public ObservableCollection<UC_RequestItem> List { get { return list; } }
 
-        DateTime startTime;
-        public DateTime StartTime 
+        public DateTime? StartTime 
         {
-            get { return startTime; }
+            get { return workTableDM.Parametres.BeginDate; }
             set 
-            { 
-                startTime = value; 
-                StartTimeText = startTime.ToString("dd.MM.yyyy");
+            {
+                workTableDM.Parametres.BeginDate = value; 
                 OnPropertyChanged("StartTime");               
             }
         }
 
-        string startTimeText;
-        public string StartTimeText 
-        { 
-            get { return startTimeText; }
-            set { startTimeText = value; OnPropertyChanged("StartTimeText"); }
-        }
-
-
-
-        DateTime endTime;
-        public DateTime EndTime 
+        public DateTime? EndTime 
         {
-            get { return endTime; }
+            get { return workTableDM.Parametres.EndDate; }
             set 
-            { 
-                endTime = value;
-                EndTimeText = endTime.ToString("dd.MM.yyyy");
+            {
+                workTableDM.Parametres.EndDate = value;
                 OnPropertyChanged("EndTime");
             }
         }
 
+
+        string startTimeText;
+        public string StartTimeText
+        {
+            get { return startTimeText; }
+            set { startTimeText = value; OnPropertyChanged("StartTimeText"); }
+        }
+
         string endTimeText;
-        public string EndTimeText 
-        { 
+        public string EndTimeText
+        {
             get { return endTimeText; }
             set { endTimeText = value; OnPropertyChanged("EndTimeText"); }
         }
 
-        string selectedStatus;
-        public string SelectedStatus 
+        string? selectedStatus;
+        public string? SelectedStatus 
         {
             get { return selectedStatus; }
             set {  selectedStatus = value; OnPropertyChanged("SelectedStatus"); }
         }
 
-        string desiredStatus;
-        public string DesiredStatus
+
+        public string? DesiredStatus
         {
-            get { return desiredStatus; }
-            set { desiredStatus = value; OnPropertyChanged("DesiredStatus"); }
+            get
+            {
+                switch (workTableDM.Parametres.Search)
+                {
+                    case "ShowAll": return "Все";
+                    case "ShowReceived": return "Поступило";
+                    case "ShowTaken": return "В работе";
+                    case "ShowRejected": return "Отклонена";
+                    case "ShowFinished": return "Выполнена";
+                    case "ShowCancelled": return "Отменена";
+                    default: return "Все";
+                }
+            }
+            set { workTableDM.Parametres.Search = value; OnPropertyChanged("DesiredStatus"); }
         }
 
 
@@ -90,20 +100,23 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
         public WorkTableVM(WorkTableDM _workTableDM, ListTabVM _tab)
         {
             workTableDM = _workTableDM;
-            tabViewModel = _tab;
+            tab = _tab;
             list = new ObservableCollection<UC_RequestItem>();
 
-            StartTime = DateTime.Today;
-            EndTime = DateTime.Today;
-            desiredStatus = "Поступило";
+            startTimeText = workTableDM.Parametres.BeginDate.HasValue ? workTableDM.Parametres.BeginDate.Value.ToString("D") : DateTime.MinValue.ToString("D");
+            endTimeText = workTableDM.Parametres.EndDate.HasValue ? workTableDM.Parametres.EndDate.Value.ToString("D") : DateTime.Now.ToString("D");
+            selectedStatus = DesiredStatus;
 
+            isBackButtonEnabled = false;
+            isNextButtonEnabled = false;
+            pageNumber = 1;
 
-            selectAll = new WCommand(o => { DesiredStatus = "Все заявки";});
-            selectReceived = new WCommand(o => { DesiredStatus = "Поступило";});
-            selectTakenOnWork = new WCommand(o => { DesiredStatus = "В работе";});
-            selectRejected = new WCommand(o => { DesiredStatus = "Отклонена";});
-            selectFinished = new WCommand(o => { DesiredStatus = "Выполнена";});
-            selectCancelled = new WCommand(o => { DesiredStatus = "Отменена";});
+            selectAll = new WCommand(o => { DesiredStatus = "ShowAll"; });
+            selectReceived = new WCommand(o => { DesiredStatus = "ShowReceived"; });
+            selectTakenOnWork = new WCommand(o => { DesiredStatus = "ShowTaken"; });
+            selectRejected = new WCommand(o => { DesiredStatus = "ShowRejected"; });
+            selectFinished = new WCommand(o => { DesiredStatus = "ShowFinished"; });
+            selectCancelled = new WCommand(o => { DesiredStatus = "ShowCancelled"; });
 
             setThatDay = new WCommand(o =>
             {
@@ -129,62 +142,52 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
                 EndTime = DateTime.Today;
             });
 
+            goNextPage = new WCommand(async _ =>
+            {
+                if (workTableDM.Parametres.Page < workTableDM.TotalPages)
+                {
+                    workTableDM.Parametres.Page++;
+                    await InitializeAsync();
+                }
+            });
+            goPreviousPage = new WCommand(async _ =>
+            {
+                if (workTableDM.Parametres.Page > 1)
+                {
+                    workTableDM.Parametres.Page--;
+                    await InitializeAsync();
+                }
+            });
+
             updateList = new WCommand(async _ =>
             {
-                RequestRange range = new RequestRange(){ Start = StartTime, End = EndTime };
-
-                await CatchExeption.ExecuteWithCatchAsync(async () =>
-                {
-                    List<RequestExampleDM> dmlist;
-                    switch (desiredStatus)
-                    {
-                        case "Все заявки":
-                            dmlist = await workTableDM.SelectAllRequests(range);
-                            SetNewList(dmlist);
-                            SelectedStatus = "Все заявки";
-                            break;
-                        case "Поступило":
-                            dmlist = await workTableDM.SelectReceivedRequests(range);
-                            SetNewList(dmlist);
-                            SelectedStatus = "Поступило";
-                            break;
-                        case "В работе":
-                            dmlist = await workTableDM.SelectTakenOnWorkRequests(range);
-                            SetNewList(dmlist);
-                            SelectedStatus = "В работе";
-                            break;
-                        case "Отклонена":
-                            dmlist = await workTableDM.SelectRejectedRequests(range);
-                            SetNewList(dmlist);
-                            SelectedStatus = "Отклонена";
-                            break;
-                        case "Выполнена":
-                            dmlist = await workTableDM.SelectFinishedRequests(range);
-                            SetNewList(dmlist);
-                            SelectedStatus = "Выполнена";
-                            break;
-                        case "Отменена":
-                            dmlist = await workTableDM.SelectCancelledRequests(range);
-                            SetNewList(dmlist);
-                            SelectedStatus = "Отменена";
-                            break;
-                    }
-                });
+                await InitializeAsync();
             });
 
         }
 
-        public void SetNewList(List<RequestExampleDM> dmList)
+        public async Task InitializeAsync()
         {
-            list.Clear();
-            foreach (var item in dmList)
+            await CatchExeption.ExecuteWithCatchAsync(async () =>
             {
-                list.Add(new UC_RequestItem(new RequestItemVM(item, tabViewModel)));
-                list.Last().Model.Notify_new += TabNotify;
-            }
+                await workTableDM.SelectRequests();
+                List.Clear();
+                IsBackButtonEnabled = workTableDM.Parametres.Page > 1;
+                IsNextButtonEnabled = workTableDM.Parametres.Page < workTableDM.TotalPages;
+                PageNumber = workTableDM.Parametres.Page;
+                foreach (var item in workTableDM.DMList)
+                {
+                    var vm = new RequestItemVM(item, tab);
+                    var ucitem = new UC_RequestItem(vm);
+                    vm.UC_RequestItem = ucitem;
+                    ucitem.Model.Notify_new += tab.TabAdd;
+                    List.Add(ucitem);
+                }
+                StartTimeText = workTableDM.Parametres.BeginDate.HasValue ? workTableDM.Parametres.BeginDate.Value.ToString("D") : DateTime.MinValue.ToString("D");
+                EndTimeText = workTableDM.Parametres.EndDate.HasValue ? workTableDM.Parametres.EndDate.Value.ToString("D") : DateTime.Now.ToString("D");
+                SelectedStatus = DesiredStatus;
+            });
         }
-
-       
 
 
         WCommand selectAll;
@@ -222,10 +225,42 @@ namespace WpfBLazorHybridClient.Functions.Work.AVM
         WCommand updateList;
         public WCommand UpdateList { get { return updateList; } }
 
+        WCommand goNextPage;
+        public WCommand GoNextPage { get { return goNextPage; } }
 
-        void TabNotify(TabVM page)
+        WCommand goPreviousPage;
+        public WCommand GoPreviousPage { get { return goPreviousPage; } }
+
+
+        int? pageNumber;
+        public int? PageNumber
         {
-            Notify_new?.Invoke(page);
+            get { return pageNumber; }
+            set
+            {
+                pageNumber = value;
+                OnPropertyChanged("PageNumber");
+            }
+        }
+
+        bool isBackButtonEnabled;
+        public bool IsBackButtonEnabled
+        {
+            get { return isBackButtonEnabled; }
+            set
+            {
+                isBackButtonEnabled = value; OnPropertyChanged("IsBackButtonEnabled");
+            }
+        }
+
+        bool isNextButtonEnabled;
+        public bool IsNextButtonEnabled
+        {
+            get { return isNextButtonEnabled; }
+            set
+            {
+                isNextButtonEnabled = value; OnPropertyChanged("IsNextButtonEnabled");
+            }
         }
 
 

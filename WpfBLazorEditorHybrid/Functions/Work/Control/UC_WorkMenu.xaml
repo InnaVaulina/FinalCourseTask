@@ -9,80 +9,98 @@
     <DockPanel Margin="20,20,20,20"
                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
 
-        <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" Height="50"
+        <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" Height="60"
                 BorderBrush="CadetBlue">
-
-            <TextBlock FontSize="22" FontWeight="Bold" Foreground="CadetBlue"
-                HorizontalAlignment="Left" VerticalAlignment="Center">
+            <DockPanel>
+           
+                <TextBlock DockPanel.Dock="Top" FontSize="22" FontWeight="Bold" Foreground="CadetBlue"
+                HorizontalAlignment="Left" VerticalAlignment="Top">
                 Обработка заявок.               
                 Статус: <Run Text="{Binding SelectedStatus}"/>
                 За период с <Run Text="{Binding StartTimeText}"/>
                 по <Run Text="{Binding EndTimeText}"/>
-            </TextBlock>
+                </TextBlock>
+
+                <DockPanel DockPanel.Dock="Right">
+
+                    <Button DockPanel.Dock="Right" IsEnabled="{Binding IsNextButtonEnabled}" 
+                        Style="{StaticResource ButtonStyle}"
+                        Command="{Binding GoNextPage}">
+                        <Border CornerRadius="20" BorderThickness="1">
+                            <Grid Height="24" Width="24" Style="{StaticResource arrowRightBackground}"/>
+                        </Border>
+                    </Button>
+                    <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center">..<Run Text="{Binding PageNumber}"/>..</TextBlock>
+                    <Button DockPanel.Dock="Right" IsEnabled="{Binding IsBackButtonEnabled}"
+                    Style="{StaticResource ButtonStyle}"
+                    Command="{Binding GoPreviousPage}">
+                        <Border CornerRadius="20" BorderThickness="1">
+                            <Grid Height="24" Width="24" Style="{StaticResource arrowLeftBackground}"/>
+                        </Border>
+                    </Button>
+
+                </DockPanel>
+                
+
+                <Menu DockPanel.Dock="Bottom" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="Transparent">
+                    <MenuItem>
+                        <MenuItem.Header>
+                            <Border CornerRadius="20" BorderThickness="1">
+                                <Grid Height="24" Width="24" Style="{StaticResource filterBackground}"/>
+                            </Border>
+                        </MenuItem.Header>
+                        <MenuItem FontSize="16" Foreground="CadetBlue" StaysOpenOnClick="True">
+                            <MenuItem.Header>
+                                <TextBlock> 
+                                    Статус: <Run Text="{Binding DesiredStatus}"/>
+                                </TextBlock>
+                            </MenuItem.Header>
+                            <MenuItem Header="Все заявки" Command="{Binding SelectAll}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="Поступило" Command="{Binding SelectReceived}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="В работе" Command="{Binding SelectTakenOnWork}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="Выполнена" Command="{Binding SelectFinished}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="Отклонена" Command="{Binding SelectRejected}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="Отменена" Command="{Binding SelectCancelled}" StaysOpenOnClick="True"/>
+                        </MenuItem>
+                        <MenuItem FontSize="16" Foreground="CadetBlue" StaysOpenOnClick="True">
+                            <MenuItem.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0" Text="Начало" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <DatePicker x:Name="startDate" Grid.Column="1" SelectedDate="{Binding StartTime}"
+                                        DisplayDateEnd="{Binding EndTime}" SelectedDateFormat="Short"/>
+                                    <TextBlock Grid.Column="2" Text="Конец" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <DatePicker x:Name="endDate" Grid.Column="3" SelectedDate="{Binding EndTime}"
+                                        DisplayDateStart="{Binding StartTime}" SelectedDateFormat="Short"/>
+                                </Grid>
+                            </MenuItem.Header>
+                            <MenuItem Header="Сегодня" Command="{Binding SetThatDay}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="Вчера" Command="{Binding SetYesterday}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="Неделя" Command="{Binding SetWeek}" StaysOpenOnClick="True"/>
+                            <MenuItem Header="Месяц" Command="{Binding SetMonth}" StaysOpenOnClick="True"/>
+
+                        </MenuItem>
+                        <MenuItem Header="Применить фильтр" Command="{Binding UpdateList}"
+                                  FontWeight="Bold" FontSize="16" Foreground="CadetBlue"/>
+                        <MenuItem Header="Закрыть" FontSize="12" Foreground="CadetBlue"/>
+
+                    </MenuItem>
+                </Menu>
+
+                <Grid/>
+            </DockPanel>
         </Border>
 
         
 
-
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Margin="0,0,15,0" Header="Критерии выборки:">
-                <MenuItem>
-                    <MenuItem.Header>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Статус"/>
-                            <TextBox Grid.Column="1" Text="{Binding DesiredStatus}" IsReadOnly="True"/>
-                        </Grid>
-                    </MenuItem.Header>
-                    <MenuItem Header="Все заявки" Command="{Binding SelectAll}"/>
-                    <MenuItem Header="Поступило" Command="{Binding SelectReceived}"/>
-                    <MenuItem Header="В работе" Command="{Binding SelectTakenOnWork}"/>
-                    <MenuItem Header="Выполнена" Command="{Binding SelectFinished}"/>
-                    <MenuItem Header="Отклонена" Command="{Binding SelectRejected}"/>
-                    <MenuItem Header="Отменена" Command="{Binding SelectCancelled}"/>
-                </MenuItem>
-                <MenuItem>
-                    <MenuItem.Header>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Начало" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <DatePicker x:Name="startDate" Grid.Row="0" Grid.Column="1" SelectedDate="{Binding StartTime}"
-                                        DisplayDateEnd="{Binding EndTime}"
-                                SelectedDateFormat="Short">
-                                
-                            </DatePicker>
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Конец" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <DatePicker x:Name="endDate" Grid.Row="1" Grid.Column="1" SelectedDate="{Binding EndTime}"
-                                        DisplayDateStart="{Binding StartTime}"
-                                SelectedDateFormat="Short"/>
-                        </Grid>
-                    </MenuItem.Header>
-                    <MenuItem Header="Сегодня" Command="{Binding SetThatDay}"/>
-                    <MenuItem Header="Вчера" Command="{Binding SetYesterday}"/>
-                    <MenuItem Header="Неделя" Command="{Binding SetWeek}"/>
-                    <MenuItem Header="Месяц" Command="{Binding SetMonth}"/>
-                </MenuItem>
-            </MenuItem>
-            <MenuItem Margin="0,0,15,0" Header="Обновить" Command="{Binding UpdateList}"/>
-
-        </Menu>
-
-        <Grid DockPanel.Dock="Top" Margin="10,10,10,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="760"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
+ 
+            <Grid DockPanel.Dock="Top" Margin="10,10,10,10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
                     
@@ -106,7 +124,7 @@
                 <TextBlock Grid.Column="6" Style="{StaticResource requestHeader}">Статус</TextBlock> 
 
             </Grid>
-        </Grid>
+
 
 
         <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Auto">

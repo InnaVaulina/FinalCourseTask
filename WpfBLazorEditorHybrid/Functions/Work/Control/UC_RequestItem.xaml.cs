@@ -18,7 +18,14 @@ namespace WpfBLazorHybridClient.Functions.Work.Control
         }
 
         RequestItemVM model;
-        public RequestItemVM Model { get { return model; } }
+        public RequestItemVM Model { 
+            get { return model; }
+            set
+            {
+                model = value;
+                DataContext = model;
+            }
+        }
 
         private void arrowDownButton_Click(object sender, RoutedEventArgs e)
         {

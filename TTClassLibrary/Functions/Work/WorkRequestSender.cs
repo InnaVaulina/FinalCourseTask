@@ -11,12 +11,8 @@ namespace TTClassLibrary.Functions.Work
 {
     public interface IWorkRequestSender
     {
-        Task<HttpResponseMessage> GetAllRequests(RequestRange range);
-        Task<HttpResponseMessage> GetReceivedRequests(RequestRange range);
-        Task<HttpResponseMessage> GetTakenOnWorkRequests(RequestRange range);
-        Task<HttpResponseMessage> GetRejectedRequests(RequestRange range);
-        Task<HttpResponseMessage> GetFinishedRequests(RequestRange range);
-        Task<HttpResponseMessage> GetCancelledRequests(RequestRange range);
+        Task<HttpResponseMessage> GetRequests(WorkFilter parametres);
+
         Task<HttpResponseMessage> UpdateRequest(MultipartFormDataContent formData, int id);
         Task<HttpResponseMessage> SaveRequest(MultipartFormDataContent formData);
     }
@@ -28,39 +24,12 @@ namespace TTClassLibrary.Functions.Work
             requestSender = _requestSender;
         }
 
-        public async Task<HttpResponseMessage> GetAllRequests(RequestRange range) 
+        public async Task<HttpResponseMessage> GetRequests(WorkFilter parametres) 
         {
-            var url = $"api/Request/GetAll?start={range.Start}&end={range.End}";
-            return await requestSender.Get(url);
-        }
+            string beginDate = parametres.BeginDate.HasValue ? parametres.BeginDate.Value.ToString("yyyy-MM-ddTHH:mm:ss") : DateTime.MinValue.ToString("yyyy-MM-ddTHH:mm:ss");
+            string endDate = parametres.EndDate.HasValue ? parametres.EndDate.Value.ToString("yyyy-MM-ddTHH:mm:ss") : DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
 
-        public async Task<HttpResponseMessage> GetReceivedRequests(RequestRange range) 
-        {
-            var url = $"api/Request/GetReceived?start={range.Start.ToString("MM.dd.yyyy")}&end={range.End.ToString("MM.dd.yyyy")}";
-            return await requestSender.Get(url);
-        }
-
-        public async Task<HttpResponseMessage> GetTakenOnWorkRequests(RequestRange range) 
-        {
-            var url = $"api/Request/GetTakenOnWork?start={range.Start}&end={range.End}";
-            return await requestSender.Get(url);
-        }
-
-        public async Task<HttpResponseMessage> GetRejectedRequests(RequestRange range) 
-        {
-            var url = $"api/Request/GetRejected?start={range.Start}&end={range.End}";
-            return await requestSender.Get(url);
-        }
-
-        public async Task<HttpResponseMessage> GetFinishedRequests(RequestRange range)
-        {
-            var url = $"api/Request/GetFinished?start={range.Start}&end={range.End}";
-            return await requestSender.Get(url);
-        }
-
-        public async Task<HttpResponseMessage> GetCancelledRequests(RequestRange range)
-        {
-            var url = $"api/Request/GetCancelled?start={range.Start}&end={range.End}";
+            var url = $"api/Request/GetRequests?search={parametres.Search}&beginDate={beginDate}&endDate={endDate}&page={parametres.Page}";
             return await requestSender.Get(url);
         }
 
@@ -77,9 +46,19 @@ namespace TTClassLibrary.Functions.Work
         }
     }
 
-    public class RequestRange
+    public class WorkFilter
     {
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
+        public string? Search { get; set; } = "ShowAll";
+        public DateTime? BeginDate { get; set; } = DateTime.MinValue;
+        public DateTime? EndDate { get; set; } = DateTime.Now;
+        public int? Page { get; set; } = 1;
+
+    }
+
+    public class GetAllWorkResponseParamertes
+    {
+        public List<Request> Requests { get; set; }
+        public int CurrentPage { get; set; }
+        public int TotalPages { get; set; }
     }
 }

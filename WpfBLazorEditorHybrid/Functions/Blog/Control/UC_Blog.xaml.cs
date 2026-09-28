@@ -32,16 +32,16 @@ namespace WpfBLazorHybridClient.Functions.Blog.Control
 
         
 
-        private void FilterButton_Click(object sender, RoutedEventArgs e)
-        {
-            FilterPanel.Visibility = Visibility.Visible;
-            FilterButton.Visibility = Visibility.Hidden;
-        }
+        //private void FilterButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    FilterPanel.Visibility = Visibility.Visible;
+        //    FilterButton.Visibility = Visibility.Hidden;
+        //}
 
-        private void FilterHideButton_Click(object sender, RoutedEventArgs e)
-        {
-            FilterPanel.Visibility = Visibility.Hidden;
-            FilterButton.Visibility = Visibility.Visible;
-        }
+        //private void FilterHideButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    FilterPanel.Visibility = Visibility.Hidden;
+        //    FilterButton.Visibility = Visibility.Visible;
+        //}
     }
 }
