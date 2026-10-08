@@ -12,12 +12,10 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class ProgectController : ControllerBase
     {
-        private readonly IProgectQuery _collection;
         private readonly ServiceContext _context;
 
-        public ProgectController(IProgectQuery collection, ServiceContext context)
+        public ProgectController(ServiceContext context)
         {
-            _collection = collection;
             _context = context;
         }
 
@@ -26,7 +24,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                Progect progect = await _collection.SelectProgect(_context, id);
+                Progect progect = await _context.SelectProgect(id);
                 if (progect != null)
                 {
                     if (progect.IllustrationId != "")
@@ -38,7 +36,7 @@ namespace WebApplication1.Controllers
                             System.IO.File.Delete(filePath);
                         }
                     }
-                    await _collection.DeleteProgect(_context, id);
+                    await _context.DeleteProgect(id);
                 }
                 else
                 {
@@ -116,8 +114,8 @@ namespace WebApplication1.Controllers
                 Directory.CreateDirectory(uploadsFolder);
 
 
-            await _collection.AddProgect(_context, progect);
-            progect = await _collection.SelectLastProgect(_context);
+            await _context.AddProgect(progect);
+            progect = await _context.SelectLastProgect();
 
             if (progectPicture != null && progectPicture.Length != 0)
             {
@@ -199,8 +197,8 @@ namespace WebApplication1.Controllers
 
 
             progect.ID = id;
-            await _collection.UpdateProgect(_context, progect);
-            progect = await _collection.SelectProgect(_context, id);
+            await _context.UpdateProgect(progect);
+            progect = await _context.SelectProgect(id);
 
             if (progectPicture != null && progectPicture.Length != 0)
             {
@@ -225,7 +223,7 @@ namespace WebApplication1.Controllers
             Progect progect;
             try
             {
-                progect = await _collection.SelectProgect(_context, id);
+                progect = await _context.SelectProgect(id);
                 return Ok(progect);
             }
             catch (Exception ex)
@@ -244,13 +242,13 @@ namespace WebApplication1.Controllers
                 switch (Search)
                 {
                     case "ShowAll":
-                        progects = await _collection.SelectAllProgects(_context);
+                        progects = await _context.SelectAllProgects();
                         break;
                     case "ShowPublished":
-                        progects = await _collection.SelectAllPublishedProgects(_context);
+                        progects = await _context.SelectAllPublishedProgects();
                         break;
                     case "ShowInWork":
-                        progects = await _collection.SelectAllProgectsInWork(_context);
+                        progects = await _context.SelectAllProgectsInWork();
                         break;
                     default:
                         throw new Exception("Неверный параметр поиска");

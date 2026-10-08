@@ -3,11 +3,12 @@ using System.ComponentModel;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using WpfBLazorHybridClient.Main.AVM.Tab;
-using WpfBLazorHybridClient.Client.Account;
+using TTClassLibrary.Functions.Admin;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.Client.Account.UserModel;
 using WpfBLazorHybridClient.Error;
+using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
+using TTClassLibrary.DataModel;
 
 namespace WpfBLazorHybridClient.Functions.Admin.AVM
 {
@@ -16,23 +17,21 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
         public event TabCloseHandler Notify_close;
 
 
-        AccountClientExt queryMaker;
+        UserItemDM userItemDM;
 
         TabVM page;
 
         public TabVM Page { get { return page; } set { page = value; } }
 
-        string id;
-        public string Id { get { return id; } set { id = value; OnPropertyChanged("Id"); } }
 
-        string userName;
+        public string Id 
+        {
+            get { return userItemDM.UserContent.Id; }  
+        }
+
         public string UserName
         {
-            get { return userName; }
-            set
-            {
-                userName = value; OnPropertyChanged("UserName");
-            }
+            get { return userItemDM.UserContent.UserName; }
         }
 
 
@@ -51,38 +50,33 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
         }
 
 
-        public PasswordResetVM(UserItemVM _user, AccountClientExt _queryMaker)
+        public PasswordResetVM(UserItemDM _userItemDM)
         {
-            queryMaker = _queryMaker;
+            userItemDM = _userItemDM;
 
-            id = _user.Id;
-            userName = _user.UserName;
-
-            saveNewPassword = new WCommand(o => 
+            saveNewPassword = new WCommand(async _ => 
             {
-                ExResetPassword();
+                await CatchExeption.ExecuteWithCatchAsync(async () =>
+                {
+                    if (string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(ConfirmPassword))
+                    {
+                        MessageBox.Show($"Необходимо заполнить поля \"Новый пароль\" и \"Подтверждение пароля\".");
+                        return;
+                    }
+                    if (Password != ConfirmPassword)
+                    {
+                        MessageBox.Show($"Пароли не совпадают.");
+                        return;
+                    }
+                    await userItemDM.ResetPassword(new PasswordModel() { Password = this.Password });
+                    MessageBox.Show($"Запрос выполнен.");
+                    Notify_close?.Invoke(page);
+                });
             });
 
         }
 
-        public void ExResetPassword()
-        {
-            PasswordModel model = new PasswordModel()
-            {                
-                Password = this.Password
-            };
-
-            HttpResponseMessage result = Task.Run(() => queryMaker.ResetUserPassword(this.id, model).GetAwaiter().GetResult()).Result;
-            if ((int)result.StatusCode == 200 || (int)result.StatusCode == 201)
-            {
-                MessageBox.Show($"Запрос выполнен.");
-                Notify_close?.Invoke(page);
-            }
-            else
-            {
-                //ErrorResultMessage.Show(result);
-            }
-        }
+        
 
         WCommand saveNewPassword;
         public WCommand SaveNewPassword { get { return saveNewPassword; } }

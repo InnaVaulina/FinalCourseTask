@@ -12,6 +12,9 @@ namespace WebApplication1.Context
             : base(options)
         {
         }
+
+
+
         public DbSet<Request> Requests { get; set; }
         public DbSet<Blog> Blogs { get; set; } 
         
@@ -56,6 +59,10 @@ namespace WebApplication1.Context
                 .WithOne()
                 .HasForeignKey(l => l.ContactId)
                 .IsRequired();
+
+
+
+            //builder.Entity<UserModel>().HasMany(u => u.Roles).WithOne().HasForeignKey(r => r.UserId).IsRequired();
         }
     }
 

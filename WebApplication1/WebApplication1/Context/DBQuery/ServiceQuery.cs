@@ -3,37 +3,24 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Context.DBQuery
 {
-
-    public interface IServiceQuery
+    public static class ServiceQuery 
     {
-        Task<List<BusinesService>> SelectAllServices(ServiceContext context);
-
-        Task<BusinesService> SelectLastService(ServiceContext context);
-        Task<BusinesService> SelectService(ServiceContext context, int id);
-
-        Task AddService(ServiceContext context, BusinesService note);
-        Task UpdateService(ServiceContext context, BusinesService note);
-
-        Task DeleteService(ServiceContext context, int id);
-    }
-    public class ServiceQuery : IServiceQuery
-    {
-        public async Task<List<BusinesService>> SelectAllServices(ServiceContext context)
+        public static async Task<List<BusinesService>> SelectAllServices(this ServiceContext context)
         { 
             return await context.Services.ToListAsync();
         }
 
-        public async Task<BusinesService> SelectLastService(ServiceContext context)
+        public static async Task<BusinesService> SelectLastService(this ServiceContext context)
         {
             return await context.Services.OrderByDescending(b => b.ID).FirstOrDefaultAsync();
         }
 
-        public async Task<BusinesService> SelectService(ServiceContext context, int id)
+        public static async Task<BusinesService> SelectService(this ServiceContext context, int id)
         {
             return await context.Services.Where(b => b.ID == id).FirstOrDefaultAsync();
         }
 
-        public async Task AddService(ServiceContext context, BusinesService note)
+        public static async Task AddService(this ServiceContext context, BusinesService note)
         {
             try
             {
@@ -47,7 +34,7 @@ namespace WebApplication1.Context.DBQuery
 
         }
 
-        public async Task UpdateService(ServiceContext context, BusinesService note)
+        public static async Task UpdateService(this ServiceContext context, BusinesService note)
         {
             try
             {
@@ -68,7 +55,7 @@ namespace WebApplication1.Context.DBQuery
             }
         }
 
-        public async Task DeleteService(ServiceContext context, int id)
+        public static async Task DeleteService(this ServiceContext context, int id)
         {
             try
             {

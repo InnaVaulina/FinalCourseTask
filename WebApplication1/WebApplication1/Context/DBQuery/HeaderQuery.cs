@@ -3,20 +3,14 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Context.DBQuery
 {
-    public interface IHeaderQuery
+    public static class HeaderQuery
     {
-        Task<Header> SelectHeader(ServiceContext context);
-        Task UpdateHeader(ServiceContext context, Header header);
-        Task CreateHeader(ServiceContext context, Header header);
-    }
-    public class HeaderQuery: IHeaderQuery
-    {
-        public async Task<Header> SelectHeader(ServiceContext context)
+        public static async Task<Header> SelectHeader(this ServiceContext context)
         {
             return await context.Header.OrderByDescending(b => b.ID).FirstOrDefaultAsync();
         }
 
-        public async Task UpdateHeader(ServiceContext context, Header header)
+        public static async Task UpdateHeader(this ServiceContext context, Header header)
         {
             try
             {
@@ -42,7 +36,7 @@ namespace WebApplication1.Context.DBQuery
             }
         }
 
-        public async Task CreateHeader(ServiceContext context, Header header)
+        public static async Task CreateHeader(this ServiceContext context, Header header)
         {
             try
             {

@@ -4,50 +4,29 @@ using WebApplication1.Controllers.RequestModel;
 
 namespace WebApplication1.Context.DBQuery
 {
-
-
-    public interface IRequestQuery
-    {
-        Task<List<Request>> SelectAllRequests(ServiceContext context, DateTime beginDate, DateTime endDate);
-        Task<List<Request>> SelectReceived(ServiceContext context, DateTime beginDate, DateTime endDate);
-        Task<List<Request>> SelectTakenOnWork(ServiceContext context, DateTime beginDate, DateTime endDate);
-        Task<List<Request>> SelectRejected(ServiceContext context, DateTime beginDate, DateTime endDate);
-        Task<List<Request>> SelectFinished(ServiceContext context, DateTime beginDate, DateTime endDate);
-        Task<List<Request>> SelectCancelled(ServiceContext context, DateTime beginDate, DateTime endDate);
-
-        Task<Request> SelectExample(ServiceContext context, int id);
-        Task AddRequest(ServiceContext context, Request note);
-
-        Task<Request> UpdateRequest(ServiceContext context, int id);
-
-        Task SaveRequest(ServiceContext context, Request note);
-    }
-
-    public class RequestQuery : IRequestQuery
+    public static class RequestQuery
     {
 
-        public RequestQuery() { }
-
-        public async Task<Request> SelectExample(ServiceContext context, int id) 
+        public static async Task<Request> SelectExample(this ServiceContext context, int id) 
         {
             return await context.Requests.Where(r => r.ID == id).SingleAsync();
         }
 
-        public async Task<List<Request>> SelectAllRequests(ServiceContext context, DateTime beginDate, DateTime endDate)
+        public static async Task<List<Request>> SelectAllRequests(this ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.
                 Where(r => (r.RequestIn <= endDate)&& (r.RequestIn >= beginDate)).
                 ToListAsync();
         }
 
-        public async Task<List<Request>> SelectReceived(ServiceContext context, DateTime beginDate, DateTime endDate)
+        public static async Task<List<Request>> SelectReceived(this ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.Where(r => EF.Functions.Like(r.Status, "received")).
                 Where(r => (r.RequestIn <= endDate) && (r.RequestIn >= beginDate)).
                 ToListAsync();
         }
 
-        public async Task<List<Request>> SelectTakenOnWork(ServiceContext context, DateTime beginDate, DateTime endDate)
+        public static async Task<List<Request>> SelectTakenOnWork(this ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.Where(r => EF.Functions.Like(r.Status, "taken")).
                 Where(r => (r.RequestIn <= endDate) && (r.RequestIn >= beginDate)).
@@ -55,7 +34,7 @@ namespace WebApplication1.Context.DBQuery
         }
 
 
-        public async Task<List<Request>> SelectRejected(ServiceContext context, DateTime beginDate, DateTime endDate)
+        public static async Task<List<Request>> SelectRejected(this ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.Where(r => EF.Functions.Like(r.Status, "rejected")).
                 Where(r => (r.RequestIn <= endDate) && (r.RequestIn >= beginDate)).
@@ -63,14 +42,14 @@ namespace WebApplication1.Context.DBQuery
         }
 
 
-        public async Task<List<Request>> SelectFinished(ServiceContext context, DateTime beginDate, DateTime endDate)
+        public static async Task<List<Request>> SelectFinished(this ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.Where(r => EF.Functions.Like(r.Status, "finished")).
                 Where(r => (r.RequestIn <= endDate) && (r.RequestIn >= beginDate)).
                 ToListAsync();
         }
 
-        public async Task<List<Request>> SelectCancelled(ServiceContext context, DateTime beginDate, DateTime endDate)
+        public static async Task<List<Request>> SelectCancelled(this ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Requests.Where(r => EF.Functions.Like(r.Status, "cancelled")).
                 Where(r => (r.RequestIn <= endDate) && (r.RequestIn >= beginDate)).
@@ -78,7 +57,7 @@ namespace WebApplication1.Context.DBQuery
         }
 
 
-        public async Task AddRequest(ServiceContext context, Request note)
+        public static async Task AddRequest(this ServiceContext context, Request note)
         {
             try
             {
@@ -92,13 +71,13 @@ namespace WebApplication1.Context.DBQuery
 
         }
 
-        public async Task<Request> UpdateRequest(ServiceContext context, int id) 
+        public static async Task<Request> UpdateRequest(this ServiceContext context, int id) 
         {
             return await context.Requests.Where(r => r.ID == id).SingleAsync();
         }
 
 
-        public async Task SaveRequest(ServiceContext context, Request note) 
+        public static async Task SaveRequest(this ServiceContext context, Request note) 
         {
             try
             {

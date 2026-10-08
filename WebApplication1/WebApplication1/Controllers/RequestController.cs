@@ -17,15 +17,12 @@ namespace WebApplication1.Controllers
     [Authorize(Roles = "admin, work")]
     public class RequestController: ControllerBase
     {
-        private readonly IRequestQuery _collection;
         private readonly ServiceContext _context;
 
 
-        public RequestController(ServiceContext context,
-                                 IRequestQuery collection)
+        public RequestController(ServiceContext context)
         {
             _context = context;
-            _collection = collection;
         }
 
        
@@ -39,7 +36,7 @@ namespace WebApplication1.Controllers
             {
                 request = JsonSerializer.Deserialize<Request>(workContent);
                 request.Status = "received";
-                await _collection.AddRequest(_context, request);
+                await _context.AddRequest(request);
                 return Ok();
             }
             catch (Exception ex)
@@ -59,8 +56,8 @@ namespace WebApplication1.Controllers
             try
             {
                 request = JsonSerializer.Deserialize<Request>(workContent);
-                await _collection.SaveRequest(_context, request);
-                request = await _collection.SelectExample(_context, id);
+                await _context.SaveRequest(request);
+                request = await _context.SelectExample(id);
                 return Ok(request);
             }
             catch (Exception ex)
@@ -82,22 +79,22 @@ namespace WebApplication1.Controllers
                 switch (Search)
                 {
                     case "ShowAll":
-                        requestList = await _collection.SelectAllRequests(_context, beginDate, endDate);
+                        requestList = await _context.SelectAllRequests(beginDate, endDate);
                         break;
                     case "ShowReceived":
-                        requestList = await _collection.SelectReceived(_context, beginDate, endDate);
+                        requestList = await _context.SelectReceived(beginDate, endDate);
                         break;
                     case "ShowTaken":
-                        requestList = await _collection.SelectTakenOnWork(_context, beginDate, endDate);
+                        requestList = await _context.SelectTakenOnWork(beginDate, endDate);
                         break;
                     case "ShowRejected":
-                        requestList = await _collection.SelectRejected(_context, beginDate, endDate);
+                        requestList = await _context.SelectRejected(beginDate, endDate);
                         break;
                     case "ShowFinished":
-                        requestList = await _collection.SelectFinished(_context, beginDate, endDate);
+                        requestList = await _context.SelectFinished(beginDate, endDate);
                         break;
                     case "ShowCancelled":
-                        requestList = await _collection.SelectCancelled(_context, beginDate, endDate);
+                        requestList = await _context.SelectCancelled(beginDate, endDate);
                         break;
                     default:
                         throw new Exception("Неверный параметр поиска");

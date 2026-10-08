@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using WpfBLazorHybridClient.Main.AVM.Tab;
-using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
-using WpfBLazorHybridClient.Client.Account;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Windows;
+using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Admin;
+using WpfBLazorHybridClient.Client.Account;
+using WpfBLazorHybridClient.Client.Account.UserModel;
+using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Admin.Control;
-using WpfBLazorHybridClient.Client.Account.UserModel;
+using WpfBLazorHybridClient.Functions.Blog.AVM;
+using WpfBLazorHybridClient.Functions.Blog.Control;
+using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Functions.Admin.AVM
 {
@@ -20,54 +24,66 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
     /// </summary>
     public class UserItemVM: INotifyPropertyChanged
     {
-        public event TabAddHandler Notify_new;
-        public event ExecuteDeleteUserHandler Notify_delete;
+        public event TabAddHandler Notify_new_page;
+        public event DeleteUserHandler Notify_delete;
 
-        AccountClientExt queryMaker;
+        ListTabVM tab;
+        UserItemDM userItemDM;
 
 
-        string id;
-        public string Id { get { return id; } set { id = value; OnPropertyChanged("Id"); } }
+        public string Id 
+        { 
+            get { return userItemDM.UserContent.Id; } 
+        }
 
-        string userName;
-        public string UserName { get { return userName; } set { userName = value; OnPropertyChanged("UserName"); } }
+        public string UserName 
+        { 
+            get { return userItemDM.UserContent.UserName; } 
+        }
 
 
         ObservableCollection<UserRole> userRoles;
-        public ObservableCollection<UserRole> UserRoles { get { return userRoles; } set { userRoles = value; } }
+        public ObservableCollection<UserRole> UserRoles 
+        { 
+            get { return userRoles; } 
+        }
 
 
-        public UserItemVM(AccountClientExt _queryMaker) 
+        public UserItemVM(UserItemDM _userItemDM, ListTabVM _tab) 
         {
-            
-            queryMaker = _queryMaker;
-            
+            userItemDM = _userItemDM;
+            userRoles = new ObservableCollection<UserRole>(userItemDM.UserContent.Roles);
+            tab = _tab;
 
-            deleteUser = new WCommand(o => 
-            { 
-                ExDeleteUser();
-                
+            deleteUser = new WCommand(async _ => 
+            {
+                await CatchExeption.ExecuteWithCatchAsync(async () =>
+                { 
+                    await userItemDM.DeleteUser();
+                    MessageBox.Show("Запрос выполнен успешно");
+                    Notify_delete?.Invoke(ucUserItem);
+                });
             });
 
             editUserRoles = new WCommand(o =>
             {
-                AddUserInRoleVM model = new AddUserInRoleVM(this, queryMaker);
-                
                 TabVM page = new TabVM()
                 {
-                    Header = "Изменить роли",
-                    Content = new UC_AddUserInRole(model)
+                    Header = "Изменить роли"  
                 };
-                model.Page = page;
-                model.Notify_change += ExChangeRole;
-                model.Notify_close += model.Page.ClosePage;
-                Notify_new?.Invoke(page);
+                var userinrileVM = new AddUserInRoleVM(userItemDM, page);
+                userinrileVM.UCUserItem = ucUserItem;
+                userinrileVM.Notify_change += UpdateItem;
+                userinrileVM.Notify_close += tab.TabClose;
+
+                page.Content = new UC_AddUserInRole(userinrileVM);
+                Notify_new_page?.Invoke(page);
             });
 
 
             resetPassword = new WCommand(o => 
             {
-                PasswordResetVM model = new PasswordResetVM(this, queryMaker);
+                PasswordResetVM model = new PasswordResetVM(userItemDM);
 
                 TabVM page = new TabVM()
                 {
@@ -76,8 +92,16 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
                 };
                 model.Page = page;
                 model.Notify_close += model.Page.ClosePage;
-                Notify_new?.Invoke(page);
+                Notify_new_page?.Invoke(page);
             });
+        }
+
+
+        public void UpdateItem()
+        {
+            //userRoles.Clear();
+            //foreach (var role in userItemDM.UserContent.Roles)
+            //    userRoles.Add(role);
         }
 
         WCommand editUserRoles;
@@ -89,32 +113,11 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
         WCommand deleteUser;
         public WCommand DeleteUser { get { return deleteUser; } }
 
+        UC_UserItem ucUserItem;
+        public UC_UserItem UCUserItem { set { ucUserItem = value; } }
 
-        public void ExDeleteUser()
-        {
-            UserModelForAdmin usermodel = new UserModelForAdmin()
-            {
-                Id = this.Id,
-                UserName = this.UserName,
-                UserRoles = this.userRoles.ToList()
-            };
-            HttpResponseMessage result = Task.Run(() => queryMaker.DeleteUser(usermodel).GetAwaiter().GetResult()).Result;
-            if ((int)result.StatusCode == 200 || (int)result.StatusCode == 201)
-            {
-                MessageBox.Show($"Запрос выполнен.");
-                Notify_delete?.Invoke();
-            }
-            else
-            {
-                //ErrorResultMessage.Show(result);
-            }
 
-        }
-
-        public void ExChangeRole() 
-        {
-            Notify_delete?.Invoke();
-        }
+        
 
 
 

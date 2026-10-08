@@ -3,45 +3,32 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Context.DBQuery
 {
-    public interface IProgectQuery 
+    public static class ProgectQuery
     {
-        Task<List<Progect>> SelectAllProgects(ServiceContext context);
-        Task<List<Progect>> SelectAllPublishedProgects(ServiceContext context);
-        Task<List<Progect>> SelectAllProgectsInWork(ServiceContext context);
-        Task<Progect> SelectLastProgect(ServiceContext context);
-        Task<Progect> SelectProgect(ServiceContext context, int id);
-
-        Task AddProgect(ServiceContext context, Progect note);
-        Task UpdateProgect(ServiceContext context, Progect note);
-
-        Task DeleteProgect(ServiceContext context, int id);
-    }
-    public class ProgectQuery: IProgectQuery
-    {
-        public async Task<List<Progect>> SelectAllProgects(ServiceContext context)
+        public static async Task<List<Progect>> SelectAllProgects(this ServiceContext context)
         {
             return await context.Progects.ToListAsync();
         }
 
-        public async Task<List<Progect>> SelectAllPublishedProgects(ServiceContext context) 
+        public static async Task<List<Progect>> SelectAllPublishedProgects(this ServiceContext context) 
         {
             return await context.Progects.Where(b => b.Status == "Published").ToListAsync();
         }
-        public async Task<List<Progect>> SelectAllProgectsInWork(ServiceContext context) 
+        public static async Task<List<Progect>> SelectAllProgectsInWork(this ServiceContext context) 
         {
             return await context.Progects.Where(b => b.Status == "InWork").ToListAsync();
         }
-        public async Task<Progect> SelectLastProgect(ServiceContext context)
+        public static async Task<Progect> SelectLastProgect(this ServiceContext context)
         {
             return await context.Progects.OrderByDescending(b => b.ID).FirstOrDefaultAsync();
         }
 
-        public async Task<Progect> SelectProgect(ServiceContext context, int id)
+        public static async Task<Progect> SelectProgect(this ServiceContext context, int id)
         {
             return await context.Progects.Where(b => b.ID == id).FirstOrDefaultAsync();
         }
 
-        public async Task AddProgect(ServiceContext context, Progect note)
+        public static async Task AddProgect(this ServiceContext context, Progect note)
         {
             try
             {
@@ -55,7 +42,7 @@ namespace WebApplication1.Context.DBQuery
 
         }
 
-        public async Task UpdateProgect(ServiceContext context, Progect note)
+        public static async Task UpdateProgect(this ServiceContext context, Progect note)
         {
             try
             {
@@ -78,7 +65,7 @@ namespace WebApplication1.Context.DBQuery
             }
         }
 
-        public async Task DeleteProgect(ServiceContext context, int id)
+        public static async Task DeleteProgect(this ServiceContext context, int id)
         {
             try
             {

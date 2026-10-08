@@ -17,13 +17,11 @@ namespace TTClassLibrary.Functions.Authorization
             public string? Token { get; set; }
         }
 
-        HttpResponseMessageDeserialize<TokenResponse> serializer;
         IHttpRequestSender requestSender;
 
         public AuthorizeRequestSender(IHttpRequestSender _requestSender)
         {
             this.requestSender = _requestSender;
-            serializer = new HttpResponseMessageDeserialize<TokenResponse>();
         }
 
 
@@ -31,6 +29,7 @@ namespace TTClassLibrary.Functions.Authorization
         {
             try
             {
+                var serializer = new HttpResponseMessageDeserialize<TokenResponse>();
                 var tokenResponse = serializer.DeserializeResponce(response);
                 return tokenResponse.Token;
             }

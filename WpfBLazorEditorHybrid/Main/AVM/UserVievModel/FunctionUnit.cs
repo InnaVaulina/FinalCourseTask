@@ -27,6 +27,7 @@ using WpfBLazorHybridClient.Functions.Work.Control;
 using TTClassLibrary.Functions.Blog;
 using WpfBLazorHybridClient.Client;
 using TTClassLibrary.Functions.CollectionForm;
+using TTClassLibrary.Functions.Admin;
 
 namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
 {
@@ -171,12 +172,29 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
         }
     }
 
-    
+    public class UserManagerFUnit : FunctionUnit
+    {
+        UC_UserManager userManager;
+        public UserManagerFUnit(ListTabVM _tabViewModel, User user)
+            : base(_tabViewModel)
+        {
+            functionDisplay = "Управление пользователями";
+            var rs = new TTClassLibrary.Functions.Admin.UserManagerRequestSender(new HttpRequestSender2(user));
+            var userManagerDM = new TTClassLibrary.Functions.Admin.UserManagerDM(rs);
+            userManager = new UC_UserManager(new UserManagerVM(userManagerDM, _tabViewModel));
+            userManager.Model.Notify_new += tabViewModel.TabAdd;
+            menuCommand = new WCommand(async _ =>
+            {
+                await userManager.Model.InitializeAsync();
+                tabViewModel.TabAdd(functionDisplay, userManager);
+            });
+        }
+    }
 
-    
 
 
-    
+
+
 
     public class UserPageFUnit : FunctionUnit
     {
@@ -193,20 +211,5 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
         }
     }
 
-    public class UserManagerFUnit : FunctionUnit
-    {
-        UC_UserManager userManager;
-        public UserManagerFUnit(ListTabVM _tabViewModel, User user)
-            : base(_tabViewModel)
-        {
-            functionDisplay = "Управление пользователями";
-            userManager = new UC_UserManager(new UserManagerVM(user));
-            userManager.Model.Notify_new += tabViewModel.TabAdd;
-            menuCommand = new WCommand(o =>
-            {
-                userManager.Model.SelectUsers();
-                tabViewModel.TabAdd(functionDisplay, userManager);
-            });
-        }
-    }
+    
 }

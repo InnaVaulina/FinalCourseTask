@@ -11,12 +11,10 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class ServiceController : ControllerBase
     {
-        private readonly IServiceQuery _collection;
         private readonly ServiceContext _context;
 
-        public ServiceController(IServiceQuery collection, ServiceContext context)
+        public ServiceController(ServiceContext context)
         {
-            _collection = collection;
             _context = context;
         }
 
@@ -26,10 +24,10 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                BusinesService service = await _collection.SelectService(_context, id);
+                BusinesService service = await _context.SelectService(id);
                 if (service != null)
                 {
-                    await _collection.DeleteService(_context, id);
+                    await _context.DeleteService(id);
                 }
                 else
                 {
@@ -97,8 +95,8 @@ namespace WebApplication1.Controllers
 
             try
             {
-                await _collection.AddService(_context, service);
-                service = await _collection.SelectLastService(_context);
+                await _context.AddService(service);
+                service = await _context.SelectLastService();
             }
             catch (Exception ex)
             {
@@ -160,8 +158,8 @@ namespace WebApplication1.Controllers
 
             try
             {
-                await _collection.UpdateService(_context, service);
-                service = await _collection.SelectService(_context, id);
+                await _context.UpdateService(service);
+                service = await _context.SelectService(id);
             }
             catch (Exception ex)
             {
@@ -180,7 +178,7 @@ namespace WebApplication1.Controllers
             BusinesService service;
             try
             {
-                service = await _collection.SelectService(_context, id);
+                service = await _context.SelectService(id);
                 return Ok(service);
             }
             catch (Exception ex)
@@ -197,7 +195,7 @@ namespace WebApplication1.Controllers
             List<BusinesService> progects;
             try
             {
-                progects = await _collection.SelectAllServices(_context);
+                progects = await _context.SelectAllServices();
                 return Ok(progects);
             }
             catch (Exception ex)

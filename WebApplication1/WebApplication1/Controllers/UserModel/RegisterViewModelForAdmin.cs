@@ -3,6 +3,6 @@
     public class RegisterViewModelForAdmin : RegisterViewModel
     {
 
-        public string UserRole { get; set; }
+        public List<string> UserRole { get; set; }
     }
 }

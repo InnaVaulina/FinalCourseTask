@@ -4,47 +4,34 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Context.DBQuery
 {
-    public interface IBlogQuery 
+    public static class BlogQuery
     {
-        Task<List<Blog>> SelectAllBlogs(ServiceContext context, DateTime beginDate, DateTime endDate);
-        Task<List<Blog>> SelectAllPublishedBlogs(ServiceContext context, DateTime beginDate, DateTime endDate);
-        Task<List<Blog>> SelectAllBlogsInWork(ServiceContext context, DateTime beginDate, DateTime endDate);
-        Task<Blog> SelectLastBlog(ServiceContext context);
-        Task<Blog> SelectBlog(ServiceContext context, int id);
-
-        Task AddBlog(ServiceContext context, Blog note);
-        Task UpdateBlog(ServiceContext context, Blog note);
-
-        Task DeleteBlog(ServiceContext context, int id);
-    }
-    public class BlogQuery: IBlogQuery
-    {
-        public async Task<List<Blog>> SelectAllBlogs(ServiceContext context, DateTime beginDate, DateTime endDate)
+        public static async Task<List<Blog>> SelectAllBlogs(this ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Blogs.Where(b => b.PostDate >= beginDate && b.PostDate <= endDate).ToListAsync();
         }
 
-        public async Task<List<Blog>> SelectAllPublishedBlogs(ServiceContext context, DateTime beginDate, DateTime endDate)
+        public static async Task<List<Blog>> SelectAllPublishedBlogs(this ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Blogs.Where(b => b.PostDate >= beginDate && b.PostDate <= endDate && b.Status == "Published").ToListAsync();
         }
 
-        public async Task<List<Blog>> SelectAllBlogsInWork(ServiceContext context, DateTime beginDate, DateTime endDate)
+        public static async Task<List<Blog>> SelectAllBlogsInWork(this ServiceContext context, DateTime beginDate, DateTime endDate)
         {
             return await context.Blogs.Where(b => b.PostDate >= beginDate && b.PostDate <= endDate && b.Status == "InWork").ToListAsync();
         }
 
-        public async Task<Blog> SelectLastBlog(ServiceContext context)
+        public static async Task<Blog> SelectLastBlog(this ServiceContext context)
         {
             return await context.Blogs.OrderByDescending(b => b.ID).FirstOrDefaultAsync();
         }
 
-        public async Task<Blog> SelectBlog(ServiceContext context, int id)
+        public static async Task<Blog> SelectBlog(this ServiceContext context, int id)
         {
             return await context.Blogs.Where(b => b.ID == id).FirstOrDefaultAsync();
         }
 
-        public async Task AddBlog(ServiceContext context, Blog note)
+        public static async Task AddBlog(this ServiceContext context, Blog note)
         {
             try
             {
@@ -58,7 +45,7 @@ namespace WebApplication1.Context.DBQuery
 
         }
 
-        public async Task UpdateBlog(ServiceContext context, Blog note)
+        public static async Task UpdateBlog(this ServiceContext context, Blog note)
         {
             try
             {
@@ -82,7 +69,7 @@ namespace WebApplication1.Context.DBQuery
             }
         }
 
-        public async Task DeleteBlog(ServiceContext context, int id)
+        public static async Task DeleteBlog(this ServiceContext context, int id)
         {
             try 
             {

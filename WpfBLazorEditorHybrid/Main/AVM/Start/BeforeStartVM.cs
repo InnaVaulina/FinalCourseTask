@@ -7,12 +7,14 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using TTClassLibrary.Functions.Admin;
+using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Client.Account;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.Main.Control.AccountControl;
 using WpfBLazorHybridClient.DataModel;
-using WpfBLazorHybridClient.Main.AVM.Account;
 using WpfBLazorHybridClient.Functions.Admin.AVM;
+using WpfBLazorHybridClient.Main.AVM.Account;
+using WpfBLazorHybridClient.Main.Control.AccountControl;
 
 namespace WpfBLazorHybridClient.Main.AVM.Start
 {
@@ -21,17 +23,16 @@ namespace WpfBLazorHybridClient.Main.AVM.Start
 
     public class BeforeStartVM : INotifyPropertyChanged
     {
-        //public event ChooseInterfaceHandler Notify_entry;
         public event LogInUserHandler Notify;
 
-        AccountClientBase queryMaker;
         public BeforeStartVM()
         {
-            queryMaker = new AccountClientBase();
+            var rs = new UserManagerRequestSender(new HttpRequestSender2(new User()));
+            var regDM = new RegistrationDM(rs);
 
-            entry = new UC_Entry(new EntryVM(queryMaker));
+            entry = new UC_Entry(new EntryVM(new EntryDM(rs)));
             entry.Model.Notify += LogInPerformed;
-            registration = new UC_Registration(new RegistrationVM(queryMaker));
+            registration = new UC_Registration(new RegistrationVM(new RegistrationDM(rs)));
             content = entry;
 
             selectEntryPage = new WCommand(o => { Content = entry; });

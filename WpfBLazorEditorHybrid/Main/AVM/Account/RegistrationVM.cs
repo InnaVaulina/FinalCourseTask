@@ -2,11 +2,14 @@
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using WpfBLazorHybridClient.Client.Account.UserModel;
-using WpfBLazorHybridClient.Main.AVM.Tab;
+using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Admin;
 using WpfBLazorHybridClient.Client.Account;
+using WpfBLazorHybridClient.Client.Account.UserModel;
 using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Error;
+using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Main.AVM.Account
 {
@@ -16,69 +19,46 @@ namespace WpfBLazorHybridClient.Main.AVM.Account
         public event TabCloseHandler Notify_close;
         public event ExecuteDeleteUserHandler Notify_register;
 
-        RegisterM register;
-        AccountClientBase queryMaker;
+        RegistrationDM registrationDM;
 
         TabVM page;
         public TabVM Page { get { return page; } set { page = value; } }
 
         public string LoginProp
         {
-            get { return register.LoginProp; }
-            set { register.LoginProp = value; OnPropertyChanged("LoginProp"); }
+            get { return registrationDM.RegisterModel.LoginProp; }
+            set { registrationDM.RegisterModel.LoginProp = value; OnPropertyChanged("LoginProp"); }
         }
 
         public string Password
         {
-            get { return register.Password; }
-            set { register.Password = value; OnPropertyChanged("Password"); }
+            get { return registrationDM.RegisterModel.Password; }
+            set { registrationDM.RegisterModel.Password = value; OnPropertyChanged("Password"); }
         }
         public string ConfirmPassword
         {
-            get { return register.ConfirmPassword; }
-            set { register.ConfirmPassword = value; OnPropertyChanged("ConfirmPassword"); }
+            get { return registrationDM.RegisterModel.ConfirmPassword; }
+            set { registrationDM.RegisterModel.ConfirmPassword = value; OnPropertyChanged("ConfirmPassword"); }
         }
 
 
-        public RegistrationVM(AccountClientBase _queryMaker) 
+        public RegistrationVM(RegistrationDM _registrationDM) 
         {
-            register = new RegisterM();
-            queryMaker = _queryMaker;
+            registrationDM = _registrationDM;
 
-            regUser = new WCommand(o =>
+            regUser = new WCommand(async _ =>
             {
-                if (LoginProp != "" && Password != "" && ConfirmPassword != "")
-                    ExecuteRegistrUser();
-            });
-        }
-
-        public HttpResponseMessage result;
-        public HttpResponseMessage Result
-        {
-            set
-            {
-                result = value;
-                if ((int)result.StatusCode == 200 || (int)result.StatusCode == 201)
-                {                  
+                await CatchExeption.ExecuteWithCatchAsync(async () =>
+                {
+                    if (LoginProp != "" && Password != "" && ConfirmPassword != "")
+                        await registrationDM.RegisterNewUser();
                     MessageBox.Show($"Запрос выполнен.");
                     Notify_close?.Invoke(page);
                     Notify_register?.Invoke();
-                }
-                else
-                {
-                    //ErrorResultMessage.Show(result);
-                }                       
-            }
+                });
+            });
         }
 
-
-
-
-
-        public void ExecuteRegistrUser()
-        {
-            Result = Task.Run(() => queryMaker.Register(register).GetAwaiter().GetResult()).Result;
-        }
 
         WCommand regUser;
         public WCommand RegUser { get { return regUser; } }

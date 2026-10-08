@@ -17,6 +17,7 @@ namespace WpfBLazorHybridClient.DataModel
 
         public User()
         {
+            Token = string.Empty;
         }
     }
 

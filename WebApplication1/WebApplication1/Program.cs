@@ -15,14 +15,6 @@ builder.Services.AddDbContext<ServiceContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
-
-builder.Services.AddSingleton<IRequestQuery, RequestQuery>();
-builder.Services.AddSingleton<IBlogQuery, BlogQuery>();
-builder.Services.AddSingleton<IProgectQuery, ProgectQuery>();
-builder.Services.AddSingleton<IServiceQuery, ServiceQuery>();
-builder.Services.AddSingleton<IContactQuery, ContactQuery>();
-builder.Services.AddSingleton<IHeaderQuery, HeaderQuery>();
-
 // Add services to the container.
 
 builder.Services.AddControllers();

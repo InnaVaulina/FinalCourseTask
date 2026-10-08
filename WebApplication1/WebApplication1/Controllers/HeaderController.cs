@@ -13,12 +13,10 @@ namespace WebApplication1.Controllers
     [Authorize(Roles = "admin, mainpage")]
     public class HeaderController : ControllerBase
     {
-        private readonly IHeaderQuery _collection;
         private readonly ServiceContext _context;
 
-        public HeaderController(IHeaderQuery collection, ServiceContext context)
+        public HeaderController(ServiceContext context)
         {
-            _collection = collection;
             _context = context;
         }
 
@@ -28,7 +26,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var header = await _collection.SelectHeader(_context);
+                var header = await _context.SelectHeader();
                 if (header != null)
                 {
                     return Ok(header);
@@ -72,9 +70,9 @@ namespace WebApplication1.Controllers
 
             try
             {
-                await _collection.CreateHeader(_context, header);
+                await _context.CreateHeader(header);
 
-                header = await _collection.SelectHeader(_context);
+                header = await _context.SelectHeader();
 
                 if (headerPicture != null && headerPicture.Length != 0)
                 {
@@ -124,9 +122,9 @@ namespace WebApplication1.Controllers
 
             try
             {
-                await _collection.UpdateHeader(_context, header);
+                await _context.UpdateHeader(header);
 
-                header = await _collection.SelectHeader(_context);
+                header = await _context.SelectHeader();
 
                 if (headerPicture != null && headerPicture.Length != 0)
                 {

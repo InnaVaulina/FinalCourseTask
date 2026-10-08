@@ -3,54 +3,43 @@ using System.ComponentModel;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using WpfBLazorHybridClient.Main.AVM.Tab;
-using WpfBLazorHybridClient.Client.Account.UserModel;
+using TTClassLibrary.Functions.Admin;
 using WpfBLazorHybridClient.Client.Account;
+using WpfBLazorHybridClient.Client.Account.UserModel;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Admin.Control;
+using WpfBLazorHybridClient.Main.AVM.Tab;
+using WpfBLazorHybridClient.Service;
+using TTClassLibrary.DataModel;
 
 namespace WpfBLazorHybridClient.Functions.Admin.AVM
 {
     public class AddUserInRoleVM : INotifyPropertyChanged
     {
 
-        public event ExecuteDeleteUserHandler Notify_change;
+        public event UpdateUserHandler Notify_change;
         public event TabCloseHandler Notify_close;
 
-
-
-        
-
-        AccountClientExt queryMaker;
+        UserItemDM userItemDM;
 
         TabVM page;
 
         public TabVM Page { get { return page; } set { page = value; } }
 
-        string id;
-        public string Id { get { return id; } set { id = value; OnPropertyChanged("Id"); } }
+        public string Id { get { return userItemDM.UserContent.Id; } }
 
-        string userName;
-        public string UserName { get { return userName; } set { userName = value; OnPropertyChanged("UserName"); } }
-
-        List<UserRole> userRoles;
-       
+        public string UserName { get { return userItemDM.UserContent.UserName; } }
 
 
         ObservableCollection<UC_RoleItem> list;
 
         public ObservableCollection<UC_RoleItem> List { get { return list; } }
 
-        public AddUserInRoleVM(UserItemVM _user, AccountClientExt _queryMaker) 
+        public AddUserInRoleVM(UserItemDM _userItemDM, TabVM _page) 
         {
-            queryMaker = _queryMaker;
-
-            id = _user.Id;
-            userName = _user.UserName;
-            userRoles = _user.UserRoles.ToList();
-           
+            userItemDM = _userItemDM;
+            page = _page;
 
             list = new ObservableCollection<UC_RoleItem>();
             for (int i = 0; i < RoleDescr.roles.Length; i++)
@@ -61,7 +50,7 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
                     RoleName = RoleDescr.functionName[i],
                     Description = RoleDescr.deskr[i]
                 };
-                foreach (var role in userRoles) 
+                foreach (var role in userItemDM.UserContent.Roles) 
                 {
                     if(role.Role == RoleDescr.roles[i])
                         roleItem.RoleChecked = true;
@@ -71,9 +60,23 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
             }
 
 
-            saveRoles = new WCommand(o=> 
+            saveRoles = new WCommand(async _=> 
             {
-                SaveUserRoles();
+                await CatchExeption.ExecuteWithCatchAsync(async () =>
+                {
+                    List<UserRole> newUserRoles = new List<UserRole>();
+                    foreach (var role in List)
+                    {
+                        if (role.Model.RoleChecked == true)
+                            newUserRoles.Add(new UserRole() { Role = role.Model.Role });
+                    }
+                    await userItemDM.ChangeUserRoles(newUserRoles);
+                    MessageBox.Show($"Запрос выполнен.");
+                    Notify_change?.Invoke();
+                    Notify_close?.Invoke(page);
+                
+                });
+
             });
         }
 
@@ -82,36 +85,8 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
         public WCommand SaveRoles { get { return saveRoles; } }
 
 
-        public void SaveUserRoles() 
-        {
-            List<UserRole> newUserRoles = new List<UserRole>();
-            foreach(var role in List) 
-            {
-                if (role.Model.RoleChecked == true)
-                    newUserRoles.Add(new UserRole() { Role = role.Model.Role });
-            }
-
-            UserModelForAdmin usermodel = new UserModelForAdmin()
-            {
-                Id = this.Id,
-                UserName = this.UserName,
-                UserRoles = newUserRoles
-            };
-            HttpResponseMessage result = Task.Run(() => queryMaker.ChangeUserRole(usermodel).GetAwaiter().GetResult()).Result;
-            
-            if ((int)result.StatusCode == 200 || (int)result.StatusCode == 201)
-            {
-                MessageBox.Show($"Запрос выполнен.");
-                Notify_change?.Invoke();
-                Notify_close?.Invoke(page);
-            }
-            else
-            {
-                //ErrorResultMessage.Show(result);
-            }
-        }
-
-
+        UC_UserItem ucUserItem;
+        public UC_UserItem UCUserItem { set { ucUserItem = value; } }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")

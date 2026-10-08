@@ -14,12 +14,10 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class ContactController : ControllerBase
     {
-        private readonly IContactQuery _collection;
         private readonly ServiceContext _context;
 
-        public ContactController(IContactQuery collection, ServiceContext context)
+        public ContactController(ServiceContext context)
         {
-            _collection = collection;
             _context = context;
         }
 
@@ -29,7 +27,7 @@ namespace WebApplication1.Controllers
             List<Contact> contacts;
             try
             {
-                contacts = await _collection.SelectAllContacts(_context);
+                contacts = await _context.SelectAllContacts();
                 return Ok(contacts);
             }
             catch (Exception ex)
@@ -45,7 +43,7 @@ namespace WebApplication1.Controllers
             Contact contact;
             try
             {
-                contact = await _collection.SelectContact(_context, id);
+                contact = await _context.SelectContact(id);
                 return Ok(contact);
             }
             catch (Exception ex)
@@ -80,8 +78,8 @@ namespace WebApplication1.Controllers
 
             try
             {
-                await _collection.AddContact(_context, newContent);
-                newContent = await _collection.SelectLastContact(_context);
+                await _context.AddContact(newContent);
+                newContent = await _context.SelectLastContact();
 
                 if (addressPicture != null && addressPicture.Length != 0)
                     newContent.Address.MapFileName = await SavePicture(newContent.ID, newContent.Address.ID, addressPicture, "mapImage");
@@ -166,7 +164,7 @@ namespace WebApplication1.Controllers
 
             try
             {
-                content = await _collection.SelectContact(_context, id);
+                content = await _context.SelectContact(id);
                 if (content == null)
                     return BadRequest("Объект для изменения не найден.");
                 content.Name = newContent.Name;
@@ -184,21 +182,21 @@ namespace WebApplication1.Controllers
                     string? addressFileName = null;
                     if (deletedContent.Address.MapFileName != "")
                         addressFileName = deletedContent.Address.MapFileName;
-                    await _collection.DeleteAddress(_context, deletedContent.Address.ID);
+                    await _context.DeleteAddress(deletedContent.Address.ID);
                     if(addressFileName != null)
                         await DeletePicture(addressFileName);
                 }
 
                 foreach (var phone in deletedContent.Phones)
-                    await _collection.DeletePhone(_context, phone.ID);
+                    await _context.DeletePhone(phone.ID);
                 foreach (var mail in deletedContent.Mails)
-                    await _collection.DeleteMail(_context, mail.ID);
+                    await _context.DeleteMail(mail.ID);
 
                 foreach (var link in deletedContent.Links)
                 {
                     List<string> socialIconFileNames = new List<string>();
                     socialIconFileNames.Add(link.IkonFileName);
-                    await _collection.DeleteSocialLink(_context, link.ID);
+                    await _context.DeleteSocialLink(link.ID);
                     foreach(var fileName in socialIconFileNames)
                         await DeletePicture(fileName);
                 }
@@ -216,7 +214,7 @@ namespace WebApplication1.Controllers
                     if (newContent.Address.ID == 0)
                     {
                         if(!_context.Addresses.Any(a => a.ContactId == id))
-                            addressContent = await _collection.AddAddress(_context, newContent.Address);
+                            addressContent = await _context.AddAddress(newContent.Address);
                     }
                     else
                     {
@@ -246,7 +244,7 @@ namespace WebApplication1.Controllers
                 {
                     if (phone.ID == 0)
                     {
-                        await _collection.AddPhone(_context, phone);
+                        await _context.AddPhone(phone);
                     }
                     else
                     {
@@ -268,7 +266,7 @@ namespace WebApplication1.Controllers
                 {
                     if (mail.ID == 0)
                     {
-                        await _collection.AddMail(_context, mail);
+                        await _context.AddMail(mail);
                     }
                     else
                     {
@@ -292,7 +290,7 @@ namespace WebApplication1.Controllers
                     ContactSocialLink? link = null;
                     if (newlink.ID == 0)
                     {
-                        link = await _collection.AddSocialLink(_context, newlink);
+                        link = await _context.AddSocialLink(newlink);
                     }
                     else
                     {
@@ -315,7 +313,7 @@ namespace WebApplication1.Controllers
                 return BadRequest("Ошибка в блоке ссылки");
             }
 
-            content = await _collection.SelectContact(_context, id);
+            content = await _context.SelectContact(id);
             return Ok(content);
         }
 
@@ -327,7 +325,7 @@ namespace WebApplication1.Controllers
 
             try
             {
-                Contact contact = await _collection.SelectContact(_context, id);
+                Contact contact = await _context.SelectContact(id);
                 if(contact == null)
                     throw new Exception("Не найден объект для удаления");
 
@@ -337,9 +335,9 @@ namespace WebApplication1.Controllers
                 foreach (var link in contact.Links)
                     socialIconFileNames.Add(link.IkonFileName);
 
-                await _collection.DeleteContact(_context, id);
+                await _context.DeleteContact(id);
 
-                contact = await _collection.SelectContact(_context, id);
+                contact = await _context.SelectContact(id);
                 if (contact == null)
                 {
                     if(addressFileName!=null) await DeletePicture(addressFileName);

@@ -19,12 +19,10 @@ namespace WebApplication1.Controllers
     [Authorize(Roles = "admin, blog")]
     public class BlogController: ControllerBase
     {
-        private readonly IBlogQuery _collection;
         private readonly ServiceContext _context;
 
-        public BlogController(IBlogQuery collection, ServiceContext context)
+        public BlogController(ServiceContext context)
         {
-            _collection = collection;
             _context = context;
         }
 
@@ -33,7 +31,7 @@ namespace WebApplication1.Controllers
         {
             try 
             {
-                Blog blog = await _collection.SelectBlog(_context, id);
+                Blog blog = await _context.SelectBlog(id);
                 if (blog != null)
                 {
                     if(blog.IllustrationId != "") 
@@ -45,7 +43,7 @@ namespace WebApplication1.Controllers
                             System.IO.File.Delete(filePath);
                         }
                     }                    
-                    await _collection.DeleteBlog(_context, id);
+                    await _context.DeleteBlog(id);
                 }
                 else 
                 {
@@ -127,8 +125,8 @@ namespace WebApplication1.Controllers
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
         
-            await _collection.AddBlog(_context,blog);
-            blog = await _collection.SelectLastBlog(_context);
+            await _context.AddBlog(blog);
+            blog = await _context.SelectLastBlog();
 
             if (blogPicture != null && blogPicture.Length != 0)
             {
@@ -206,8 +204,8 @@ namespace WebApplication1.Controllers
                 Directory.CreateDirectory(uploadsFolder);
             
             blog.ID = id;
-            await _collection.UpdateBlog(_context,blog);
-            blog = await _collection.SelectBlog(_context,id);
+            await _context.UpdateBlog(blog);
+            blog = await _context.SelectBlog(id);
 
             if (blogPicture != null && blogPicture.Length != 0)
             {
@@ -234,7 +232,7 @@ namespace WebApplication1.Controllers
             Blog blog;
             try
             {
-                blog = await _collection.SelectBlog(_context, id);
+                blog = await _context.SelectBlog(id);
                 return Ok(blog);
             }
             catch (Exception ex)
@@ -259,13 +257,13 @@ namespace WebApplication1.Controllers
                 switch (Search)
                 {
                     case "ShowAll":
-                        blogs = await _collection.SelectAllBlogs(_context, beginDate, endDate);
+                        blogs = await _context.SelectAllBlogs(beginDate, endDate);
                         break;
                     case "ShowPublished":
-                        blogs = await _collection.SelectAllPublishedBlogs(_context, beginDate, endDate);
+                        blogs = await _context.SelectAllPublishedBlogs(beginDate, endDate);
                         break;
                     case "ShowInWork":
-                        blogs = await _collection.SelectAllBlogsInWork(_context, beginDate, endDate);
+                        blogs = await _context.SelectAllBlogsInWork(beginDate, endDate);
                         break;
                     default:
                         throw new Exception("Неверный параметр поиска");

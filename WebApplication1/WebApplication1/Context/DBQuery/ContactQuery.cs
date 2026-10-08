@@ -4,27 +4,9 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Context.DBQuery
 {
-
-    public interface IContactQuery 
+    public static class ContactQuery
     {
-        Task<List<Contact>> SelectAllContacts(ServiceContext context);
-        Task<Contact?> SelectLastContact(ServiceContext context);
-        Task<Contact?> SelectContact(ServiceContext context, int id);
-        Task AddContact(ServiceContext context, Contact note);
-        Task<ContactAddress?> AddAddress(ServiceContext context, ContactAddress note);
-        Task<ContactPhone?> AddPhone(ServiceContext context, ContactPhone note);
-        Task<ContactMail?> AddMail(ServiceContext context, ContactMail note);
-        Task<ContactSocialLink?> AddSocialLink(ServiceContext context, ContactSocialLink note);
-
-        Task DeleteContact(ServiceContext context, int id);
-        Task DeleteAddress(ServiceContext context, int id);
-        Task DeletePhone(ServiceContext context, int id);
-        Task DeleteMail(ServiceContext context, int id);
-        Task DeleteSocialLink(ServiceContext context, int id);
-    }
-    public class ContactQuery: IContactQuery
-    {
-        public async Task<List<Contact>> SelectAllContacts(ServiceContext context) 
+        public static async Task<List<Contact>> SelectAllContacts(this ServiceContext context) 
         {
             return await context.Contacts
                 .AsNoTracking()
@@ -35,7 +17,7 @@ namespace WebApplication1.Context.DBQuery
                 .ToListAsync();
         }
 
-        public async Task<Contact?> SelectLastContact(ServiceContext context) 
+        public static async Task<Contact?> SelectLastContact(this ServiceContext context) 
         {
             return await context.Contacts.OrderByDescending(b => b.ID)
                 .Include(c => c.Address)
@@ -45,7 +27,7 @@ namespace WebApplication1.Context.DBQuery
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<Contact?> SelectContact(ServiceContext context, int id) 
+        public static async Task<Contact?> SelectContact(this ServiceContext context, int id) 
         {
             return await context.Contacts.Where(b => b.ID == id)
                 .Include(c => c.Address)
@@ -56,7 +38,7 @@ namespace WebApplication1.Context.DBQuery
                 .FirstOrDefaultAsync();
         }
 
-        public async Task AddContact(ServiceContext context, Contact note) 
+        public static async Task AddContact(this ServiceContext context, Contact note) 
         {
             try
             {
@@ -69,7 +51,7 @@ namespace WebApplication1.Context.DBQuery
             }
         }
 
-        public async Task<ContactAddress?> AddAddress(ServiceContext context, ContactAddress note)
+        public static async Task<ContactAddress?> AddAddress(this ServiceContext context, ContactAddress note)
         {
             try
             {
@@ -95,7 +77,7 @@ namespace WebApplication1.Context.DBQuery
             return newNote;
         }
 
-        public async Task<ContactPhone?> AddPhone(ServiceContext context, ContactPhone note)
+        public static async Task<ContactPhone?> AddPhone(this ServiceContext context, ContactPhone note)
         {
             try
             {
@@ -116,7 +98,7 @@ namespace WebApplication1.Context.DBQuery
             return lastNote;
         }
 
-        public async Task<ContactMail?> AddMail(ServiceContext context, ContactMail note)
+        public static async Task<ContactMail?> AddMail(this ServiceContext context, ContactMail note)
         {
             try
             {
@@ -137,7 +119,7 @@ namespace WebApplication1.Context.DBQuery
             return lastNote;
         }
 
-        public async Task<ContactSocialLink?> AddSocialLink(ServiceContext context, ContactSocialLink note)
+        public static async Task<ContactSocialLink?> AddSocialLink(this ServiceContext context, ContactSocialLink note)
         {
             try
             {
@@ -158,7 +140,7 @@ namespace WebApplication1.Context.DBQuery
             return lastNote;
         }
 
-        public async Task DeleteContact(ServiceContext context, int id)
+        public static async Task DeleteContact(this ServiceContext context, int id)
         {
             try
             {
@@ -184,7 +166,7 @@ namespace WebApplication1.Context.DBQuery
             }
         }
 
-        public async Task DeleteAddress(ServiceContext context, int id)
+        public static async Task DeleteAddress(this ServiceContext context, int id)
         {
             try
             {
@@ -204,7 +186,7 @@ namespace WebApplication1.Context.DBQuery
             }
         }
 
-        public async Task DeletePhone(ServiceContext context, int id)
+        public static async Task DeletePhone(this ServiceContext context, int id)
         {
             try
             {
@@ -224,7 +206,7 @@ namespace WebApplication1.Context.DBQuery
             }
         }
 
-        public async Task DeleteMail(ServiceContext context, int id)
+        public static async Task DeleteMail(this ServiceContext context, int id)
         {
             try
             {
@@ -243,7 +225,7 @@ namespace WebApplication1.Context.DBQuery
             }
         }
 
-        public async Task DeleteSocialLink(ServiceContext context, int id)
+        public static async Task DeleteSocialLink(this ServiceContext context, int id)
         {
             try
             {
