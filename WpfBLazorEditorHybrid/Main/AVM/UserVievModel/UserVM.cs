@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 
 namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
 {

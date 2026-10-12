@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TTClassLibrary.IServices;
 using TTClassLibrary.Support;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Error;
 
 namespace WpfBLazorHybridClient.Client

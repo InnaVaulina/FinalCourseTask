@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 using WpfBLazorHybridClient.Main.AVM.Start;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 
 namespace WpfBLazorHybridClient.Main.Control.BusinessControl
 {

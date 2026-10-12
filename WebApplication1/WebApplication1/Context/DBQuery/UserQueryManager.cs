@@ -24,18 +24,25 @@ namespace WebApplication1.Context.DBQuery
             return modelList;
         }
 
-        public static async Task ChangeUserRoles(this AppUser targetUser, UserManager<AppUser> _userManager, List<string> newroles) 
+        public static async Task<IdentityResult> ChangeUserRoles(this UserManager<AppUser> _userManager, AppUser targetUser, List<string> newroles) 
         {
             var roles = await _userManager.GetRolesAsync(targetUser);
-            await _userManager.RemoveFromRolesAsync(targetUser, roles);
-            await _userManager.AddToRolesAsync(targetUser, newroles);
+            var removeRes = await _userManager.RemoveFromRolesAsync(targetUser, roles);
+            if (!removeRes.Succeeded) return removeRes;
+            var addRes = await _userManager.AddToRolesAsync(targetUser, newroles);
+            if (!addRes.Succeeded) return addRes;
+            return IdentityResult.Success;
         }
 
-        public static async Task DeleteUser(this AppUser targetUser, UserManager<AppUser> _userManager) 
-        {           
-            var roles = await _userManager.GetRolesAsync(targetUser);
-            await _userManager.RemoveFromRolesAsync(targetUser, roles);
-            await _userManager.DeleteAsync(targetUser);            
+
+
+        public static async Task<IdentityResult> DeleteUserAsync(this UserManager<AppUser> userManager, AppUser targetUser) 
+        { 
+            var roles = await userManager.GetRolesAsync(targetUser); 
+            var removeRes = await userManager.RemoveFromRolesAsync(targetUser, roles); 
+            if (!removeRes.Succeeded) return removeRes; 
+            return await userManager.DeleteAsync(targetUser); 
         }
+
     }
 }

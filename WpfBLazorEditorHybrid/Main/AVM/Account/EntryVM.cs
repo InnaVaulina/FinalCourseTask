@@ -15,7 +15,7 @@ using TTClassLibrary.Support;
 using WpfBLazorHybridClient.Client.Account;
 using WpfBLazorHybridClient.Client.Account.UserModel;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Main.AVM.Start;
 using WpfBLazorHybridClient.Service;

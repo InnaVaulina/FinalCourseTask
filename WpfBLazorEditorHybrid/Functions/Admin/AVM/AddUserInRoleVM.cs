@@ -64,11 +64,11 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
             {
                 await CatchExeption.ExecuteWithCatchAsync(async () =>
                 {
-                    List<UserRole> newUserRoles = new List<UserRole>();
+                    var newUserRoles = new List<string>();
                     foreach (var role in List)
                     {
                         if (role.Model.RoleChecked == true)
-                            newUserRoles.Add(new UserRole() { Role = role.Model.Role });
+                            newUserRoles.Add(role.Model.Role);
                     }
                     await userItemDM.ChangeUserRoles(newUserRoles);
                     MessageBox.Show($"Запрос выполнен.");

@@ -21,13 +21,13 @@ namespace TTClassLibrary.Functions.Admin
 
         public async Task<HttpResponseMessage> Register(JsonContent content)
         {
-            var url = $"api/Account/Register";
+            var url = $"api/Auth/Register";
             return await requestSender.Post(url, content);
         }
 
         public async Task<HttpResponseMessage> Login(JsonContent content)
         {
-            var url = $"api/Account/Login_";
+            var url = $"api/Auth/Login_";
             return await requestSender.Post(url, content);
         }
 
@@ -51,13 +51,19 @@ namespace TTClassLibrary.Functions.Admin
 
         public async Task<HttpResponseMessage> ChangeCurrentUserPassword(JsonContent content)
         {
-            var url = $"api/Account/ChangeCurrentUserPassword";
+            var url = $"api/Auth/ChangeCurrentUserPassword";
             return await requestSender.Put(url, content);
         }
 
         public async Task<HttpResponseMessage> ResetUserPassword(string userId, JsonContent content)
         {
             var url = $"api/Account/ChangeUserPassword?id={userId}";
+            return await requestSender.Put(url, content);
+        }
+
+        public async Task<HttpResponseMessage> ResetCurrentUserPassword(JsonContent content)
+        {
+            var url = $"api/Account/ChangeUserPassword";
             return await requestSender.Put(url, content);
         }
     }

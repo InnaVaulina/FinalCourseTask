@@ -2,7 +2,7 @@
 using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 using WpfBLazorHybridClient.Main.AVM.UserVievModel;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 
 
 namespace WpfBLazorHybridClient.Main.AVM.Start

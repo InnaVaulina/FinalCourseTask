@@ -42,7 +42,7 @@ namespace TTClassLibrary.Functions.Authorization
 
         public async Task<HttpResponseMessage> Login(UserEntryM model)
         {
-            var url = $"api/Account/Login_";
+            var url = $"api/Auth/Login_";
             try
             {
                 JsonContent content = JsonContent.Create(model);

@@ -15,7 +15,7 @@ namespace WebApplication1.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "admin")]
     public class AccountController : ControllerBase
     {
 
@@ -28,90 +28,6 @@ namespace WebApplication1.Controllers
             _userManager = userManager;
             _configuration = configuration;
         }
-
-
-
-        [AllowAnonymous]
-        [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-           
-            AppUser user = new AppUser { UserName = model.LoginProp };
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, "myrole");
-                return Ok();
-            }
-            else
-            {
-                foreach(var error in result.Errors) 
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-                return BadRequest(ModelState);
-            }
-           
-
-        }
-
-
-        [AllowAnonymous]
-        [HttpPost]
-        //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login_(EntryViewModel model)
-        {
-            AppUser targetUser = null;
-            var userList = _userManager.Users.Where(x => x.UserName == model.LoginProp);
-            foreach (var user in userList)
-            {
-                PasswordHasher<AppUser> passwordHasher = new PasswordHasher<AppUser>();
-                if (passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password) == PasswordVerificationResult.Success)
-                {
-                    targetUser = user;
-                    break;
-                }
-            }
-
-            if (targetUser != null)
-            {
-                var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, targetUser.UserName),
-                        new Claim(ClaimTypes.NameIdentifier,targetUser.Id)
-                    };
-                var roles = await _userManager.GetRolesAsync(targetUser);
-                foreach (var role in roles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role));
-                }
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-                byte[] signingKey = Encoding.UTF8.GetBytes(_configuration.GetValue<string>("Jwt:Key"));
-                var symmetricSecurityKey = new SymmetricSecurityKey(signingKey);
-
-                SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(claims),
-                    //Expires = DateTime.UtcNow.AddDays(1),
-                    Expires = DateTime.UtcNow.AddMinutes(1),
-                    SigningCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature)
-                };
-
-                SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
-                string tokenString = tokenHandler.WriteToken(securityToken);
-
-                return Ok(new
-                {
-                    Token = tokenString
-                });
-
-            }
-            return NotFound();
-
-        }
-
-
 
 
         //[AllowAnonymous]
@@ -172,7 +88,6 @@ namespace WebApplication1.Controllers
 
 
         [HttpGet]
-        [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetUserList()
         {
             try
@@ -187,7 +102,6 @@ namespace WebApplication1.Controllers
         }
 
         [HttpDelete]
-        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             try 
@@ -195,8 +109,16 @@ namespace WebApplication1.Controllers
                 var curUser = await _userManager.GetUserAsync(HttpContext.User);
                 if (curUser.Id != id)
                 {
-                    (await _userManager.FindByIdAsync(id))
-                        .DeleteUser(_userManager);
+                    var user = await _userManager.FindByIdAsync(id);
+                    var result = await _userManager.DeleteUserAsync(user);
+                    if(!result.Succeeded)
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        }
+                        return BadRequest(ModelState);
+                    }
                     return Ok();
                 }
                 else
@@ -213,7 +135,6 @@ namespace WebApplication1.Controllers
 
 
         [HttpPut]
-        [Authorize(Roles = "admin")]
         public async Task<IActionResult> ChangeUserRole(string id, List<string> newroles)
         {
             try 
@@ -221,8 +142,15 @@ namespace WebApplication1.Controllers
                 var curUser = await _userManager.GetUserAsync(HttpContext.User);
                 if (curUser.Id != id)
                 {
-                    (await _userManager.FindByIdAsync(id))
-                        .ChangeUserRoles(_userManager, newroles);
+                    var result = await _userManager.ChangeUserRoles(await _userManager.FindByIdAsync(id), newroles);
+                    if (!result.Succeeded)
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        }
+                        return BadRequest(ModelState);
+                    }
                     return Ok();
                 }
                 else
@@ -238,7 +166,6 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "admin")]
         public async Task<IActionResult> AddUser(RegisterViewModelForAdmin model)
         {
             try 
@@ -255,7 +182,6 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "admin")]
         public async Task<IActionResult> ChangeUserPassword(string id, PasswordModel model) 
         {
             var curUser = await _userManager.GetUserAsync(HttpContext.User);
@@ -305,25 +231,7 @@ namespace WebApplication1.Controllers
         }
 
 
-        [HttpPost]
-        public async Task<IActionResult> ChangeCurrentUserPassword(PasswordChangeModel model)
-        {
-            var curUser = await _userManager.GetUserAsync(HttpContext.User);
-            IdentityResult result =
-                await _userManager.ChangePasswordAsync(curUser, model.OldPassword, model.NewPassword);
-            if (result.Succeeded)
-            {
-                return Ok();
-            }
-            else
-            {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-            }
-            return BadRequest(ModelState);
-        }
+       
 
     }
 }

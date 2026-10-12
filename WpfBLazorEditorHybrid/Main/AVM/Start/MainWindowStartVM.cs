@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using WpfBLazorHybridClient.Main.Control.BusinessControl;
 using WpfBLazorHybridClient.Main.Control.AccountControl;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 
 namespace WpfBLazorHybridClient.Main.AVM.Start
 {

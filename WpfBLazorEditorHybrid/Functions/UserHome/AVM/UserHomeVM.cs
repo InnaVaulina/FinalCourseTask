@@ -4,34 +4,34 @@ using System.ComponentModel;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using WpfBLazorHybridClient.Client.Account;
-using WpfBLazorHybridClient.Command;
+using TTClassLibrary.Functions.Admin;
 using WpfBLazorHybridClient.Client.Account.UserModel;
+using WpfBLazorHybridClient.Command;
+using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Admin.AVM;
 using WpfBLazorHybridClient.Functions.Admin.Control;
-using WpfBLazorHybridClient.DataModel;
-using WpfBLazorHybridClient.Error;
+using WpfBLazorHybridClient.Service;
+using TTClassLibrary.DataModel;
 
 namespace WpfBLazorHybridClient.Functions.UserHome.AVM
 {
     public class UserHomeVM : INotifyPropertyChanged
     {
-        AccountClientExt queryMaker;
 
-        User user;
-        public User User { get { return user; } }
 
-        public UserHomeVM(User _user)
+        UserHomeDM userHomeDM;
+
+
+        public UserHomeVM(UserHomeDM _userHomeDM)
         {
-            user = _user;
-            queryMaker = new AccountClientExt(user);
 
+            userHomeDM = _userHomeDM;
             list = new ObservableCollection<UC_RoleItem>();
-            for (int i = 0; i < user.UserRoles.Count; i++)
+            for (int i = 0; i < userHomeDM.UserContent.UserRoles.Count; i++)
             {
                 RoleItemVM roleItem = new RoleItemVM()
                 {
-                    Role = user.UserRoles[i].Role,
+                    Role = userHomeDM.UserContent.UserRoles[i].Role,
                     RoleChecked = false
                 };
                 for(int j = 0; j< RoleDescr.roles.Length; j++)
@@ -47,13 +47,21 @@ namespace WpfBLazorHybridClient.Functions.UserHome.AVM
             }
 
 
-            changePassword = new WCommand(o => 
+            changePassword = new WCommand(async _ => 
             {
-                ExChangePassword();
+                await CatchExeption.ExecuteWithCatchAsync(async () =>
+                {
+                    PasswordChangeModel model = new PasswordChangeModel()
+                    {
+                        OldPassword = this.OldPassword,
+                        NewPassword = this.Password
+                    };
+                    await userHomeDM.ResetPassword(model);
+                });
             });
         }
 
-        public string UserName { get { return user.UserName; } }
+        public string UserName { get { return userHomeDM.UserContent.UserName; } }
 
 
         public ObservableCollection<UC_RoleItem> list;
@@ -85,25 +93,7 @@ namespace WpfBLazorHybridClient.Functions.UserHome.AVM
         WCommand changePassword;
         public WCommand ChangePassword { get { return changePassword; } }
 
-        public void ExChangePassword() 
-        {
-            PasswordChangeModel model = new PasswordChangeModel()
-            {
-                OldPassword = this.OldPassword,
-                NewPassword = this.Password
-            };
-
-            HttpResponseMessage result = Task.Run(() => queryMaker.ChangeCurrentUserPassword(model).GetAwaiter().GetResult()).Result;
-            if ((int)result.StatusCode == 200 || (int)result.StatusCode == 201)
-            {
-                MessageBox.Show($"Запрос выполнен.");
-            }
-            else
-            {
-                //ErrorResultMessage.Show(result);
-            }
-        }
-
+       
 
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")

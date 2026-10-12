@@ -42,7 +42,7 @@ namespace TTClassLibrary.Functions.Admin
             await requestSender.ResetUserPassword(userContent.Id, jsonContent);
         }
 
-        public async Task ChangeUserRoles(List<UserRole> newRoles)
+        public async Task ChangeUserRoles(List<string> newRoles)
         {
             var jsonContent = JsonContent.Create(newRoles);
             await requestSender.ChangeUserRole(userContent.Id, jsonContent);

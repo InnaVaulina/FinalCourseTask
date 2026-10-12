@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
+using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Functions.Admin.AVM;
 using WpfBLazorHybridClient.Functions.Admin.Control;
 using WpfBLazorHybridClient.Functions.Blog.AVM;
@@ -28,6 +28,10 @@ using TTClassLibrary.Functions.Blog;
 using WpfBLazorHybridClient.Client;
 using TTClassLibrary.Functions.CollectionForm;
 using TTClassLibrary.Functions.Admin;
+using TTClassLibrary.Functions.Progect;
+using TTClassLibrary.Functions.Service;
+using TTClassLibrary.Functions.Work;
+using TTClassLibrary.Functions.Contacts;
 
 namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
 {
@@ -82,8 +86,8 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
         {
             functionDisplay = "Блог";
 
-            var rs = new TTClassLibrary.Functions.Blog.BlogRequestSenderWPF(new HttpRequestSender2(user));
-            var blogListDM = new TTClassLibrary.Functions.Blog.BlogListDM(rs);
+            var rs = new BlogRequestSenderWPF(new HttpRequestSender2(user));
+            var blogListDM = new BlogListDM(rs);
             blog = new UC_Blog(new BlogVM(blogListDM, _tabViewModel));
             blog.Model.Notify_new += tabViewModel.TabAdd;
             menuCommand = new WCommand(async _ =>
@@ -101,8 +105,8 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
             : base(_tabViewModel)
         {
             functionDisplay = "Проекты";
-            var rs = new TTClassLibrary.Functions.Progect.ProgectRequestSenderWPF(new HttpRequestSender2(user));
-            var progectListDM = new TTClassLibrary.Functions.Progect.ProgectListDM(rs);
+            var rs = new ProgectRequestSenderWPF(new HttpRequestSender2(user));
+            var progectListDM = new ProgectListDM(rs);
             progects = new UC_Progects(new ProgectVM(progectListDM, _tabViewModel));
             progects.Model.Notify_new += tabViewModel.TabAdd;
             menuCommand = new WCommand(async _ =>
@@ -120,8 +124,8 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
             : base(_tabViewModel)
         {
             functionDisplay = "Услуги";
-            var rs = new TTClassLibrary.Functions.Service.ServiceRequestSenderWPF(new HttpRequestSender2(user));
-            var serviceListDM = new TTClassLibrary.Functions.Service.ServiceListDM(rs);
+            var rs = new ServiceRequestSenderWPF(new HttpRequestSender2(user));
+            var serviceListDM = new ServiceListDM(rs);
             services = new UC_Services(new ServiceVM(serviceListDM, _tabViewModel));
             services.Model.Notify_new += tabViewModel.TabAdd;
             menuCommand = new WCommand(async _ =>
@@ -140,8 +144,8 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
             : base(_tabViewModel)
         {
             functionDisplay = "Рабочий стол";
-            var rs = new TTClassLibrary.Functions.Work.WorkRequestSender(new HttpRequestSender2(user));
-            var workTableDM = new TTClassLibrary.Functions.Work.WorkTableDM(rs);
+            var rs = new WorkRequestSender(new HttpRequestSender2(user));
+            var workTableDM = new WorkTableDM(rs);
             workTablePage = new UC_WorkMenu(new WorkTableVM(workTableDM, _tabViewModel));
             workTablePage.Model.Notify_new += tabViewModel.TabAdd;
             menuCommand = new WCommand(o =>
@@ -159,8 +163,8 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
             : base(_tabViewModel)
         {
             functionDisplay = "Контакты";
-            var rs = new TTClassLibrary.Functions.Contacts.ContactsRequestSender(new HttpRequestSender2(user));
-            var contactListDM = new TTClassLibrary.Functions.Contacts.ContactListDM(rs);
+            var rs = new ContactsRequestSender(new HttpRequestSender2(user));
+            var contactListDM = new ContactListDM(rs);
             contact = new UC_Contact(new ContactVM(contactListDM, _tabViewModel));
             contact.Model.Notify_new += tabViewModel.TabAdd;
 
@@ -179,8 +183,8 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
             : base(_tabViewModel)
         {
             functionDisplay = "Управление пользователями";
-            var rs = new TTClassLibrary.Functions.Admin.UserManagerRequestSender(new HttpRequestSender2(user));
-            var userManagerDM = new TTClassLibrary.Functions.Admin.UserManagerDM(rs);
+            var rs = new UserManagerRequestSender(new HttpRequestSender2(user));
+            var userManagerDM = new UserManagerDM(rs);
             userManager = new UC_UserManager(new UserManagerVM(userManagerDM, _tabViewModel));
             userManager.Model.Notify_new += tabViewModel.TabAdd;
             menuCommand = new WCommand(async _ =>
@@ -191,11 +195,6 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
         }
     }
 
-
-
-
-
-
     public class UserPageFUnit : FunctionUnit
     {
         UC_UserHome userHome;
@@ -203,7 +202,9 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
             : base(_tabViewModel)
         {
             functionDisplay = "Моя страница";
-            userHome = new UC_UserHome(new UserHomeVM(user));
+            var rs = new UserManagerRequestSender(new HttpRequestSender2(user));
+            var userHomeDM = new UserHomeDM(rs, user);
+            userHome = new UC_UserHome(new UserHomeVM(userHomeDM));
             menuCommand = new WCommand(o =>
             {
                 tabViewModel.TabAdd(functionDisplay, userHome);
