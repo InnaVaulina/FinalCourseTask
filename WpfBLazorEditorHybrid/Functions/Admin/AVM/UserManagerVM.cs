@@ -7,7 +7,6 @@ using TTClassLibrary.Functions.Blog;
 using WpfBLazorHybridClient.Client.Account;
 using WpfBLazorHybridClient.Client.Account.UserModel;
 using WpfBLazorHybridClient.Command;
-using WpfBLazorHybridClient.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Functions.Admin.Control;
 using WpfBLazorHybridClient.Functions.Blog.AVM;
@@ -15,13 +14,14 @@ using WpfBLazorHybridClient.Functions.Blog.Control;
 using WpfBLazorHybridClient.Main.AVM.Account;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 using WpfBLazorHybridClient.Service;
+using TTClassLibrary.DataModel;
 
 namespace WpfBLazorHybridClient.Functions.Admin.AVM
 {
     public delegate void ExecuteDeleteUserHandler();
 
     public delegate void DeleteUserHandler(UC_UserItem? item);
-    public delegate void UpdateUserHandler();
+    public delegate void UpdateUserHandler(UserModel user);
     //public delegate Task AddUserHandler(BlogContent newcontent);
 
     /*

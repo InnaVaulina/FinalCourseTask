@@ -91,7 +91,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
 
-                                <TextBlock Text="{Binding Role}"/>
+                                <TextBlock Text="{Binding RoleName}"/>
 
                             </DataTemplate>
                         </ListBox.ItemTemplate>

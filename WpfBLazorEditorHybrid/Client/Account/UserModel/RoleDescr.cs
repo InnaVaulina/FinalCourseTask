@@ -46,5 +46,25 @@ namespace WpfBLazorHybridClient.Client.Account.UserModel
             "страница пользователя",
             "Управление пользователями системы, назначение ролей"
             };
+
+        public static string GetRoleName(string role)
+        {
+            int index = Array.IndexOf(roles, role);
+            if (index >= 0 && index < deskr.Length)
+            {
+                return functionName[index];
+            }
+            return "Описание не найдено";
+        }
+
+        public static string GetRoleDescription(string role)
+        {
+            int index = Array.IndexOf(roles, role);
+            if (index >= 0 && index < deskr.Length)
+            {
+                return deskr[index];
+            }
+            return "Описание не найдено";
+        }
     }
 }

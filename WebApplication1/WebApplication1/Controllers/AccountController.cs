@@ -109,8 +109,8 @@ namespace WebApplication1.Controllers
                 var curUser = await _userManager.GetUserAsync(HttpContext.User);
                 if (curUser.Id != id)
                 {
-                    var user = await _userManager.FindByIdAsync(id);
-                    var result = await _userManager.DeleteUserAsync(user);
+                    var targetUser = await _userManager.FindByIdAsync(id);
+                    var result = await _userManager.DeleteUserAsync(targetUser);
                     if(!result.Succeeded)
                     {
                         foreach (var error in result.Errors)
@@ -119,7 +119,8 @@ namespace WebApplication1.Controllers
                         }
                         return BadRequest(ModelState);
                     }
-                    return Ok();
+                    var user = await _userManager.SelectUser(id);
+                    return Ok(user);
                 }
                 else
                 {
@@ -142,7 +143,8 @@ namespace WebApplication1.Controllers
                 var curUser = await _userManager.GetUserAsync(HttpContext.User);
                 if (curUser.Id != id)
                 {
-                    var result = await _userManager.ChangeUserRoles(await _userManager.FindByIdAsync(id), newroles);
+                    var targetUser = await _userManager.FindByIdAsync(id);
+                    var result = await _userManager.ChangeUserRoles(targetUser, newroles);
                     if (!result.Succeeded)
                     {
                         foreach (var error in result.Errors)
@@ -151,7 +153,8 @@ namespace WebApplication1.Controllers
                         }
                         return BadRequest(ModelState);
                     }
-                    return Ok();
+                    var user = await _userManager.SelectUser(id);
+                    return Ok(user);
                 }
                 else
                 {

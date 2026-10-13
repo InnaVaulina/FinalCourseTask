@@ -42,17 +42,24 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
         }
 
 
-        ObservableCollection<UserRole> userRoles;
-        public ObservableCollection<UserRole> UserRoles 
+        ObservableCollection<RoleItemName> userRoles;
+        public ObservableCollection<RoleItemName> UserRoles 
         { 
-            get { return userRoles; } 
+            get { return userRoles; }
+            set
+            {
+                userRoles = value;
+                OnPropertyChanged("UserRoles");
+            }
         }
 
 
         public UserItemVM(UserItemDM _userItemDM, ListTabVM _tab) 
         {
             userItemDM = _userItemDM;
-            userRoles = new ObservableCollection<UserRole>(userItemDM.UserContent.Roles);
+            userRoles = new ObservableCollection<RoleItemName>(userItemDM.UserContent.Roles.Select(r => new RoleItemName { Role = r.Role }));
+            foreach(var role in UserRoles)
+                role.RoleName = RoleDescr.GetRoleName(role.Role);
             tab = _tab;
 
             deleteUser = new WCommand(async _ => 
@@ -71,12 +78,12 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
                 {
                     Header = "Изменить роли"  
                 };
-                var userinrileVM = new AddUserInRoleVM(userItemDM, page);
-                userinrileVM.UCUserItem = ucUserItem;
-                userinrileVM.Notify_change += UpdateItem;
-                userinrileVM.Notify_close += tab.TabClose;
+                var userinroleVM = new AddUserInRoleVM(userItemDM, page);
+                userinroleVM.UCUserItem = ucUserItem;
+                userinroleVM.Notify_change += UpdateItem;
+                userinroleVM.Notify_close += tab.TabClose;
 
-                page.Content = new UC_AddUserInRole(userinrileVM);
+                page.Content = new UC_AddUserInRole(userinroleVM);
                 Notify_new_page?.Invoke(page);
             });
 
@@ -97,11 +104,14 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
         }
 
 
-        public void UpdateItem()
+        public void UpdateItem(UserModel user)
         {
-            //userRoles.Clear();
-            //foreach (var role in userItemDM.UserContent.Roles)
-            //    userRoles.Add(role);
+            userItemDM.UserContent = user;
+            UserRoles = new ObservableCollection<RoleItemName>(userItemDM.UserContent.Roles.Select(r => new RoleItemName { Role = r.Role }));
+            foreach (var role in UserRoles)
+                role.RoleName = RoleDescr.GetRoleName(role.Role);
+            OnPropertyChanged("Id");
+            OnPropertyChanged("UserName"); 
         }
 
         WCommand editUserRoles;
@@ -120,6 +130,23 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
         
 
 
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged([CallerMemberName] string prop = "")
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(prop));
+        }
+    }
+
+    public class RoleItemName: INotifyPropertyChanged
+    {
+
+        string role;
+        public string Role { get { return role; } set { role = value; } }
+
+        string roleName;
+        public string RoleName { get { return roleName; } set { roleName = value; OnPropertyChanged("RoleName"); } }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")

@@ -24,6 +24,24 @@ namespace WebApplication1.Context.DBQuery
             return modelList;
         }
 
+        public static async Task<UserModel> SelectUser(this UserManager<AppUser> _userManager, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return null;
+
+            var model = new UserModel
+            {
+                Id = user.Id,
+                UserName = user.UserName
+            };
+
+            var roles = await _userManager.GetRolesAsync(user);
+            model.Roles = roles.Select(r => new UserRole { Role = r }).ToList();
+
+            return model;
+        }
+
+        
         public static async Task<IdentityResult> ChangeUserRoles(this UserManager<AppUser> _userManager, AppUser targetUser, List<string> newroles) 
         {
             var roles = await _userManager.GetRolesAsync(targetUser);

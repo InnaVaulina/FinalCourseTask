@@ -29,7 +29,9 @@ namespace TTClassLibrary.Functions.Admin
             }
         }
 
+
        
+
 
         public async Task DeleteUser()
         {
@@ -42,10 +44,10 @@ namespace TTClassLibrary.Functions.Admin
             await requestSender.ResetUserPassword(userContent.Id, jsonContent);
         }
 
-        public async Task ChangeUserRoles(List<string> newRoles)
+        public async Task<HttpResponseMessage> ChangeUserRoles(List<string> newRoles)
         {
             var jsonContent = JsonContent.Create(newRoles);
-            await requestSender.ChangeUserRole(userContent.Id, jsonContent);
+            return await requestSender.ChangeUserRole(userContent.Id, jsonContent);
         }
     }
 }

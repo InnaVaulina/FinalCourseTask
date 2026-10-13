@@ -70,11 +70,15 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
                         if (role.Model.RoleChecked == true)
                             newUserRoles.Add(role.Model.Role);
                     }
-                    await userItemDM.ChangeUserRoles(newUserRoles);
-                    MessageBox.Show($"Запрос выполнен.");
-                    Notify_change?.Invoke();
-                    Notify_close?.Invoke(page);
-                
+                    var response = await userItemDM.ChangeUserRoles(newUserRoles);
+                    var jsonSerializer = new TTClassLibrary.Support.HttpResponseMessageDeserialize<UserModel>();
+                    var newuser = await jsonSerializer.DeserealizeResultToContentAsync(response);
+                        if (newuser != null)
+                        {
+                            MessageBox.Show($"Запрос выполнен.");
+                            Notify_change?.Invoke(newuser);
+                            Notify_close?.Invoke(page);
+                        }                
                 });
 
             });
