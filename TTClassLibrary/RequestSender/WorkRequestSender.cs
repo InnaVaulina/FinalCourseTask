@@ -5,9 +5,8 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using TTClassLibrary.DataModel;
-using TTClassLibrary.IServices;
 
-namespace TTClassLibrary.Functions.Work
+namespace TTClassLibrary.RequestSender
 {
     public interface IWorkRequestSender
     {

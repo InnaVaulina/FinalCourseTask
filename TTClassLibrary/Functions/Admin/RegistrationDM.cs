@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using TTClassLibrary.DataModel;
 using System.Net.Http.Json;
+using TTClassLibrary.RequestSender;
 
 namespace TTClassLibrary.Functions.Admin
 {
     public class RegistrationDM
     {
-        UserManagerRequestSender requestSender;
+        IHttpRequestSender requestSender;
 
         RegisterModel registrationModel;
 
@@ -19,7 +20,7 @@ namespace TTClassLibrary.Functions.Admin
             get { return registrationModel; }
             set { registrationModel = value; }
         }
-        public RegistrationDM(UserManagerRequestSender _requestSender)
+        public RegistrationDM(IHttpRequestSender _requestSender)
         {
             requestSender = _requestSender;
             registrationModel = new RegisterModel();

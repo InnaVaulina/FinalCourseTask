@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TTClassLibrary.Functions.Progect;
-using TTClassLibrary.IServices;
 
-namespace TTClassLibrary.Functions.Service
+namespace TTClassLibrary.RequestSender
 {
 
     public interface IServiceRequestSender

@@ -6,13 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 using TTClassLibrary.Functions.Authorization;
 using TTClassLibrary.Support;
+using TTClassLibrary.RequestSender;
 using static TTClassLibrary.Functions.Authorization.AuthorizeRequestSender;
+using TTClassLibrary.RequestSender;
 
 namespace TTClassLibrary.Functions.Admin
 {
     public class EntryDM
     {
-        UserManagerRequestSender requestSender;
+        IHttpRequestSender requestSender;
 
         UserEntryM entry;
 
@@ -21,7 +23,7 @@ namespace TTClassLibrary.Functions.Admin
             get { return entry; }
             set { entry = value; }
         }
-        public EntryDM(UserManagerRequestSender requestSender)
+        public EntryDM(IHttpRequestSender _requestSender)
         {
             this.requestSender = requestSender;
             entry = new UserEntryM();

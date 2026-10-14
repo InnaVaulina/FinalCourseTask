@@ -32,6 +32,7 @@ using TTClassLibrary.Functions.Progect;
 using TTClassLibrary.Functions.Service;
 using TTClassLibrary.Functions.Work;
 using TTClassLibrary.Functions.Contacts;
+using TTClassLibrary.RequestSender;
 
 namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
 {
@@ -183,7 +184,7 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
             : base(_tabViewModel)
         {
             functionDisplay = "Управление пользователями";
-            var rs = new UserManagerRequestSender(new HttpRequestSender2(user));
+            var rs = new HttpRequestSender2(user);
             var userManagerDM = new UserManagerDM(rs);
             userManager = new UC_UserManager(new UserManagerVM(userManagerDM, _tabViewModel));
             userManager.Model.Notify_new += tabViewModel.TabAdd;
@@ -202,7 +203,7 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
             : base(_tabViewModel)
         {
             functionDisplay = "Моя страница";
-            var rs = new UserManagerRequestSender(new HttpRequestSender2(user));
+            var rs = new HttpRequestSender2(user);
             var userHomeDM = new UserHomeDM(rs, user);
             userHome = new UC_UserHome(new UserHomeVM(userHomeDM));
             menuCommand = new WCommand(o =>

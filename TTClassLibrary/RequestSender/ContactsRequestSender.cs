@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TTClassLibrary.IServices;
 
-namespace TTClassLibrary.Functions.Contacts
+namespace TTClassLibrary.RequestSender
 {
     public interface IContactRequestSender 
     {

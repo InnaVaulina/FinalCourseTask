@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TTClassLibrary.DataModel;
-using TTClassLibrary.Functions.Blog;
+﻿using TTClassLibrary.DataModel;
+using TTClassLibrary.RequestSender;
 using TTClassLibrary.Support;
 
 namespace TTClassLibrary.Functions.Admin
 {
     public class UserManagerDM
     {
-        UserManagerRequestSender requestSender;
+        IHttpRequestSender requestSender;
 
-        public UserManagerDM(UserManagerRequestSender _requestSender)
+        public UserManagerDM(IHttpRequestSender _requestSender)
         {
             requestSender = _requestSender;
             list = new List<UserModel>();

@@ -2,18 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using TTClassLibrary.DataModel;
-using System.Net.Http.Json;
+using TTClassLibrary.RequestSender;
 
 namespace TTClassLibrary.Functions.Admin
 {
     public class UserItemDM
     {
-        UserManagerRequestSender requestSender;
+        IHttpRequestSender requestSender;
 
-        public UserItemDM(UserManagerRequestSender _requestSender, UserModel _userContent)
+        public UserItemDM(IHttpRequestSender _requestSender, UserModel _userContent)
         {
             requestSender = _requestSender;
             userContent = _userContent;
@@ -28,10 +29,6 @@ namespace TTClassLibrary.Functions.Admin
                 userContent = value;
             }
         }
-
-
-       
-
 
         public async Task DeleteUser()
         {

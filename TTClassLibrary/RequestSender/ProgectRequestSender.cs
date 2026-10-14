@@ -1,8 +1,7 @@
 ﻿using TTClassLibrary.DataModel;
 using TTClassLibrary.Functions.Blog;
-using TTClassLibrary.IServices;
 
-namespace TTClassLibrary.Functions.Progect
+namespace TTClassLibrary.RequestSender
 {
 
     public interface IProgectRequestSender

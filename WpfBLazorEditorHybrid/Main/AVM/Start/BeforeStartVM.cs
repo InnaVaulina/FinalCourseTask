@@ -15,6 +15,7 @@ using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Functions.Admin.AVM;
 using WpfBLazorHybridClient.Main.AVM.Account;
 using WpfBLazorHybridClient.Main.Control.AccountControl;
+using TTClassLibrary.RequestSender;
 
 namespace WpfBLazorHybridClient.Main.AVM.Start
 {
@@ -27,7 +28,7 @@ namespace WpfBLazorHybridClient.Main.AVM.Start
 
         public BeforeStartVM()
         {
-            var rs = new UserManagerRequestSender(new HttpRequestSender2(new User()));
+            var rs = new HttpRequestSender2(new User());
             var regDM = new RegistrationDM(rs);
 
             entry = new UC_Entry(new EntryVM(new EntryDM(rs)));

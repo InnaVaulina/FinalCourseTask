@@ -5,7 +5,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TTClassLibrary.IServices
+namespace TTClassLibrary.RequestSender
 {
     public interface IHttpRequestSender
     {

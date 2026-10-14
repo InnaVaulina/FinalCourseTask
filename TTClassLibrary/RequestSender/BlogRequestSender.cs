@@ -1,7 +1,6 @@
-﻿using TTClassLibrary.IServices;
-using TTClassLibrary.DataModel;
+﻿using TTClassLibrary.DataModel;
 
-namespace TTClassLibrary.Functions.Blog
+namespace TTClassLibrary.RequestSender
 {
 
     public interface IBlogRequestSender 

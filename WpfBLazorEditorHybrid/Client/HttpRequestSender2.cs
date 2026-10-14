@@ -11,7 +11,7 @@ using System.Security.Policy;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
-using TTClassLibrary.IServices;
+using TTClassLibrary.RequestSender;
 using TTClassLibrary.Support;
 using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Error;

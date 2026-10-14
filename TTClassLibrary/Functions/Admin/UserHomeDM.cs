@@ -5,14 +5,14 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using TTClassLibrary.DataModel;
-
+using TTClassLibrary.RequestSender;
 namespace TTClassLibrary.Functions.Admin
 {
     public class UserHomeDM
     {
-        UserManagerRequestSender requestSender;
+        IHttpRequestSender requestSender;
 
-        public UserHomeDM(UserManagerRequestSender _requestSender, User _user)
+        public UserHomeDM(IHttpRequestSender _requestSender, User _user)
         {
             requestSender = _requestSender;
             userContent = _user;

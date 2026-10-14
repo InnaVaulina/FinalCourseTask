@@ -1,9 +1,8 @@
 ﻿using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
-using TTClassLibrary.IServices;
 
-namespace TTClassLibrary.Functions.CollectionForm
+namespace TTClassLibrary.RequestSender
 {
     public class CollectionFormRequestSender
     {
