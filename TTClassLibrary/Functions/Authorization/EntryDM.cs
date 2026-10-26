@@ -4,13 +4,12 @@ using System.Linq;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
-using TTClassLibrary.Functions.Authorization;
 using TTClassLibrary.Support;
 using TTClassLibrary.RequestSender;
-using static TTClassLibrary.Functions.Authorization.AuthorizeRequestSender;
-using TTClassLibrary.RequestSender;
+using static TTClassLibrary.RequestSender.AuthorizeRequestSender;
+using TTClassLibrary.DataModel;
 
-namespace TTClassLibrary.Functions.Admin
+namespace TTClassLibrary.Functions.Authorization
 {
     public class EntryDM
     {
@@ -25,7 +24,7 @@ namespace TTClassLibrary.Functions.Admin
         }
         public EntryDM(IHttpRequestSender _requestSender)
         {
-            this.requestSender = requestSender;
+            this.requestSender = _requestSender;
             entry = new UserEntryM();
         }
 

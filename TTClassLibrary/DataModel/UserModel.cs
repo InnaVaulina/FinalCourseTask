@@ -18,6 +18,34 @@ namespace TTClassLibrary.DataModel
         public string Role { get; set; }
     }
 
+
+    public class UserEntryM
+    {
+        string login;
+        string password;
+
+        public string LoginProp
+        {
+            get { return login; }
+            set { login = value; }
+        }
+
+        public string Password
+        {
+            get { return password; }
+            set { password = value; }
+        }
+
+        public UserEntryM()
+        {
+            login = "";
+            password = "";
+        }
+
+
+
+    }
+
     public class PasswordModel
     {
         public string Password { get; set; }
@@ -64,8 +92,50 @@ namespace TTClassLibrary.DataModel
             set { confirmPassword = value; }
         }
 
+    }
 
 
+    public class ResetPasswordModel
+    {
+        string loginProp;
+        string token;
+        string password;
+
+        public ResetPasswordModel()
+        {
+            loginProp = "";
+            token = "";
+            password = "";
+        }
+
+        public void Clear()
+        {
+            loginProp = "";
+            token = "";
+            password = "";
+        }
+
+        public string LoginProp
+        {
+            get { return loginProp; }
+            set { loginProp = value; }
+        }
+
+        public string Token
+        {
+            get { return token; }
+            set { token = value; }
+        }
+
+        public string NewPassword
+        {
+            get { return password; }
+            set { password = value; }
+        }
+
+
+      
 
     }
+
 }

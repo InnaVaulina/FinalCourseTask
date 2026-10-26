@@ -11,6 +11,8 @@ namespace WpfBLazorHybridClient.Main.Control.AccountControl
     public partial class UC_Registration : UserControl
     {
         RegistrationVM model;
+        public RegistrationVM Model { get { return model; } }
+
         public UC_Registration(RegistrationVM _model)
         {
             InitializeComponent();
@@ -18,7 +20,6 @@ namespace WpfBLazorHybridClient.Main.Control.AccountControl
             DataContext = model;
         }
 
-        public RegistrationVM Model { get { return model; } }
     }
 }
 

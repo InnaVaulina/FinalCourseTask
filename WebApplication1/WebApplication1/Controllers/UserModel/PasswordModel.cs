@@ -10,4 +10,11 @@
         public string NewPassword { get; set; }
         public string OldPassword { get; set; }
     }
+
+    public class PasswordResetModel
+    {
+        public string LoginProp { get; set; }
+        public string Token { get; set; }
+        public string NewPassword { get; set; }
+    }
 }

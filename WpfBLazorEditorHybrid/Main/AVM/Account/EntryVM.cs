@@ -10,7 +10,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
-using TTClassLibrary.Functions.Admin;
 using TTClassLibrary.Support;
 using WpfBLazorHybridClient.Client.Account;
 using WpfBLazorHybridClient.Client.Account.UserModel;
@@ -19,6 +18,7 @@ using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Error;
 using WpfBLazorHybridClient.Main.AVM.Start;
 using WpfBLazorHybridClient.Service;
+using TTClassLibrary.Functions.Authorization;
 
 namespace WpfBLazorHybridClient.Main.AVM.Account
 {
@@ -38,8 +38,8 @@ namespace WpfBLazorHybridClient.Main.AVM.Account
 
         public string Password
         {
-            get { return entryDM.Entry.PassWord; }
-            set { entryDM.Entry.PassWord = value; OnPropertyChanged("Password"); }
+            get { return entryDM.Entry.Password; }
+            set { entryDM.Entry.Password = value; OnPropertyChanged("Password"); }
         }
 
         public EntryVM(EntryDM _entryDM)
@@ -72,12 +72,6 @@ namespace WpfBLazorHybridClient.Main.AVM.Account
                 });
             });
 
-
-            //_________
-            LoginProp = "Admin";
-            Password = "123qwe";
-
-            //___________
         }
 
         WCommand logUser;

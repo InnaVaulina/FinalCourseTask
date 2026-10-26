@@ -33,5 +33,7 @@ namespace TTClassLibrary.Functions.Admin
             var jsonContent = JsonContent.Create(passwordModel);
             await requestSender.ResetCurrentUserPassword(jsonContent);
         }
+
+        
     }
 }

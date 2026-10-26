@@ -51,15 +51,36 @@ namespace WpfBLazorHybridClient.Functions.UserHome.AVM
             {
                 await CatchExeption.ExecuteWithCatchAsync(async () =>
                 {
-                    PasswordChangeModel model = new PasswordChangeModel()
+                    if(string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(ConfirmPassword))
                     {
-                        OldPassword = this.OldPassword,
-                        NewPassword = this.Password
-                    };
-                    await userHomeDM.ResetPassword(model);
+                        MessageBox.Show("Поля Новый пароль и Подтверждение пароля должны быть заполнены.");
+                        return;
+                    }
+
+                    if(Password != ConfirmPassword)
+                    {
+                        MessageBox.Show("Новый пароль и Подтверждение пароля не совпадают.");
+                        return;
+                    }
+
+                    if (!string.IsNullOrEmpty(OldPassword)) 
+                    {
+                        PasswordChangeModel model = new PasswordChangeModel()
+                        {
+                            OldPassword = this.OldPassword,
+                            NewPassword = this.Password
+                        };
+                        await userHomeDM.ResetPassword(model);
+                        MessageBox.Show($"Запрос выполнен.");
+                    }
+
                 });
             });
         }
+
+
+
+
 
         public string UserName { get { return userHomeDM.UserContent.UserName; } }
 

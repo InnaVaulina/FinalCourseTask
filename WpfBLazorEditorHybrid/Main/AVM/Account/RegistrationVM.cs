@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using TTClassLibrary.DataModel;
-using TTClassLibrary.Functions.Admin;
+using TTClassLibrary.Functions.Authorization;
 using WpfBLazorHybridClient.Client.Account;
 using WpfBLazorHybridClient.Client.Account.UserModel;
 using WpfBLazorHybridClient.Command;
@@ -13,16 +13,13 @@ using WpfBLazorHybridClient.Service;
 
 namespace WpfBLazorHybridClient.Main.AVM.Account
 {
-    public delegate void ExecuteDeleteUserHandler();
+    public delegate void ExecuteRegistrationUserHandler();
     public class RegistrationVM : INotifyPropertyChanged
     {        
-        public event TabCloseHandler Notify_close;
-        public event ExecuteDeleteUserHandler Notify_register;
+        public event ExecuteRegistrationUserHandler Notify_register;
 
         RegistrationDM registrationDM;
 
-        TabVM page;
-        public TabVM Page { get { return page; } set { page = value; } }
 
         public string LoginProp
         {
@@ -50,10 +47,26 @@ namespace WpfBLazorHybridClient.Main.AVM.Account
             {
                 await CatchExeption.ExecuteWithCatchAsync(async () =>
                 {
-                    if (LoginProp != "" && Password != "" && ConfirmPassword != "")
-                        await registrationDM.RegisterNewUser();
+                    if(string.IsNullOrEmpty(LoginProp))
+                    {
+                        MessageBox.Show("Поле Логин должно быть заполнено.");
+                        return;
+                    }
+
+                    if (string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(ConfirmPassword))
+                    {
+                        MessageBox.Show("Поля Пароль и Подтверждение пароля должны быть заполнены.");
+                        return;
+                    }
+
+                    if (Password != ConfirmPassword)
+                    {
+                        MessageBox.Show("Пароль и Подтверждение пароля не совпадают.");
+                        return;
+                    }
+
+                    await registrationDM.RegisterNewUser();
                     MessageBox.Show($"Запрос выполнен.");
-                    Notify_close?.Invoke(page);
                     Notify_register?.Invoke();
                 });
             });

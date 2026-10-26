@@ -7,7 +7,7 @@ using TTClassLibrary.DataModel;
 using System.Net.Http.Json;
 using TTClassLibrary.RequestSender;
 
-namespace TTClassLibrary.Functions.Admin
+namespace TTClassLibrary.Functions.Authorization
 {
     public class RegistrationDM
     {

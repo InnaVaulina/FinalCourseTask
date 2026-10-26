@@ -28,6 +28,12 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
+            var existingUser = await _userManager.FindByNameAsync(model.LoginProp);
+            if(existingUser != null)
+            {
+                ModelState.AddModelError(string.Empty, "Пользователь с таким именем уже существует.");
+                return BadRequest(ModelState);
+            }
 
             AppUser user = new AppUser { UserName = model.LoginProp };
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -48,67 +54,62 @@ namespace WebApplication1.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Login_(EntryViewModel model)
         {
-            AppUser targetUser = null;
-            var userList = _userManager.Users.Where(x => x.UserName == model.LoginProp);
-            foreach (var user in userList)
+            var targetUser = await _userManager.FindByNameAsync(model.LoginProp);
+            if(targetUser == null)
             {
-                PasswordHasher<AppUser> passwordHasher = new PasswordHasher<AppUser>();
-                if (passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password) == PasswordVerificationResult.Success)
-                {
-                    targetUser = user;
-                    break;
-                }
+                return NotFound();
             }
 
-            if (targetUser != null)
+            var passwordIsValid = await _userManager.CheckPasswordAsync(targetUser, model.Password);
+            if (!passwordIsValid)
             {
-                var claims = new List<Claim>
+                ModelState.AddModelError(string.Empty, "Пароль не верный");
+                return BadRequest(ModelState);
+            }
+
+            var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, targetUser.UserName),
                         new Claim(ClaimTypes.NameIdentifier,targetUser.Id)
                     };
-                var roles = await _userManager.GetRolesAsync(targetUser);
-                foreach (var role in roles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role));
-                }
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-                byte[] signingKey = Encoding.UTF8.GetBytes(_configuration.GetValue<string>("Jwt:Key"));
-                var symmetricSecurityKey = new SymmetricSecurityKey(signingKey);
-
-                SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(claims),
-                    //Expires = DateTime.UtcNow.AddDays(1),
-                    Expires = DateTime.UtcNow.AddMinutes(1),
-                    SigningCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature)
-                };
-
-                SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
-                string tokenString = tokenHandler.WriteToken(securityToken);
-
-                return Ok(new
-                {
-                    Token = tokenString
-                });
-
+            var roles = await _userManager.GetRolesAsync(targetUser);
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
             }
-            return NotFound();
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            byte[] signingKey = Encoding.UTF8.GetBytes(_configuration.GetValue<string>("Jwt:Key"));
+            var symmetricSecurityKey = new SymmetricSecurityKey(signingKey);
+
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                //Expires = DateTime.UtcNow.AddDays(1),
+                Expires = DateTime.UtcNow.AddMinutes(1),
+                SigningCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
+            string tokenString = tokenHandler.WriteToken(securityToken);
+
+            return Ok(new
+            {
+                Token = tokenString
+            });
 
         }
 
-        [HttpPost]
+        [HttpPut]
         public async Task<IActionResult> ChangeCurrentUserPassword(PasswordChangeModel model)
         {
             var curUser = await _userManager.GetUserAsync(HttpContext.User);
             IdentityResult result =
                 await _userManager.ChangePasswordAsync(curUser, model.OldPassword, model.NewPassword);
             if (result.Succeeded)
-            {
+            {           
                 return Ok();
             }
             else
@@ -119,6 +120,31 @@ namespace WebApplication1.Controllers
                 }
             }
             return BadRequest(ModelState);
+        }
+
+        [AllowAnonymous]
+        [HttpPut]
+        public async Task<IActionResult> ResetUserPasswordWithToken(PasswordResetModel model)
+        {
+            var user = await _userManager.FindByNameAsync(model.LoginProp);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return BadRequest(ModelState);
+            }
+            
         }
     }
 }

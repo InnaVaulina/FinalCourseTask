@@ -87,7 +87,7 @@
 			// Обновляем модель из источника данных, чтобы получить актуальную иллюстрацию и другие поля
 			if (Id.HasValue)
 			{
-				var dm = await BlogExampleDM.CreateAsync(new TTClassLibrary.Functions.Blog.BlogRequestSender(HttpRequestSender), Id.Value);
+				var dm = await BlogExampleDM.CreateAsync(new BlogRequestSender(HttpRequestSender), Id.Value);
 				ShowModel = new TTB.VModel.BlogVM.BlogItemVM(dm);
 				EditModel = new TTB.Client.VModel.Blog.EditBlogVM(dm);
 			}

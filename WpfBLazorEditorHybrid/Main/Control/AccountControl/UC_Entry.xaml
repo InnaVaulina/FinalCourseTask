@@ -25,7 +25,7 @@
 
 
                     <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding LoginProp}"/>
-                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding PassWord}"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Password}"/>
 
                 </Grid>
             </Border>

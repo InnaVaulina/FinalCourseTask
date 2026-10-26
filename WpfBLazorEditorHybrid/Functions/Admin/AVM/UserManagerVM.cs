@@ -44,21 +44,6 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
             userManagerDM = _userManagerDM;
             tab = _tab;
             list = new ObservableCollection<UC_UserItem>();
-            
-
-            openAddPage = new WCommand(o =>
-            {
-                RegistrationVM model = new RegistrationVM(userManagerDM.CreateNewUserDM());
-
-                TabVM page = new TabVM()
-                {
-                    Header = "Регистрация пользователя",
-                    Content = new UC_Registration2(model)
-                };
-                model.Page = page;
-                model.Notify_close += page.ClosePage;
-                Notify_new?.Invoke(page);
-            });
         }
 
        
@@ -86,23 +71,6 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
             List.Remove(item);
         }
 
-        public async Task AddItem()
-        {
-            await CatchExeption.ExecuteWithCatchAsync(async () =>
-            {
-                //var dm = await blogListDM.CtreateBlogExampleDM(blog);
-                //var vm = new BlogItemVM(dm, tab);
-                //var ucitem = new UC_BlogItem2(vm);
-                //vm.UCBlogItem = ucitem;
-                //ucitem.Model.Notify_new_page += tab.TabAdd;
-                //ucitem.Model.Notify_delete += DeleteItem;
-                //List.Insert(0, ucitem);
-            });
-        }
-
-
-        WCommand openAddPage;
-        public WCommand OpenAddPage { get { return openAddPage; } }
 
         void TabNotify(TabVM page)
         {

@@ -27,4 +27,10 @@ namespace TTClassLibrary.DataModel
         public string NewPassword { get; set; }
         public string OldPassword { get; set; }
     }
+
+    public class PasswordChangeModel2
+    {
+        public string NewPassword { get; set; }
+        public string Token { get; set; }
+    }
 }

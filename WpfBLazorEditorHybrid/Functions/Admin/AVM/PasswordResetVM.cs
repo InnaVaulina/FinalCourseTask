@@ -3,12 +3,15 @@ using System.ComponentModel;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using TTClassLibrary.DataModel;
 using TTClassLibrary.Functions.Admin;
+using TTClassLibrary.Functions.Authorization;
 using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Error;
+using WpfBLazorHybridClient.Functions.Admin.Control;
+using WpfBLazorHybridClient.Main.AVM.Account;
 using WpfBLazorHybridClient.Main.AVM.Tab;
 using WpfBLazorHybridClient.Service;
-using TTClassLibrary.DataModel;
 
 namespace WpfBLazorHybridClient.Functions.Admin.AVM
 {
@@ -23,10 +26,9 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
 
         public TabVM Page { get { return page; } set { page = value; } }
 
-
-        public string Id 
+        public string Id
         {
-            get { return userItemDM.UserContent.Id; }  
+            get { return userItemDM.UserContent.Id; }
         }
 
         public string UserName
@@ -35,41 +37,28 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
         }
 
 
-        string password;
-        public string Password
+        string token;
+        public string Token
         {
-            get { return password; }
-            set { password = value; OnPropertyChanged("Password"); }
+            get { return token; }
+            set { token = value; OnPropertyChanged("Token"); }
         }
 
-        string confirmPassword;
-        public string ConfirmPassword
-        {
-            get { return confirmPassword; }
-            set { confirmPassword = value; OnPropertyChanged("ConfirmPassword"); }
-        }
-
+        
 
         public PasswordResetVM(UserItemDM _userItemDM)
         {
             userItemDM = _userItemDM;
 
+
             saveNewPassword = new WCommand(async _ => 
             {
                 await CatchExeption.ExecuteWithCatchAsync(async () =>
                 {
-                    if (string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(ConfirmPassword))
-                    {
-                        MessageBox.Show($"Необходимо заполнить поля \"Новый пароль\" и \"Подтверждение пароля\".");
-                        return;
-                    }
-                    if (Password != ConfirmPassword)
-                    {
-                        MessageBox.Show($"Пароли не совпадают.");
-                        return;
-                    }
-                    await userItemDM.ResetPassword(new PasswordModel() { Password = this.Password });
-                    MessageBox.Show($"Запрос выполнен.");
+                    Token = await userItemDM.GetChangePasswordToken();
+                    var message = new TokenResponseMessage(Token);
+                    message.Show();
+                    //MessageBox.Show($"Запрос выполнен. Токен: {Token}");
                     Notify_close?.Invoke(page);
                 });
             });

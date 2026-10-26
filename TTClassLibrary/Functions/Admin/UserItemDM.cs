@@ -35,10 +35,10 @@ namespace TTClassLibrary.Functions.Admin
             await requestSender.DeleteUser(userContent.Id);
         }
 
-        public async Task ResetPassword(PasswordModel passwordModel)
+        public async Task<string> GetChangePasswordToken()
         {
-            var jsonContent = JsonContent.Create(passwordModel);
-            await requestSender.ResetUserPassword(userContent.Id, jsonContent);
+            var response = await requestSender.GetTokenForChangingPassword(userContent.Id);
+            return requestSender.DeserializeToken(response);
         }
 
         public async Task<HttpResponseMessage> ChangeUserRoles(List<string> newRoles)

@@ -24,13 +24,12 @@ namespace WpfBLazorHybridClient.Client
         protected string baseAddress = ConfigurationManager.AppSettings["ApiUrl"];
         protected string imageSavePath = ConfigurationManager.AppSettings["ImageSavePath"];
         User user;
-        HttpClient client;
+
 
 
         public HttpRequestSender2(User _user)
         {
             user = _user;
-            client = new HttpClient();
         }
 
         async Task ResultError(HttpResponseMessage result, string url)
@@ -59,6 +58,7 @@ namespace WpfBLazorHybridClient.Client
 
         public async Task<HttpResponseMessage> Get(string url)
         {
+            using var client = new HttpClient();
             try
             {
                 url = $"{baseAddress}/" + url;
@@ -78,6 +78,7 @@ namespace WpfBLazorHybridClient.Client
 
         public async Task<HttpResponseMessage> Get(Uri geturl)
         {
+            using var client = new HttpClient();
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Get, geturl);
@@ -95,6 +96,7 @@ namespace WpfBLazorHybridClient.Client
 
         public async Task<HttpResponseMessage> Delete(string url)
         {
+            using var client = new HttpClient();
             try
             {
                 url = $"{baseAddress}/" + url;
@@ -114,6 +116,7 @@ namespace WpfBLazorHybridClient.Client
 
         public async Task<HttpResponseMessage> Post(string url, JsonContent content)
         {
+            using var client = new HttpClient();
             try
             {
                 url = $"{baseAddress}/" + url;
@@ -135,6 +138,7 @@ namespace WpfBLazorHybridClient.Client
 
         public async Task<HttpResponseMessage> Post(string url, MultipartFormDataContent formData)
         {
+            using var client = new HttpClient();
             try
             {
                 url = $"{baseAddress}/" + url;
@@ -154,6 +158,7 @@ namespace WpfBLazorHybridClient.Client
 
         public async Task<HttpResponseMessage> Put(string url, JsonContent content)
         {
+            using var client = new HttpClient();
             try
             {
                 url = $"{baseAddress}/" + url;
@@ -173,6 +178,7 @@ namespace WpfBLazorHybridClient.Client
 
         public async Task<HttpResponseMessage> Put(string url, MultipartFormDataContent formData)
         {
+            using var client = new HttpClient();
             try
             {
                 url = $"{baseAddress}/" + url;

@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Security.Claims;
 using TTB.Support;
-using TTClassLibrary.IServices;
+using TTClassLibrary.RequestSender;
 using TTClassLibrary.Support;
 
 

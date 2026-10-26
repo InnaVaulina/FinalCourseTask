@@ -16,27 +16,7 @@
                 HorizontalAlignment="Left" VerticalAlignment="Center">
                 Управление пользователями
             </TextBlock>
-
-
         </Border>
-        <StackPanel DockPanel.Dock="Bottom">
-
-            <Button BorderThickness="0" Style="{StaticResource ButtonStyle}"
-                Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"
-                Command="{Binding OpenAddPage}">
-                <Border CornerRadius="10" BorderThickness="1" Background="CadetBlue">
-                    <Grid Height="40" Width="220" >
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
-                               FontSize="16" FontWeight="Bold" Foreground="White">
-                        Добавить пользователя
-                        </TextBlock>
-                    </Grid>
-                </Border>
-            </Button>
-
-        </StackPanel>
-
-
 
         <ScrollViewer  DockPanel.Dock="Left"                     
                   CanContentScroll="True">
@@ -53,8 +33,6 @@
                         <ContentControl Content="{Binding}"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
-
-
 
             </ListBox>
         </ScrollViewer>

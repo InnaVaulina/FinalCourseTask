@@ -30,6 +30,7 @@
             </Menu.ItemsPanel>
             <MenuItem Header="Вход" Command="{Binding SelectEntryPage}"/>
             <MenuItem Header="Регистрация" Command="{Binding SelectRegistrationPage}"/>
+            <MenuItem Header="Сброс пароля" Command="{Binding SelectPasswordResetPage}"/>
 
         </Menu>
 

@@ -1,4 +1,5 @@
 ﻿using TTClassLibrary.DataModel;
+using TTClassLibrary.Functions.Authorization;
 using TTClassLibrary.RequestSender;
 using TTClassLibrary.Support;
 

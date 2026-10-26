@@ -15,7 +15,7 @@ using TTClassLibrary.DataModel;
 using WpfBLazorHybridClient.Functions.Admin.AVM;
 using WpfBLazorHybridClient.Main.AVM.Account;
 using WpfBLazorHybridClient.Main.Control.AccountControl;
-using TTClassLibrary.RequestSender;
+using TTClassLibrary.Functions.Authorization;
 
 namespace WpfBLazorHybridClient.Main.AVM.Start
 {
@@ -29,19 +29,29 @@ namespace WpfBLazorHybridClient.Main.AVM.Start
         public BeforeStartVM()
         {
             var rs = new HttpRequestSender2(new User());
-            var regDM = new RegistrationDM(rs);
 
-            entry = new UC_Entry(new EntryVM(new EntryDM(rs)));
-            entry.Model.Notify += LogInPerformed;
-            registration = new UC_Registration(new RegistrationVM(new RegistrationDM(rs)));
+            var regVM = new RegistrationVM(new RegistrationDM(rs));
+            regVM.Notify_register += RegistrationPerformed;
+            registration = new UC_Registration(regVM);
+
+            var entryVM = new EntryVM(new EntryDM(rs));
+            entryVM.Notify += LogInPerformed;
+            entry = new UC_Entry(entryVM);
+
+            var resetPasswordVM = new ResetUserPasswordVM(new ResetPasswordDM(rs));
+            resetPasswordVM.Notify_register += RegistrationPerformed;
+            resetPassword = new UC_ResetPassword(resetPasswordVM);
+
             content = entry;
 
             selectEntryPage = new WCommand(o => { Content = entry; });
             selectRegistrationPage = new WCommand(o => { Content = registration; });
+            selectPasswordResetPage = new WCommand(o => { Content = resetPassword; });
         }
 
         UC_Entry entry;
         UC_Registration registration;
+        UC_ResetPassword resetPassword;
 
         UserControl content;
         public UserControl Content { get { return content; } set { content = value; OnPropertyChanged("Content"); } }
@@ -52,9 +62,17 @@ namespace WpfBLazorHybridClient.Main.AVM.Start
         WCommand selectRegistrationPage;
         public WCommand SelectRegistrationPage { get { return selectRegistrationPage; } }
 
+        WCommand selectPasswordResetPage;
+        public WCommand SelectPasswordResetPage { get { return selectPasswordResetPage; } }
+
         public void LogInPerformed(User user)
         {
             Notify?.Invoke(user);
+        }
+
+        public void RegistrationPerformed()
+        {
+            Content = entry;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

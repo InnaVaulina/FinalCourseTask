@@ -88,7 +88,7 @@ namespace WpfBLazorHybridClient.Functions.Admin.AVM
             });
 
 
-            resetPassword = new WCommand(o => 
+            resetPassword = new WCommand(o =>
             {
                 PasswordResetVM model = new PasswordResetVM(userItemDM);
 
