@@ -22,7 +22,7 @@ else
 
         <main class="blog-list">
             <ol class="blog-list">
-                @foreach (var item in Model.IserviceItemVMs)
+                @foreach (var item in serviceItems)
                 {
                     <li>
                         <NotAuthServiceItem Model="@item" />
@@ -133,9 +133,6 @@ else
     }
 
 
-
-
-
     .card-title {
         font-size: 16px;
         font-weight: 700;
@@ -146,13 +143,14 @@ else
 </style>
 
 @code {
-    NotAuthServiceListVM? Model = null;
+    ServiceListDM? Model = null;
+
+    private List<ServiceExampleDM> serviceItems { get { return Model.DMList; } }
 
 
     protected override async Task OnInitializedAsync()
     {
-        var serviceDM = new ServiceListDM(new ServiceRequestSender(HttpRequestSender));
-        Model = new NotAuthServiceListVM(serviceDM);
+        Model = new ServiceListDM(new ServiceRequestSender(HttpRequestSender));
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

@@ -27,7 +27,7 @@ else
 
         <main>
             <ol class="blog-list">
-                @foreach (var item in Model.ServiceItemVMs)
+                @foreach (var item in serviceItems)
                 {
                     <li>
                         <AuthServiceItem Model="@item" />
@@ -188,14 +188,13 @@ else
 </style>
 
 @code {
-    AuthServiceListVM? Model = null;
+    ServiceListDM? Model = null;
 
-
+    private List<ServiceExampleDM> serviceItems { get { return Model.DMList; } }
 
     protected override async Task OnInitializedAsync()
     {
-        var serviceDM = new ServiceListDM(new ServiceRequestSender(HttpRequestSender));
-        Model = new AuthServiceListVM(serviceDM);
+        Model = new ServiceListDM(new ServiceRequestSender(HttpRequestSender));
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

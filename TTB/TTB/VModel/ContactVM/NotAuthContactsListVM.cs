@@ -1,6 +1,5 @@
-﻿using TTB.VModel.ServiceVM;
-using TTClassLibrary.Functions.Contacts;
-using TTClassLibrary.Functions.Service;
+﻿using TTClassLibrary.Functions.Contacts;
+
 
 namespace TTB.VModel.ContactVM
 {

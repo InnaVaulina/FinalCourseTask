@@ -30,12 +30,12 @@ else
 }
 
 @code {
-    public AddServiceVM Model { get; set; } = null;
-
+    private AddNewServiceExampleDM Model = null;
+ 
 
     protected override async Task OnInitializedAsync()
     {
-        Model = new AddServiceVM(new AddNewServiceExampleDM(new ServiceRequestSender(HttpRequestSender)));
+        Model = new AddNewServiceExampleDM(new ServiceRequestSender(HttpRequestSender));
     }
 
     private bool IsBusy { get; set; } = false;
@@ -48,7 +48,9 @@ else
         IsBusy = true;
         try
         {
-            postId = await Model.SavePost();
+            var response = await Model.CreateServiceContentAsync();
+            var jsonSerializer = new HttpResponseMessageDeserialize<int>();
+            postId = await jsonSerializer.DeserealizeResultToContentAsync(response);
         }
         catch (Exception ex)
         {
@@ -59,7 +61,7 @@ else
             IsBusy = false;
             if (postId != null)
             {
-                NavigationManager.NavigateTo($"/service?Id={postId}");
+                NavigationManager.NavigateTo($"/service?Id={postId}&Tab=Show");
             }
         }
     }

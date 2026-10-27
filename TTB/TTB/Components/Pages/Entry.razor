@@ -86,10 +86,10 @@
 				<div class="entry-border">
 					<div class="entry-grid" role="form" aria-label="Форма входа">
 						<label for="login">Логин</label>
-						<input id="login" @bind="model.LoginProp" />
+						<input id="login" @bind="LoginProp" />
 
 						<label for="password">Пароль</label>
-						<input id="password" type="password" @bind="model.PassWord" />
+						<input id="password" type="password" @bind="Password" />
 					</div>
 				</div>
 
@@ -106,19 +106,35 @@
 
 
 @code {
-	private UserEntryM model = new UserEntryM()
+
+    private EntryDM model = null;
+
+	private string LoginProp
 	{
-		LoginProp = "Admin",
-		PassWord = "123qwe"
-	};
-	private AuthorizeRequestSender AccountClient = null;
+		get { return model.Entry.LoginProp; }
+		set { model.Entry.LoginProp = value; }
+	}
+
+	private string Password
+	{
+		get { return model.Entry.Password; }
+		set { model.Entry.Password = value; }
+	}
+
+
 	private bool isBusy = false;
 	private string? errorMessage ="";
 
 	protected override void OnInitialized()
 	{
-		model ??= new();
-		AccountClient = new AuthorizeRequestSender(HttpRequestSender);
+		model = new EntryDM(HttpRequestSender);
+
+
+		//___________________________________________
+        model.Entry.LoginProp = "Admin";
+        model.Entry.Password = "123qwe";
+
+        //___________________________________________
 	}
 
 	private async Task LogUser()
@@ -128,8 +144,7 @@
 
 		try
 		{
-			var result = await AccountClient.Login(model);
-
+			var result = await model.LoginNewUser();
 			if (!result.IsSuccessStatusCode)
 			{
 				var err = await result.Content.ReadAsStringAsync();
@@ -137,8 +152,7 @@
 				return;
 			}
 
-
-			var token =  AccountClient.DeserializeToken(result);
+            var token = model.DeserializeToken(result);
 			if (!string.IsNullOrEmpty(token))
 			{
 				await JS.InvokeAsync<string>("localStorage.setItem", TokenProcessor.TokenKey, token);

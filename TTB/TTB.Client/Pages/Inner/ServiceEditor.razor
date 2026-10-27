@@ -36,7 +36,7 @@ else
         <div class="title-wrapper">
             <div class="title-group">
                 <label class="field-label">Заголовок</label>
-                <input @bind="Model.Title" class="title-input" />
+                <input @bind="Title" class="title-input" />
             </div>
           
 
@@ -54,7 +54,10 @@ else
 @code {
 
     [Parameter]
-    public IServiceEdit Model { get; set; } = null;
+    public IServiceExample Model { get; set; } = null;
+
+    private string Title { get { return Model.Content.Title; } set { Model.Content.Title = value; } }
+
 
     bool initialized = false;
 
@@ -74,7 +77,7 @@ else
         {
             return;
         }
-        description = Model.Description;
+        description = Model.Content.Description;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -85,7 +88,7 @@ else
             {
                 return;
             }
-            description = Model.Description;
+            description = Model.Content.Description;
             StateHasChanged();
             initialized = true;
         }
@@ -93,7 +96,7 @@ else
 
     private void HandleDataChanged(string data)
     {
-        Model.Description = data;
+        Model.Content.Description = data;
     }
 
 

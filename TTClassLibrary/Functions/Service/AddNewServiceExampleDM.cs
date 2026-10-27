@@ -12,7 +12,7 @@ using TTClassLibrary.Support;
 
 namespace TTClassLibrary.Functions.Service
 {
-    public class AddNewServiceExampleDM
+    public class AddNewServiceExampleDM: IServiceExample
     {
         IServiceRequestSender requestMaker;
 
