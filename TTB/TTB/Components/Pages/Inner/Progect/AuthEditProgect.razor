@@ -22,12 +22,12 @@
 	}
 
 	<section id="content-single" class="record-looking">
-		<ProgectExample Model="@ShowModel" />
+		<ProgectExample Model="@Model" />
 	</section>
 
 	<section id="content-edit" class="record-change">
 		<div class="uc-header">
-			<ProgectEditor Model="@EditModel" />
+			<ProgectEditor Model="@Model" />
 			<div class="header-top">
 
 				<div class="header-spacer"></div>
@@ -56,16 +56,14 @@
 	[Parameter]
 	public string Tab { get; set; } = "";
 
-	ProgectItemVM? ShowModel = null;
-	EditProgectVM? EditModel = null;
+	ProgectExampleDM? Model = null;
+
 
 	protected override async Task OnInitializedAsync()
 	{
 		try
 		{
-			var dm = await ProgectExampleDM.CreateAsync(new ProgectRequestSender(HttpRequestSender), Id.Value);
-			ShowModel = new ProgectItemVM(dm);
-			EditModel = new EditProgectVM(dm);
+			Model = await ProgectExampleDM.CreateAsync(new ProgectRequestSender(HttpRequestSender), Id.Value);
 		}
 		catch (Exception ex)
 		{
@@ -82,14 +80,10 @@
 		IsBusy = true;
 		try
 		{
-			await EditModel.SavePost();
-
-			// Обновляем модель из источника данных, чтобы получить актуальную иллюстрацию и другие поля
+			await Model.ChangeProgectContentAsync();
 			if (Id.HasValue)
 			{
-				var dm = await ProgectExampleDM.CreateAsync(new ProgectRequestSender(HttpRequestSender), Id.Value);
-				ShowModel = new TTB.VModel.ProgectVM.ProgectItemVM(dm);
-				EditModel = new TTB.Client.VModel.Progect.EditProgectVM(dm);
+				Model = await ProgectExampleDM.CreateAsync(new ProgectRequestSender(HttpRequestSender), Id.Value);
 			}
 
 			StateHasChanged();

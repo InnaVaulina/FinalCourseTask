@@ -63,9 +63,13 @@
     private string Title { get { return Model.Content.Title; } }
     private RenderFragment fragment;
 
-    protected override async Task OnInitializedAsync()
+
+    protected override async Task OnParametersSetAsync()
     {
-        fragment = builder => builder.AddMarkupContent(0, Model.Content.Description);
+        if (Model != null)
+        {
+            fragment = builder => builder.AddMarkupContent(0, Model.Content.Description);
+        }
     }
     
     protected void HandleBack()

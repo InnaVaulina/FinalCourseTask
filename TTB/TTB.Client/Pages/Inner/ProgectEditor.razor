@@ -84,16 +84,16 @@ else
             <div class="left-col">
                 <div class="title-group">
                     <label class="field-label">Заголовок</label>
-                    <input @bind="Model.Title" class="title-input" />
+                    <input @bind="Title" class="title-input" />
                 </div>
 
             </div>
             <!-- Правая колонка: изображение -->
             <div class="right-col">
                     <div class="illustration">
-                        @if (!string.IsNullOrEmpty(Model.ImagePath))
+                        @if (!string.IsNullOrEmpty(imagePath))
                         {
-                            <img src="@Model.ImagePath" />
+                            <img src="@imagePath" />
                         }
                         else
                         {
@@ -109,7 +109,7 @@ else
         </div>
         <Editor ContentChanged="HandleDataChanged" Content="@description" />
         <label>
-            <input type="checkbox" @bind="Model.State">
+            <input type="checkbox" @bind="State">
             В работе
         </label>
     </div>
@@ -120,7 +120,31 @@ else
 @code {
 
     [Parameter]
-    public IProgectEdit Model { get; set; } = null;
+    public IProgectExample? Model { get; set; } = null;
+
+    private string Title
+    {
+        get { return Model.Content.Title; }
+        set { Model.Content.Title = value; }
+    }
+    private string? imagePath{ get; set; } = null;
+
+
+    private bool State
+    {
+        get
+        {
+            if (Model.Content.Status == "InWork") return true;
+            else return false;
+        }
+        set
+        {
+            if (value == true) Model.Content.Status = "InWork";
+            else Model.Content.Status = "Published";
+        }
+    }
+
+
 
     bool initialized = false;
 
@@ -134,13 +158,14 @@ else
 
     string description;
 
-    protected override async Task OnInitializedAsync()
+
+    protected override async Task OnParametersSetAsync()
     {
-        if (Model is null)
+        if (Model != null)
         {
-            return;
+            description = Model.Content.Description;
+            imagePath = "img/" + Model.Content.IllustrationId;
         }
-        description = Model.Description;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -151,7 +176,7 @@ else
             {
                 return;
             }
-            description = Model.Description;
+            description = Model.Content.Description;
             StateHasChanged();
             initialized = true;
         }
@@ -159,13 +184,14 @@ else
 
     private void HandleDataChanged(string data)
     {
-        Model.Description = data;
+        Model.Content.Description = data;
     }
 
     private void OnDownloadButtonChanged(MakeImageContent makeImageContent)
     {
         if (makeImageContent is null) return;
-        Model.SaveImageContent(makeImageContent);
+        Model.SaveImageContent(makeImageContent.ImageFile);
+        imagePath = makeImageContent.ObjectUrl;
         StateHasChanged();
     }
 

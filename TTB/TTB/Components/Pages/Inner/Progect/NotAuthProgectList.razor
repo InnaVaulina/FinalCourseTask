@@ -20,26 +20,26 @@ else
 
             <div class="header-controls">
                 
-                @if (Model.Page == 1 && Model.TotalPages > 1)
+                @if (Page == 1 && TotalPages > 1)
                 {
-                    @Model.Page
+                    @Page
                     <span>..</span>
                     <button @onclick="OnNextPage">&#8680;</button>
                 }
 
 
-                @if (Model.Page == Model.TotalPages && Model.TotalPages > 1)
+                @if (Page == TotalPages && TotalPages > 1)
                 {
                     <button @onclick="OnPreviousPage">&#8678;</button>
                     <span>..</span>
-                    @Model.Page
+                    @Page
                 }
 
-                @if (Model.Page > 1 && Model.Page < Model.TotalPages && Model.TotalPages > 2)
+                @if (Page > 1 && Page < TotalPages && TotalPages > 2)
                 {
                     <button @onclick="OnPreviousPage">&#8678;</button>
                     <span>..</span>
-                    @Model.Page
+                    @Page
                     <span>..</span>
                     <button @onclick="OnNextPage">&#8680;</button>
                 }
@@ -48,7 +48,7 @@ else
         </header>
 
         <main class="blog-list">
-            @foreach (var item in Model.IprogectItemVMs)
+            @foreach (var item in progectItems)
             {
                 <NotAuthProgectItem Model="@item" />
             }
@@ -125,15 +125,25 @@ else
 </style>
 
 @code {
-    NotAuthProgetListVM? Model = null;
+    private ProgectListDM? Model = null;
+
+    private int? Page
+        {
+            get { return Model.Parametres.Page; }
+            set { Model.Parametres.Page = value; }
+        }
+
+    private int TotalPages { get { return Model.TotalPages; } }
+
+    private List<ProgectExampleDM> progectItems { get { return Model.DMList; } }
 
     string PageKey = "PageKey_forNotAuthProget";
 
 
     protected override async Task OnInitializedAsync()
     {
-        var progectDM = new ProgectListDM(new ProgectRequestSender(HttpRequestSender));
-        Model = new NotAuthProgetListVM(progectDM);
+        Model = new ProgectListDM(new ProgectRequestSender(HttpRequestSender));
+        Model.Parametres.Search = "ShowPublished";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -145,7 +155,7 @@ else
 
             if (pageKey != null)
             {
-                Model.Page = int.Parse(pageKey);
+                Page = int.Parse(pageKey);
             }
 
             try
@@ -163,10 +173,10 @@ else
 
     protected async Task OnNextPage()
     {
-        Model.Page++;
+        Page++;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);
@@ -179,10 +189,10 @@ else
 
     protected async Task OnPreviousPage()
     {
-        Model.Page--;
+        Page--;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);
@@ -197,10 +207,10 @@ else
 
     protected async Task OnSearchOptionChanged()
     {
-        Model.Page = 1;
+        Page = 1;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);

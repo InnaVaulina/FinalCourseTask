@@ -26,15 +26,15 @@ else
                 </button>
                 <div id="filterPoints" class="header-filter">
                     <label>
-                        <input type="checkbox" id="option1" name="mygroup" @bind="Model.ShowAll">
+                        <input type="checkbox" id="option1" name="mygroup" @bind="ShowAll">
                         Все
                     </label>
                     <label>
-                        <input type="checkbox" id="option2" name="mygroup" @bind="Model.ShowPublished">
+                        <input type="checkbox" id="option2" name="mygroup" @bind="ShowPublished">
                         Опубликованы
                     </label>
                     <label>
-                        <input type="checkbox" id="option3" name="mygroup" @bind="Model.ShowInWork">
+                        <input type="checkbox" id="option3" name="mygroup" @bind="ShowInWork">
                         В работе
                     </label>
 
@@ -43,26 +43,26 @@ else
                 </div>
 
                 
-                @if (Model.Page == 1 && Model.TotalPages > 1)
+                @if (Page == 1 && TotalPages > 1)
                 {
-                    @Model.Page
+                    @Page
                     <span>..</span>
                     <button @onclick="OnNextPage">&#8680;</button>
                 }
 
 
-                @if (Model.Page == Model.TotalPages && Model.TotalPages > 1)
+                @if (Page == TotalPages && TotalPages > 1)
                 {
                     <button @onclick="OnPreviousPage">&#8678;</button>
                     <span>..</span>
-                    @Model.Page
+                    @Page
                 }
 
-                @if (Model.Page > 1 && Model.Page < Model.TotalPages && Model.TotalPages > 2)
+                @if (Page > 1 && Page < TotalPages && TotalPages > 2)
                 {
                     <button @onclick="OnPreviousPage">&#8678;</button>
                     <span>..</span>
-                    @Model.Page
+                    @Page
                     <span>..</span>
                     <button @onclick="OnNextPage">&#8680;</button>
                 }
@@ -75,7 +75,7 @@ else
         </div>
 
         <main class="blog-list">
-            @foreach (var item in Model.ProgectItemVMs)
+            @foreach (var item in ProgectItems)
             {
                 <AuthProgectItem Model="@item" />
             }
@@ -151,15 +151,96 @@ else
 </style>
 
 @code {
-    AuthProgectListVM? Model = null;
+    ProgectListDM? Model = null;
 
     string SearchKey = "SearchKey_forAuthProgect";
     string PageKey = "PageKey_forAuthProgect";
 
+    private int? Page
+    {
+        get { return Model.Parametres.Page; }
+        set { Model.Parametres.Page = value; }
+    }
+
+    private int TotalPages { get { return Model.TotalPages; } }
+
+    private List<ProgectExampleDM> ProgectItems { get { return Model.DMList; } }
+
+    bool showAll;
+    bool ShowAll
+    {
+        get { return showAll; }
+        set
+        {
+            showAll = value;
+            if (showAll)
+            {
+                ShowPublished = false;
+                ShowInWork = false;
+                Model.Parametres.Search = "ShowAll";
+            }
+        }
+    }
+
+    bool showPublished;
+    bool ShowPublished
+    {
+        get { return showPublished; }
+        set
+        {
+            showPublished = value;
+            if (showPublished)
+            {
+                ShowAll = false;
+                ShowInWork = false;
+                Model.Parametres.Search = "ShowPublished";
+            }
+        }
+    }
+
+    bool showInWork;
+    bool ShowInWork
+    {
+        get { return showInWork; }
+        set
+        {
+            showInWork = value;
+            if (showInWork)
+            {
+                ShowAll = false;
+                ShowPublished = false;
+                Model.Parametres.Search = "ShowInWork";
+            }
+        }
+    }
+
+    string Search
+    {
+        get { return Model.Parametres.Search; }
+        set
+        {
+            switch (value)
+            {
+                case "ShowAll":
+                    ShowAll = true;
+                    break;
+                case "ShowPublished":
+                    ShowPublished = true;
+                    break;
+                case "ShowInWork":
+                    ShowInWork = true;
+                    break;
+                default:
+                    Search = "ShowAll";
+                    break;
+            }
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        var progectDM = new ProgectListDM(new ProgectRequestSender(HttpRequestSender));
-        Model = new AuthProgectListVM(progectDM);
+        Model = new ProgectListDM(new ProgectRequestSender(HttpRequestSender));
+        ShowAll = true;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -171,12 +252,12 @@ else
             string pageKey = await JS.InvokeAsync<string>("localStorage.getItem", PageKey);
             if (searchKey != null)
             {
-                Model.Search = searchKey;
+                Search = searchKey;
             }
 
             if (pageKey != null)
             {
-                Model.Page = int.Parse(pageKey);
+                Page = int.Parse(pageKey);
             }
 
             try
@@ -194,10 +275,10 @@ else
 
     protected async Task OnNextPage()
     {
-        Model.Page++;
+        Page++;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);
@@ -210,10 +291,10 @@ else
 
     protected async Task OnPreviousPage()
     {
-        Model.Page--;
+        Page--;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);
@@ -228,11 +309,11 @@ else
 
     protected async Task OnSearchOptionChanged()
     {
-        Model.Page = 1;
+        Page = 1;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", SearchKey, Model.Search);
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", SearchKey, Search);
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);

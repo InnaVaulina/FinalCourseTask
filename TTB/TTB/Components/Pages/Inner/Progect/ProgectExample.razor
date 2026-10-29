@@ -70,18 +70,18 @@
         <article class="post-article">
             <h2 class="post-title">
                 <div class="left-col">
-                    @Model.Title
+                    @Title
                 </div>
                 <div class="right-col">
                     <div class="card-media">
-                        <img src="@Model.ImagePath" alt="Иллюстрация" class="card-illustration" />
+                        <img src="@imagePath" alt="Иллюстрация" class="card-illustration" />
                     </div>
                 </div>                
             </h2>
 
             <div class="content-wrapper">
                 <div class="snippet-scroll">
-                    @Model.Fragment
+                    @fragment
                 </div>
             </div>
         </article>
@@ -100,8 +100,21 @@
 @code {
 
     [Parameter]
-    public ProgectItemVM? Model { get; set; } = null;
+    public ProgectExampleDM? Model { get; set; } = null;
 
+    private string Title { get { return Model.Content.Title; } }
+    private string? imagePath { get; set; } = null;
+    private RenderFragment fragment;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Model != null)
+        {
+            fragment = builder => builder.AddMarkupContent(0, Model.Content.Description);
+            imagePath = "img/" + Model.Content.IllustrationId;
+        }
+    }
     
     protected void HandleBack()
     {

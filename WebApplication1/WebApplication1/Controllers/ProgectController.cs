@@ -101,9 +101,15 @@ namespace WebApplication1.Controllers
                 ModelState.AddModelError(string.Empty, "Неверный формат JSON в поле progectContent: " + ex.Message);
                 return null;
             }
+            await _context.AddProgect(progect);
+            progect = await _context.SelectLastProgect();
 
-            if (progectPicture != null && progectPicture.Length != 0)
-                if (!FileValidator.IsValidImage(progectPicture))
+            if(progectPicture == null) 
+            {
+                return progect;
+            }
+
+            if (progectPicture.Length == 0 || !FileValidator.IsValidImage(progectPicture))
                 {
                     ModelState.AddModelError(string.Empty, "Неверный формат файла изображения.");
                     return null;
@@ -113,25 +119,19 @@ namespace WebApplication1.Controllers
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-
-            await _context.AddProgect(progect);
-            progect = await _context.SelectLastProgect();
-
-            if (progectPicture != null && progectPicture.Length != 0)
+            var pictureFileName = $"progectImage_{progect.ID}{Path.GetExtension(progectPicture.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, pictureFileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                var pictureFileName = $"progectImage_{progect.ID}{Path.GetExtension(progectPicture.FileName)}";
-                var filePath = Path.Combine(uploadsFolder, pictureFileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await progectPicture.CopyToAsync(stream);
-                }
-                progect.IllustrationId = pictureFileName;
-                await _context.SaveChangesAsync();
-
+                await progectPicture.CopyToAsync(stream);
             }
-
+            progect.IllustrationId = pictureFileName;
+            await _context.SaveChangesAsync();
             return progect;
         }
+
+
+       
 
 
         [HttpPut]
@@ -183,38 +183,37 @@ namespace WebApplication1.Controllers
                 ModelState.AddModelError(string.Empty, "Неверный формат JSON в поле progectContent: " + ex.Message);
                 return null;
             }
+            progect.ID = id;
+            await _context.UpdateProgect(progect);
+            progect = await _context.SelectProgect(id);
 
-            if (progectPicture != null && progectPicture.Length != 0)
-                if (!FileValidator.IsValidImage(progectPicture))
-                {
-                    ModelState.AddModelError(string.Empty, "Неверный формат файла изображения.");
-                    return null;
-                }
+            if (progectPicture == null)
+            {
+                return progect;
+            }
+
+            if (progectPicture.Length == 0 || !FileValidator.IsValidImage(progectPicture))
+            {
+                ModelState.AddModelError(string.Empty, "Неверный формат файла изображения.");
+                return null;
+            }
 
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "IMG");
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-
-            progect.ID = id;
-            await _context.UpdateProgect(progect);
-            progect = await _context.SelectProgect(id);
-
-            if (progectPicture != null && progectPicture.Length != 0)
+            var pictureFileName = $"progectImage_{progect.ID}{Path.GetExtension(progectPicture.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, pictureFileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                var pictureFileName = $"progectImage_{progect.ID}{Path.GetExtension(progectPicture.FileName)}";
-                var filePath = Path.Combine(uploadsFolder, pictureFileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await progectPicture.CopyToAsync(stream);
-                }
-                progect.IllustrationId = pictureFileName;
-                await _context.SaveChangesAsync();
-
+                await progectPicture.CopyToAsync(stream);
             }
+            progect.IllustrationId = pictureFileName;
+            await _context.SaveChangesAsync();
 
             return progect;
         }
+
 
 
         [HttpGet]

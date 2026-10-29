@@ -13,7 +13,7 @@ using TTClassLibrary.RequestSender;
 
 namespace TTClassLibrary.Functions.Progect
 {
-    public class ProgectExampleDM
+    public class ProgectExampleDM: IProgectExample
     {
         IProgectRequestSender requestMaker;
 
@@ -85,9 +85,12 @@ namespace TTClassLibrary.Functions.Progect
             var json = JsonSerializer.Serialize(content);
             formData.Add(new StringContent(json, Encoding.UTF8, "application/json"), "progectContent");
 
-            var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
-            imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            formData.Add(imageContent, "progectPicture", fileInfo.FileName);
+            if (fileInfo.Content.Length > 0)
+            {
+                var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
+                imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                formData.Add(imageContent, "progectPicture", fileInfo.FileName);
+            }
 
             var response = await requestMaker.UpdateProgect(formData, Content.ID);
             return response;

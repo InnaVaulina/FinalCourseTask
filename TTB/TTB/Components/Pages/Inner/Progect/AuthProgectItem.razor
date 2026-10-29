@@ -78,10 +78,10 @@ else
 {
     <article class="blog-card">
         <div class="card-media">
-            <img src="@Model.ImagePath" alt="Иллюстрация" />
+            <img src="@imagePath" alt="Иллюстрация" />
         </div>
 
-        <h2 class="card-title">@Model.Title</h2>
+        <h2 class="card-title">@Title</h2>
 
         <div class="card-actions">
             <button class="btn edit" @onclick="OpenEditPostPage">✎</button>
@@ -95,15 +95,26 @@ else
 @code {
 
     [Parameter]
-    public ProgectItemVM? Model { get; set; } = null;
+    public ProgectExampleDM? Model { get; set; } = null;
+    private int Id { get { return Model.Content.ID; } }
+    private string Title { get { return Model.Content.Title; } }
+    string imagePath;
 
     string hello = "Загрузка...";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Model != null)
+        {
+            imagePath = "img/" + Model.Content.IllustrationId;
+        }
+    }
 
     protected void OpenEditPostPage()
     {
         if (Model != null)
         {
-            NavigationManager.NavigateTo($"/progect?Id={Model.Id}&Tab=Edit");
+            NavigationManager.NavigateTo($"/progect?Id={Id}&Tab=Edit");
         }
     }
 
@@ -113,7 +124,7 @@ else
         {
             try
             {
-                await Model.DeletePost();
+                await Model.DeleteAsync();
             }
             catch (Exception ex)
             {
