@@ -6,7 +6,7 @@
 @code {
     [Parameter]
     public int? Id { get; set; } = null;
-    BlogItemVM? Model = null;
+    BlogExampleDM? Model = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -14,8 +14,7 @@
         {
             try
             {
-                var dm = await BlogExampleDM.CreateAsync(new BlogRequestSender(HttpRequestSender), Id.Value);
-                Model = new BlogItemVM(dm);
+                Model = await BlogExampleDM.CreateAsync(new BlogRequestSender(HttpRequestSender), Id.Value);
             }
             catch (Exception ex)
             {

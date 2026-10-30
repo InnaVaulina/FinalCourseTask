@@ -1,0 +1,25 @@
+﻿@inject NavigationManager NavigationManager
+@inject HttpRequestSender HttpRequestSender
+
+<ProgectExample Model="@Model" />
+
+@code {
+    [Parameter]
+    public int? Id { get; set; } = null;
+    ProgectExampleDM? Model = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != null)
+        {
+            try
+            {
+                Model = await ProgectExampleDM.CreateAsync(new ProgectRequestSender(HttpRequestSender), Id.Value);
+            }
+            catch (Exception ex)
+            {
+                NavigationManager.NavigateTo($"/Error/{ex}");
+            }
+        }
+    }
+}

@@ -25,33 +25,33 @@ else
                     </svg>
                 </button>
                 <div id="filterPoints" class="header-filter">
-                    <input type="date" class="date-input" @bind-value="Model.BeginDate" />
-                    <input type="date" class="date-input" @bind-value="Model.EndDate" />
+                    <input type="date" class="date-input" @bind-value="BeginDate" />
+                    <input type="date" class="date-input" @bind-value="EndDate" />
                     <button @onclick="OnSearchOptionChanged">Применить</button>
                     <button @onclick="OnHideFilters">x</button>
                 </div>
 
                 
-                @if (Model.Page == 1 && Model.TotalPages > 1)
+                @if (Page == 1 && Model.TotalPages > 1)
                 {
-                    @Model.Page
+                    @Page
                     <span>..</span>
                     <button @onclick="OnNextPage">&#8680;</button>
                 }
 
 
-                @if (Model.Page == Model.TotalPages && Model.TotalPages > 1)
+                @if (Page == TotalPages && TotalPages > 1)
                 {
                     <button @onclick="OnPreviousPage">&#8678;</button>
                     <span>..</span>
-                    @Model.Page
+                    @Page
                 }
 
-                @if (Model.Page > 1 && Model.Page < Model.TotalPages && Model.TotalPages > 2)
+                @if (Page > 1 && Page < TotalPages && TotalPages > 2)
                 {
                     <button @onclick="OnPreviousPage">&#8678;</button>
                     <span>..</span>
-                    @Model.Page
+                    @Page
                     <span>..</span>
                     <button @onclick="OnNextPage">&#8680;</button>
                 }
@@ -60,7 +60,7 @@ else
         </header>
 
         <main class="blog-list">
-            @foreach (var item in Model.BlogItemVMs)
+            @foreach (var item in blogItems)
             {
                 <NotAuthBlogItem Model="@item" />
             }
@@ -137,17 +137,38 @@ else
 </style>
 
 @code {
-    NotAuthBlogListVM? Model = null;
 
     string BeginDateKey = "BeginDateKey_forNotAuthBlog";
     string EndDateKey = "EndDateKey_forNotAuthBlog";
     string PageKey = "PageKey_forNotAuthBlog";
 
+    BlogListDM? Model = null;
+
+    List<BlogExampleDM> blogItems { get { return Model.DMList; } }
+
+    DateTime? BeginDate
+    {
+        get { return Model.Parametres.BeginDate; }
+        set { Model.Parametres.BeginDate = value; }
+    }
+    DateTime? EndDate
+    {
+        get { return Model.Parametres.EndDate; }
+        set { Model.Parametres.EndDate = value; }
+    }
+
+    int? Page
+    {
+        get { return Model.Parametres.Page; }
+        set { Model.Parametres.Page = value; }
+    }
+
+    int TotalPages { get { return Model.TotalPages; } }
+
 
     protected override async Task OnInitializedAsync()
     {
-        var blogDM = new BlogListDM(new BlogRequestSender(HttpRequestSender));
-        Model = new NotAuthBlogListVM(blogDM);
+        Model = new BlogListDM(new BlogRequestSender(HttpRequestSender));
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -160,15 +181,15 @@ else
             string pageKey = await JS.InvokeAsync<string>("localStorage.getItem", PageKey);
             if (beginDateKey != null)
             {
-                Model.BeginDate = DateTime.ParseExact(beginDateKey, "yyyy-MM-ddTHH:mm:ss", null);
+                BeginDate = DateTime.ParseExact(beginDateKey, "yyyy-MM-ddTHH:mm:ss", null);
             }
             if (endDateKey != null)
             {
-                Model.EndDate = DateTime.ParseExact(endDateKey, "yyyy-MM-ddTHH:mm:ss", null);
+                EndDate = DateTime.ParseExact(endDateKey, "yyyy-MM-ddTHH:mm:ss", null);
             }
             if (pageKey != null)
             {
-                Model.Page = int.Parse(pageKey);
+                Page = int.Parse(pageKey);
             }
 
             try
@@ -186,10 +207,10 @@ else
 
     protected async Task OnNextPage()
     {
-        Model.Page++;
+        Page++;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);
@@ -202,10 +223,10 @@ else
 
     protected async Task OnPreviousPage()
     {
-        Model.Page--;
+        Page--;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);
@@ -220,12 +241,12 @@ else
 
     protected async Task OnSearchOptionChanged()
     {
-        Model.Page = 1;
+        Page = 1;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", BeginDateKey, Model.BeginDate?.ToString("yyyy-MM-ddTHH:mm:ss"));
-            await JS.InvokeAsync<string>("localStorage.setItem", EndDateKey, Model.EndDate?.ToString("yyyy-MM-ddTHH:mm:ss"));
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Model.Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", BeginDateKey, BeginDate?.ToString("yyyy-MM-ddTHH:mm:ss"));
+            await JS.InvokeAsync<string>("localStorage.setItem", EndDateKey, EndDate?.ToString("yyyy-MM-ddTHH:mm:ss"));
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);

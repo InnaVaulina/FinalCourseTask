@@ -30,12 +30,12 @@ else
 }
 
 @code{
-    public AddBlogVM Model { get; set; } = null;
+    public AddNewBlogExampleDM Model { get; set; } = null;
 
 
     protected override async Task OnInitializedAsync()
     {
-        Model = new AddBlogVM(new AddNewBlogExampleDM(new BlogRequestSender(HttpRequestSender)));
+        Model = new AddNewBlogExampleDM(new BlogRequestSender(HttpRequestSender));
     }
 
     private bool IsBusy { get; set; } = false;
@@ -48,7 +48,11 @@ else
         IsBusy = true;
         try
         {
-            postId = await Model.SavePost();
+            Model.Content.PostDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
+            var response = await Model.CreateBlogContentAsync();
+            HttpResponseMessageDeserialize<int> jsonSerializer;
+            jsonSerializer = new HttpResponseMessageDeserialize<int>();
+            postId = await jsonSerializer.DeserealizeResultToContentAsync(response);
         }
         catch (Exception ex)
         {
@@ -59,7 +63,7 @@ else
             IsBusy = false;
             if (postId != null)
             {
-                NavigationManager.NavigateTo($"/post?Id={postId}");
+                NavigationManager.NavigateTo($"/post?Id={postId}&Tab=Show");
             }
         }
     }

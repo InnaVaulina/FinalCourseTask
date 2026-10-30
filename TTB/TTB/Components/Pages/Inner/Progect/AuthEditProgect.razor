@@ -58,6 +58,7 @@
 
 	ProgectExampleDM? Model = null;
 
+	private bool IsBusy { get; set; } = false;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -71,7 +72,7 @@
 		}
 	}
 
-	private bool IsBusy { get; set; } = false;
+	
 
 	private async Task HandleSave()
 	{
@@ -81,11 +82,7 @@
 		try
 		{
 			await Model.ChangeProgectContentAsync();
-			if (Id.HasValue)
-			{
-				Model = await ProgectExampleDM.CreateAsync(new ProgectRequestSender(HttpRequestSender), Id.Value);
-			}
-
+			Model = await ProgectExampleDM.CreateAsync(new ProgectRequestSender(HttpRequestSender), Id.Value);
 			StateHasChanged();
 		}
 		catch (Exception ex)
@@ -94,9 +91,7 @@
 		}
 		finally
 		{
-
 			IsBusy = false;
-			NavigationManager.NavigateTo($"/progect?Id={Id}&Tab=Show");
 		}
 	}
 

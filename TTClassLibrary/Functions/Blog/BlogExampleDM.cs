@@ -8,7 +8,7 @@ using TTClassLibrary.Support;
 
 namespace TTClassLibrary.Functions.Blog
 {
-    public class BlogExampleDM
+    public class BlogExampleDM: IBlogExample
     {
         IBlogRequestSender requestMaker;
 
@@ -77,9 +77,12 @@ namespace TTClassLibrary.Functions.Blog
             var json = JsonSerializer.Serialize(content);
             formData.Add(new StringContent(json, Encoding.UTF8, "application/json"), "blogContent");
 
-            var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
-            imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            formData.Add(imageContent, "blogPicture", fileInfo.FileName);
+            if (fileInfo.Content.Length > 0)
+            {
+                var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
+                imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                formData.Add(imageContent, "blogPicture", fileInfo.FileName);
+            }
 
             var response = await requestMaker.UpdateBlog(formData, Content.ID);
             return response;

@@ -102,18 +102,18 @@
 else
 {
     <article class="blog-card">
-        <a href="/post?Id=@Model.Id" class="blog-card-link">
+        <a href="/post?Id=@Id" class="blog-card-link">
             <div class="card-media">
-                <img src="@Model.ImagePath" alt="Иллюстрация" />
+                <img src="@imagePath" alt="Иллюстрация" />
             </div>
 
-            <h2 class="card-title">@Model.Title</h2>
+            <h2 class="card-title">@Title</h2>
 
-            <div class="card-date">@Model.PostDate</div>
+            <div class="card-date">@postDate</div>
 
             <div class="card-snippet">
                 <div class="snippet-scroll">
-                    @Model.Fragment
+                    @fragment
                 </div>
             </div>
         </a>
@@ -125,8 +125,23 @@ else
 @code {
 
     [Parameter]
-    public INotAuthBlogItemVM? Model { get; set; } = null;
+    public BlogExampleDM? Model { get; set; } = null;
+    int Id { get { return Model.Content.ID; } }
+    string Title { get { return Model.Content.Title; } }
+    string postDate;
+    RenderFragment fragment;
+    string imagePath;
 
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Model != null)
+        {
+            imagePath = "img/" + Model.Content.IllustrationId;
+            fragment = builder => builder.AddMarkupContent(0, Model.Content.Article);
+            postDate = DateTime.ParseExact(Model.Content.PostDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture).ToString("F");
+        }
+    }
 
 
 }

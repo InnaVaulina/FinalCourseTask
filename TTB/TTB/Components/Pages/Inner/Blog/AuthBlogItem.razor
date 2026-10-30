@@ -96,16 +96,16 @@ else
 {
     <article class="blog-card">
         <div class="card-media">
-            <img src="@Model.ImagePath" alt="Иллюстрация" />
+            <img src="@imagePath" alt="Иллюстрация" />
         </div>
 
-        <h2 class="card-title">@Model.Title</h2>
+        <h2 class="card-title">@Title</h2>
 
-        <div class="card-date">@Model.PostDate</div>
+        <div class="card-date">@postDate</div>
 
         <div class="card-snippet">
             <div class="snippet-scroll">
-                @Model.Fragment
+                @fragment
             </div>
         </div>
 
@@ -121,15 +121,30 @@ else
 @code {
 
     [Parameter]
-    public BlogItemVM? Model { get; set; } = null;
+    public BlogExampleDM? Model { get; set; } = null;
+    int Id { get { return Model.Content.ID; } }
+    string Title { get { return Model.Content.Title; } }
+    string postDate;
+    RenderFragment fragment;
+    string imagePath;
 
     string hello = "Загрузка...";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Model != null)
+        {
+            imagePath = "img/" + Model.Content.IllustrationId;
+            fragment = builder => builder.AddMarkupContent(0, Model.Content.Article);
+            postDate = DateTime.ParseExact(Model.Content.PostDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture).ToString("F");
+        }
+    }
 
     protected void OpenEditPostPage()
     {
         if (Model != null)
         {
-            NavigationManager.NavigateTo($"/post?Id={Model.Id}&Tab=Edit");
+            NavigationManager.NavigateTo($"/post?Id={Id}&Tab=Edit");
         }
     }
 
@@ -139,7 +154,7 @@ else
         {
             try
             {
-                await Model.DeletePost();
+                await Model.DeleteAsync();
             }
             catch (Exception ex)
             {

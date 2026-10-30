@@ -71,18 +71,18 @@
     else
     {
         <article class="post-article">
-            <h2 class="post-title">@Model.Title</h2>
-            <div class="post-date">@Model.PostDate</div>
+            <h2 class="post-title">@Title</h2>
+            <div class="post-date">@postDate</div>
             <div class="content-wrapper">
                 <div class="left-col">
                     <div class="card-media">
-                        <img src="@Model.ImagePath" alt="Иллюстрация" class="card-illustration" />
+                        <img src="@imagePath" alt="Иллюстрация" class="card-illustration" />
                     </div>
                 </div>
 
                 <div class="right-col">
                     <div class="snippet-scroll">
-                        @Model.Fragment
+                        @fragment
                     </div>
                 </div>
             </div>
@@ -102,8 +102,23 @@
 @code {
 
     [Parameter]
-    public BlogItemVM? Model{ get; set; } = null;
+    public BlogExampleDM? Model { get; set; } = null;
+    int Id { get { return Model.Content.ID; } }
+    string Title { get { return Model.Content.Title; } }
+    string postDate;
+    RenderFragment fragment;
+    string imagePath { get; set; } = null;
 
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Model != null)
+        {
+            imagePath = "img/" + Model.Content.IllustrationId;
+            fragment = builder => builder.AddMarkupContent(0, Model.Content.Article);
+            postDate = DateTime.ParseExact(Model.Content.PostDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture).ToString("F");
+        }
+    }
     
     protected void HandleBack()
     {

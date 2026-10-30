@@ -87,7 +87,7 @@ else
     <div class="blog-item-add">
         <div class="title-group">
             <label class="field-label">Заголовок</label>
-            <input @bind="Model.Title" class="title-input" />
+            <input @bind="Title" class="title-input" />
         </div>
 
         <div class="title-group">
@@ -98,9 +98,9 @@ else
             <!-- Левая колонка: иллюстрация и кнопка загрузки -->
             <div class="left-col">
                 <div class="illustration">
-                    @if (!string.IsNullOrEmpty(Model.ImagePath))
+                    @if (!string.IsNullOrEmpty(imagePath))
                     {
-                        <img src="@Model.ImagePath" />
+                        <img src="@imagePath" />
                     }
                     else
                     {
@@ -113,13 +113,13 @@ else
 
             <!-- Правая колонка: редактор / индикатор загрузки -->
             <div class="right-col">
-                <Editor ContentChanged="HandleDataChanged" Content="@description" />
+                <Editor ContentChanged="HandleDataChanged" Content="@article" />
 
             </div>
         </div>
 
         <label>
-            <input type="checkbox" @bind="Model.State">
+            <input type="checkbox" @bind="State">
             В работе
         </label>
     </div>
@@ -130,7 +130,28 @@ else
 @code {
 
     [Parameter]
-    public IBlogEdit Model { get; set; } = null;
+    public IBlogExample Model { get; set; } = null;
+
+    string Title 
+    { 
+        get { return Model.Content.Title; } 
+        set { Model.Content.Title = value; } 
+    }
+    private string? imagePath { get; set; } = null;
+
+    bool State
+    {
+        get
+        {
+            if (Model.Content.Status == "InWork") return true;
+            else return false;
+        }
+        set
+        {
+            if (value == true) Model.Content.Status = "InWork";
+            else Model.Content.Status = "Published";
+        }
+    }
 
     bool initialized = false;
 
@@ -142,15 +163,15 @@ else
         ColorStyle2 = "fill:BlueViolet;"
     };
 
-    string description;
+    string article;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        if (Model is null)
+        if (Model != null)
         {
-            return;
+            article = Model.Content.Article;
+            imagePath = "img/" + Model.Content.IllustrationId;
         }
-        description = Model.Article;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -161,7 +182,7 @@ else
             {
                 return;
             }
-            description = Model.Article;
+            article = Model.Content.Article;
             StateHasChanged();
             initialized = true;
         }
@@ -169,13 +190,14 @@ else
 
     private void HandleDataChanged(string data)
     {
-        Model.Article = data;
+        Model.Content.Article = data;
     }
 
     private void OnDownloadButtonChanged(MakeImageContent makeImageContent)
     {
         if (makeImageContent is null) return;
-        Model.SaveImageContent(makeImageContent);
+        Model.SaveImageContent(makeImageContent.ImageFile);
+        imagePath = makeImageContent.ObjectUrl;
         StateHasChanged();
     }
 

@@ -112,33 +112,32 @@ namespace WebApplication1.Controllers
                 ModelState.AddModelError(string.Empty, "Неверный формат JSON в поле blogContent: " + ex.Message);
                 return null;
             }
+            await _context.AddBlog(blog);
+            blog = await _context.SelectLastBlog();
 
-            if (blogPicture != null && blogPicture.Length != 0)
-                if (!FileValidator.IsValidImage(blogPicture))
-                {
-                    ModelState.AddModelError(string.Empty, "Неверный формат файла изображения.");
-                    return null;
-                }
+            if (blogPicture == null)
+            {
+                return blog;
+            }    
 
+            if (blogPicture.Length == 0 || !FileValidator.IsValidImage(blogPicture))
+            {
+                ModelState.AddModelError(string.Empty, "Неверный формат файла изображения.");
+                return null;
+            }
 
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "IMG");
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
-        
-            await _context.AddBlog(blog);
-            blog = await _context.SelectLastBlog();
 
-            if (blogPicture != null && blogPicture.Length != 0)
+            var pictureFileName = $"blogImage_{blog.ID}{Path.GetExtension(blogPicture.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, pictureFileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                var pictureFileName = $"blogImage_{blog.ID}{Path.GetExtension(blogPicture.FileName)}";
-                var filePath = Path.Combine(uploadsFolder, pictureFileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await blogPicture.CopyToAsync(stream);
-                }
-                blog.IllustrationId = pictureFileName;
-                await _context.SaveChangesAsync();
+                await blogPicture.CopyToAsync(stream);
             }
+            blog.IllustrationId = pictureFileName;
+            await _context.SaveChangesAsync();
 
             return blog;
         }
@@ -192,32 +191,33 @@ namespace WebApplication1.Controllers
                 return null;
             }
 
-            if (blogPicture != null && blogPicture.Length != 0)
-                if (!FileValidator.IsValidImage(blogPicture))
-                {
-                    ModelState.AddModelError(string.Empty, "Неверный формат файла изображения.");
-                    return null;
-                }
-
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "IMG");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-            
             blog.ID = id;
             await _context.UpdateBlog(blog);
             blog = await _context.SelectBlog(id);
 
-            if (blogPicture != null && blogPicture.Length != 0)
+            if (blogPicture == null)
             {
-                var pictureFileName = $"blogImage_{blog.ID}{Path.GetExtension(blogPicture.FileName)}";
-                var filePath = Path.Combine(uploadsFolder, pictureFileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await blogPicture.CopyToAsync(stream);
-                }
-                blog.IllustrationId = pictureFileName;
-                await _context.SaveChangesAsync();
+                return blog;
             }
+
+            if (blogPicture.Length == 0 ||!FileValidator.IsValidImage(blogPicture))
+            {
+                ModelState.AddModelError(string.Empty, "Неверный формат файла изображения.");
+                return null;
+            }
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "IMG");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var pictureFileName = $"blogImage_{blog.ID}{Path.GetExtension(blogPicture.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, pictureFileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await blogPicture.CopyToAsync(stream);
+            }
+            blog.IllustrationId = pictureFileName;
+            await _context.SaveChangesAsync();
 
             return blog;
         }
