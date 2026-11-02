@@ -1,4 +1,5 @@
 ﻿@using TTB.Client.Pages.Inner.SVGComponents
+@using System.Text.RegularExpressions
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 
@@ -18,7 +19,7 @@ else
 {
 
     <div class="uc-header">
-        <CollectionFormEditor Model="@Model"/>
+        <CollectionFormEditor @ref="editor" Model="@Model" ImageUrl ="@imageUrl"/>
         <div class="header-top">
 
             <Dovnload_button OnChange="OnDownloadButtonChanged"/>
@@ -39,8 +40,14 @@ else
 @code {
 
     [Parameter]
-    public EditCollectionFormVM? Model { get; set; } = null;
+    public EditCollectionFormDM? Model { get; set; } = null;
 
+    [Parameter]
+    public EventCallback ContentChanged { get; set; }
+
+    private CollectionFormEditor? editor;
+
+    private string imageUrl = "";
     private bool IsBusy { get; set; } = false;
 
     private async Task HandleSave()
@@ -50,7 +57,9 @@ else
         IsBusy = true;
         try
         {
-            await Model.SaveForm();
+            Model.HtmlPattern = RemoveExcessive(Model.HtmlPattern);
+            await Model.SaveCollectionFormContentAsync();
+            await ContentChanged.InvokeAsync();
         }
         catch (Exception ex)
         {
@@ -65,9 +74,32 @@ else
     private void OnDownloadButtonChanged(MakeImageContent makeImageContent)
     {
         if (makeImageContent is null) return;
-        Model.SaveImageContent(makeImageContent);
+        Model.SaveImageContent(makeImageContent.ImageFile);
+        imageUrl = makeImageContent.ObjectUrl;
+        StateHasChanged();
     }
 
-    
+    private static string RemoveExcessive(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        // Удаляет атрибуты:
+        // - contenteditable
+        // - contenteditable="true"
+        // - contenteditable='true'
+        // - contenteditable=true
+        // НЕ трогает contenteditable="false"
+        var pattern = @"\s*contenteditable(?:\s*=\s*(?:'true'|""true""|true))?";
+        var result = Regex.Replace(input, pattern, string.Empty, RegexOptions.IgnoreCase);
+
+        var blPattern = @"\s*_bl_[0-9A-Za-z\-]+(?:\s*=\s*(?:'[^']*'|""[^""]*""|[^\s>]+))?";
+        result = Regex.Replace(result, blPattern, string.Empty, RegexOptions.IgnoreCase);
+
+        var commentPattern = @"<!--[\s\S]*?-->";
+        result = Regex.Replace(result, commentPattern, string.Empty, RegexOptions.Multiline);
+
+        return result;
+    }
     
 }

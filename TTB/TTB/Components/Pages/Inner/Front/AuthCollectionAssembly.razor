@@ -14,30 +14,41 @@
 	</section>
 
 	<section id="content-edit" class="record-change">
-		<CollectionFormSaveChanges Model="@editCollectionModel" />
+		<CollectionFormSaveChanges Model="@editCollectionModel" ContentChanged="@(async () => await HandleContentChanged())"/>
 	</section>
 
 </div>
 
 @code {
-	EditCollectionFormVM? editCollectionModel = null;
-	ShowCollectionFormVM? showCollectionFormModel = null;
+	EditCollectionFormDM? editCollectionModel = null;
+	ShowCollectionFormDM? showCollectionFormModel = null;
+	CollectionFormRequestSender? sender = null;
 
 	protected override async Task OnInitializedAsync()
 	{
-		var sender = new CollectionFormRequestSender(HttpRequestSender);
+		sender = new CollectionFormRequestSender(HttpRequestSender);
         try
         {
-			var showdm = await ShowCollectionFormDM.CreateAsync(sender);
-			showCollectionFormModel = new ShowCollectionFormVM(showdm);
-
-			var editdm = await EditCollectionFormDM.CreateAsync(sender);
-			editCollectionModel = new EditCollectionFormVM(editdm);
-			editCollectionModel.ChangeModel += showCollectionFormModel.OnModelChange;
+			showCollectionFormModel = await ShowCollectionFormDM.CreateAsync(sender);
+			editCollectionModel = await EditCollectionFormDM.CreateAsync(sender);			
         }
         catch (Exception ex)
         {
             NavigationManager.NavigateTo($"/Error/{ex}");
         }
 	}
+
+	private async Task HandleContentChanged()
+    {
+		try
+		{
+			showCollectionFormModel = await ShowCollectionFormDM.CreateAsync(sender);
+			editCollectionModel = await EditCollectionFormDM.CreateAsync(sender);
+		}
+		catch (Exception ex)
+		{
+			NavigationManager.NavigateTo($"/Error/{ex}");
+		}
+        StateHasChanged();
+    }
 }

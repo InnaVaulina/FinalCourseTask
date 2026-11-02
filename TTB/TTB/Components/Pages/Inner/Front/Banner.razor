@@ -157,7 +157,7 @@
 else
 {
 	<section class="hero_section" style="@HeroSectionStyle">
-		@Model.Fragment		
+		@fragment		
 	</section>
 }
 
@@ -165,8 +165,8 @@ else
 @code {
 
 	[Parameter]
-	public ShowCollectionFormVM? Model { get; set; } = null;
-
+	public ShowCollectionFormDM? Model { get; set; } = null;
+	RenderFragment fragment;
 	
 
 	private string _heroImage = "";
@@ -177,42 +177,16 @@ else
 		$"url('{_heroImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;";
 
 
-	private bool isInitialized = false;
 
-
-	protected override void OnInitialized()
+	protected override async Task OnParametersSetAsync()
 	{
 		if (Model != null)
 		{
-			if (Model.ShowCollectionFormDM.ImagePath != "")
-				_heroImage = "/img/" + Model.ShowCollectionFormDM.ImagePath + "?t=" + DateTime.UtcNow.Ticks;
-			Model.ChangeModel += OnModelChange;
-			isInitialized = true;
+			fragment = builder => builder.AddMarkupContent(0, Model.HtmlPattern);
+			if (Model.ImagePath != "")
+				_heroImage = "/img/" + Model.ImagePath + "?t=" + DateTime.UtcNow.Ticks;
 		}
 	}
 
-
-	protected override void OnAfterRender(bool firstRender)
-	{
-		if (firstRender || !isInitialized)
-		{
-			if (Model != null)
-			{
-				if (Model.ShowCollectionFormDM.ImagePath != "")
-					_heroImage = "/img/" + Model.ShowCollectionFormDM.ImagePath + "?t=" + DateTime.UtcNow.Ticks;
-				Model.ChangeModel += OnModelChange;
-				StateHasChanged();
-				isInitialized = true;
-
-			}
-		}
-	}
-
-	protected async Task OnModelChange()
-	{
-		if (Model.ShowCollectionFormDM.ImagePath != "")
-			_heroImage = "/img/" + Model.ShowCollectionFormDM.ImagePath + "?t=" + DateTime.UtcNow.Ticks;
-		StateHasChanged();
-	}
 
 }

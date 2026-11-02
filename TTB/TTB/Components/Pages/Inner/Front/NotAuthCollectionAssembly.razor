@@ -31,8 +31,8 @@
 </style>
 
 @code {
-	ShowCollectionFormVM? showCollectionFormModel = null;
-	SendRequestVM? workModel = null;
+	ShowCollectionFormDM? showCollectionFormModel = null;
+	RequestExampleDM? workModel = null;
 
 
 	protected override async Task OnInitializedAsync()
@@ -41,11 +41,8 @@
         var formsender = new WorkRequestSender(HttpRequestSender);
 		try
 		{
-			var showdm = await ShowCollectionFormDM.CreateAsync(bannersender);
-			showCollectionFormModel = new ShowCollectionFormVM(showdm);
-
-            var workdm = new RequestExampleDM(formsender);
-            workModel = new SendRequestVM(workdm);
+			showCollectionFormModel = await ShowCollectionFormDM.CreateAsync(bannersender);
+			workModel = new RequestExampleDM(formsender);
 		}
 		catch (Exception ex)
 		{

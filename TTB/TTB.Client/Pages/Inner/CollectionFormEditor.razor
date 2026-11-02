@@ -228,41 +228,66 @@
 	private ElementReference buttonTextRef;
 
 	[Parameter]
-	public EditCollectionFormVM Model { get; set; }
+	public EditCollectionFormDM Model { get; set; }
+
+	[Parameter]
+    public string ImageUrl { get; set; } = "";
+
+	private string _heroImage = "";
+
+	private string HeroSectionStyle =>
+		$"background-image: linear-gradient(to right, rgba(255, 255, 255, 1.0) 0 20%, rgba(255, 255, 255, 0.0) 40%), " +
+		$"radial-gradient(circle 600px at 90% bottom, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 0.0)), " +
+		$"url('{_heroImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;";
 
 
-	private bool isInitialized = false;
 
 
-	protected override void OnInitialized()
-	{
-		if (Model != null)
-		{
-			Model.ChangeImage += SetHeroImageFromModel;
-			Model.ChangeModel += SetNewModel;
-		}
-	}
+	protected override async Task OnParametersSetAsync()
+    {
+        if (Model != null)
+        {
+            if (!string.IsNullOrWhiteSpace(ImageUrl))
+            {
+                _heroImage = ImageUrl;
+            }
+			else
+			if (Model.ImagePath != "")
+				_heroImage = "/img/" + Model.ImagePath + "?t=" + DateTime.UtcNow.Ticks;
+			StateHasChanged();
 
+			await JSRuntime.InvokeVoidAsync(
+				"setDivInnerText",
+				titleTextRef, Model.Title
+			);
+			await JSRuntime.InvokeVoidAsync(
+				"setDivInnerText",
+				mottoTextRef, Model.Motto
+			);
+			await JSRuntime.InvokeVoidAsync(
+				"setDivInnerText",
+				buttonTextRef, Model.ButtonText
+			);
+			await JSRuntime.InvokeVoidAsync(
+				"initializeEditableWithParagraph",
+				aimsTextRef, Model.Aims
+			);
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender && !isInitialized)
-		{
-			isInitialized = true;
-			await SetNewModel();
-		}
-	}
+		
+			Model.HtmlPattern = await JSRuntime.InvokeAsync<string>("getHTML", heroSectionRef);
+        }
+    }
 
 
 	public async Task HandleInput()
 	{
 		if (JSRuntime != null)
 		{
-			Model.EditCollectionFormDM.HtmlPattern = await JSRuntime.InvokeAsync<string>("getHTML", heroSectionRef);
-			Model.EditCollectionFormDM.Title = await JSRuntime.InvokeAsync<string>("getText", titleTextRef);
-			Model.EditCollectionFormDM.Aims = await JSRuntime.InvokeAsync<string>("getHTML", aimsTextRef); ;
-			Model.EditCollectionFormDM.Motto = await JSRuntime.InvokeAsync<string>("getText", mottoTextRef);
-			Model.EditCollectionFormDM.ButtonText = await JSRuntime.InvokeAsync<string>("getText", buttonTextRef);
+			Model.HtmlPattern = await JSRuntime.InvokeAsync<string>("getHTML", heroSectionRef);
+			Model.Title = await JSRuntime.InvokeAsync<string>("getText", titleTextRef);
+			Model.Aims = await JSRuntime.InvokeAsync<string>("getHTML", aimsTextRef); ;
+			Model.Motto = await JSRuntime.InvokeAsync<string>("getText", mottoTextRef);
+			Model.ButtonText = await JSRuntime.InvokeAsync<string>("getText", buttonTextRef);
 		}
 	}
 
@@ -299,60 +324,9 @@
     }
 
 
-	private string _heroImage = "/img/headerImage.jpg";
-
-	private string HeroSectionStyle =>
-		$"background-image: linear-gradient(to right, rgba(255, 255, 255, 1.0) 0 20%, rgba(255, 255, 255, 0.0) 40%), " +
-		$"radial-gradient(circle 600px at 90% bottom, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 0.0)), " +
-		$"url('{_heroImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;";
 
 
-	public void SetHeroImageFromModel(string objectUrl)
-	{
-		if (string.IsNullOrWhiteSpace(objectUrl))
-		{
-			return;
-		}
-		SetHeroImage(objectUrl);
-	}
 
-	public void SetHeroImage(string url)
-	{
-		if (string.IsNullOrWhiteSpace(url))
-		{
-			return;
-		}
-
-		_heroImage = url;
-		StateHasChanged();
-	}
-
-	protected async Task SetNewModel()
-	{
-		if (Model.EditCollectionFormDM.ImagePath != "")
-			_heroImage = "/img/" + Model.EditCollectionFormDM.ImagePath + "?t=" + DateTime.UtcNow.Ticks;
-		StateHasChanged();
-
-		await JSRuntime.InvokeVoidAsync(
-			"setDivInnerText",
-			titleTextRef, Model.EditCollectionFormDM.Title
-		);
-		await JSRuntime.InvokeVoidAsync(
-			"setDivInnerText",
-			mottoTextRef, Model.EditCollectionFormDM.Motto
-		);
-		await JSRuntime.InvokeVoidAsync(
-			"setDivInnerText",
-			buttonTextRef, Model.EditCollectionFormDM.ButtonText
-		);
-		await JSRuntime.InvokeVoidAsync(
-			"initializeEditableWithParagraph",
-			aimsTextRef, Model.EditCollectionFormDM.Aims
-		);
-
-		
-		Model.EditCollectionFormDM.HtmlPattern = await JSRuntime.InvokeAsync<string>("getHTML", heroSectionRef);
-    }
 
 }
 

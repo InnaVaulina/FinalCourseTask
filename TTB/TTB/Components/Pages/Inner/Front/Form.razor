@@ -15,26 +15,26 @@ else
             <div class="input request-input">
                 <label for="request">Текст сообщения:</label>
                 <InputTextArea id="request" name="request" required placeholder="Введите ваш запрос"
-                               @bind-value="Model.RequestText" rows="5" class="request-input-area" />
+                               @bind-value="RequestText" rows="5" class="request-input-area" />
             </div>
 
             <div class="input">
                 <label for="name">Имя:</label>
-                <input type="text" id="name" name="name" required placeholder="Введите ваше имя" @bind-value="Model.FullName">
+                <input type="text" id="name" name="name" required placeholder="Введите ваше имя" @bind-value="FullName">
             </div>
             <div class="contacts-content">
                 <div class="input">
                     <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required @bind-value="Model.Email">
+                    <input type="email" id="email" name="email" required @bind-value="Email">
                 </div>
                 <div class="input">
                     <label for="phone">Телефон:</label>
-                    <input type="tel" id="phone" name="phone" required placeholder="Введите ваш телефон" @bind-value="Model.Phone">
+                    <input type="tel" id="phone" name="phone" required placeholder="Введите ваш телефон" @bind-value="Phone">
                 </div>
             </div>
 
             <div>
-                <p style="color: red;">@Model.ErrorMessage</p>
+                <p style="color: red;">@errorMessage</p>
             </div>
 
             <div class="actions-content">
@@ -44,7 +44,7 @@ else
         </div>
         <div class="ifsuccess-content">
             <div>
-                <p style="color: green;">@Model.SuccessMessage</p>
+                <p style="color: green;">@successMessage</p>
             </div>
 
             <div class="actions-content">
@@ -151,24 +151,76 @@ else
 @code {
 
 	[Parameter]
-	public SendRequestVM Model { get; set; } = null;
+	public RequestExampleDM Model { get; set; } = null;
+    string errorMessage = string.Empty;
+    string successMessage = string.Empty;
+    string phone = "";
+    string Phone
+    {
+        get { return phone; }
+        set { phone = value; }
+    }
+    string email = "";
+    string Email
+    {
+        get { return email; }
+        set { email = value; }
+    }
+    string FullName
+    {
+        get { return Model.Content.FullName; }
+        set { Model.Content.FullName = value; }
+    }
+    string RequestText
+    {
+        get { return Model.Content.RequestText; }
+        set { Model.Content.RequestText = value; }
+    }
 
     bool isChecked = false;
+
 
     private async Task HandleSendRequest()
     {
         try
         {
-            bool isSent = await Model.SendRequest();
-            if (isSent)
-            {
-                isChecked = true;
-            }
+            await SendRequest();
+            isChecked = true;
         }
         catch (Exception ex)
         {
-            Model.ErrorMessage = $"Произошла ошибка при отправке запроса. {ex.Message}";
+            errorMessage = $"Произошла ошибка при отправке запроса. {ex.Message}";
         }
 
+    }
+
+    public async Task SendRequest()
+    {
+        if (string.IsNullOrWhiteSpace(FullName) || string.IsNullOrWhiteSpace(RequestText))
+        {
+            errorMessage = "Поля 'ФИО' и 'Текст запроса' обязательны для заполнения.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(phone) && string.IsNullOrWhiteSpace(email))
+        {
+            errorMessage = "Необходимо указать хотя бы один способ связи: телефон или email.";
+            return;
+        }
+
+        Model.Content.Contact = $"Phone: {phone}, Mail: {email}";
+        Model.Content.RequestIn = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
+        await Model.SaveRequestEx();
+        ClearFields();
+        successMessage = "Запрос успешно отправлен!";
+    }
+
+    void ClearFields()
+    {
+        FullName = string.Empty;
+        RequestText = string.Empty;
+        Phone = string.Empty;
+        Email = string.Empty;
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
     }
 }

@@ -9,9 +9,9 @@ namespace TTClassLibrary.Functions.CollectionForm
     public class EditCollectionFormDM
     {
         CollectionFormRequestSender requestMaker;
-        HttpResponseMessageDeserialize<HeaderContent> jsonSerializer;
         HeaderContent content;
-        MultipartFormDataContent formData;
+        ImageFileModel fileInfo;
+
         bool existHeader;
 
         public string HtmlPattern
@@ -50,7 +50,7 @@ namespace TTClassLibrary.Functions.CollectionForm
         public EditCollectionFormDM(CollectionFormRequestSender _requestMaker)
         {
             requestMaker = _requestMaker;
-            jsonSerializer = new HttpResponseMessageDeserialize<HeaderContent>();
+            
             existHeader = false;
             content = new HeaderContent()
             {
@@ -62,8 +62,11 @@ namespace TTClassLibrary.Functions.CollectionForm
                 ButtonText = "Что сделать",
                 ImagePath = ""
             };
-
-            formData = new MultipartFormDataContent();
+            fileInfo = new ImageFileModel()
+            {
+                FileName = "",
+                Content = Array.Empty<byte>()
+            };
         }
 
         public static async Task<EditCollectionFormDM> CreateAsync(CollectionFormRequestSender _requestMaker)
@@ -76,6 +79,7 @@ namespace TTClassLibrary.Functions.CollectionForm
         public async Task InitializeAsync()
         {
             var response = await requestMaker.GetHeader();
+            var jsonSerializer = new HttpResponseMessageDeserialize<HeaderContent>();
             var newContent = await jsonSerializer.DeserealizeResultToContentAsync(response);
             if (newContent != null)
             {
@@ -88,19 +92,24 @@ namespace TTClassLibrary.Functions.CollectionForm
             }
         }
 
-      
-
-        public void SaveImageContent(ImageFileModel fileInfo)
+        public void SaveImageContent(ImageFileModel _fileInfo)
         {
-            var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
-            imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            formData.Add(imageContent, "headerPicture", fileInfo.FileName);
+            fileInfo = _fileInfo;
         }
 
         public async Task<bool> SaveCollectionFormContentAsync()
         {
+            MultipartFormDataContent formData = new MultipartFormDataContent();
+
             var json = JsonSerializer.Serialize(content);
             formData.Add(new StringContent(json, Encoding.UTF8, "application/json"), "headerContent");
+
+            if (fileInfo.Content.Length > 0)
+            {
+                var imageContent = new ByteArrayContent(fileInfo.Content, 0, fileInfo.Content.Length);
+                imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                formData.Add(imageContent, "headerPicture", fileInfo.FileName);
+            }
 
             if (existHeader)
             {               
@@ -108,7 +117,6 @@ namespace TTClassLibrary.Functions.CollectionForm
                 var response = await requestMaker.SaveHeader(formData);
                 if (response.IsSuccessStatusCode) 
                 {
-                    await this.InitializeAsync();
                     return true;
                 }
                     
@@ -119,7 +127,6 @@ namespace TTClassLibrary.Functions.CollectionForm
                 var response = await requestMaker.CreateHeader(formData);
                 if (response.IsSuccessStatusCode)
                 {
-                    await this.InitializeAsync();
                     return true;
                 }
             }
