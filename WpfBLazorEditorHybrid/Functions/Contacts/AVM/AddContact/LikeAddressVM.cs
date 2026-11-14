@@ -30,7 +30,15 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
         }
         public LikeAddressVM(ContactAddressDM _addressDM)
         {
-            addressDM = _addressDM;
+            if(_addressDM == null)
+            {
+                addressDM = new ContactAddressDM();
+            }
+            else
+            {
+                addressDM = _addressDM;
+            }
+            
             text = "";
             pictureMapBitmap = new BitmapImage();
 

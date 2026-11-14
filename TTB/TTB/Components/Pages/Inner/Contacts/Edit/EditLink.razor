@@ -1,0 +1,95 @@
+﻿<div class="link-description">
+
+    <div class="link-media">
+        @if (!string.IsNullOrEmpty(imagePath))
+        {
+            <img class="ikon-media" src="@imagePath" />
+        }
+        else
+        {
+            <div class="no-image">Нет изображения</div>
+        }
+        <Dovnload_button Design="@buttonDesign" OnChange="OnIconDownloadButtonChanged" InputId="@inputId" />
+
+    </div>
+
+    <div class="link-details">
+        <input type="text" @bind="Link" />
+
+    </div>
+
+</div>
+
+<style>
+    .link-description {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .link-details {
+        flex: 8;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .link-media {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    
+
+    .ikon-media {
+        width: 30px;
+        height: 30px;
+    }
+
+</style>
+
+@code {
+    [Parameter]
+    public ContactLinkDM Model { get; set; }
+
+    string Link { get { return Model.Link.SocialLink; } set { Model.Link.SocialLink = value; } }
+
+    string inputId = $"inputFile";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Model != null)
+        {
+            inputId = $"inputFile_{Model.Link.ID}";
+        }
+    }
+
+    SVGparameters buttonDesign = new SVGparameters()
+    {
+        Width = "20px",
+        Height = "20px",
+        ColorStyle1 = "fill:CadetBlue;",
+        ColorStyle2 = "fill:BlueViolet;"
+    };
+
+    private string? imagePath { get; set; } = null;
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrEmpty(Model.Link.IkonFileName))
+        {
+            imagePath = "img/" + Model.Link.IkonFileName;
+        }
+    }
+
+    private void OnIconDownloadButtonChanged(MakeImageContent makeImageContent)
+    {
+        if (makeImageContent is null) return;
+        Model.FileInfo = makeImageContent.ImageFile;
+        imagePath = makeImageContent.ObjectUrl;
+        StateHasChanged();
+    }
+}

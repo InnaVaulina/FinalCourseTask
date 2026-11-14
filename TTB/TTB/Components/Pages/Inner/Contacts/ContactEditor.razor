@@ -1,0 +1,218 @@
+﻿@using TTB.Client.Pages.Inner.SVGComponents
+@inject HttpRequestSender HttpRequestSender
+@inject NavigationManager NavigationManager
+
+
+@if (Model is null)
+{
+    <div class="blog-card">
+        <div>Загрузка...</div>
+    </div>
+}
+else
+{
+    <div class="uc-header">
+
+        <div class="blog-root">
+            <header class="blog-header">
+                <h2 class="blog-title">@Name</h2>
+
+            </header>
+
+            <main>
+                <ol class="list-with-checked-items">
+                    <li>
+                        <div class="checked-item">
+                            <input type="checkbox" name="tab-btn" id="tab-btn-single-location">
+                            <label for="tab-btn-single-location" class="tittle-input-label">
+                                <Checkmark />
+                            </label>
+                            <div class="checked-item-content">
+                                <h2 class="checked-item-title">Местонахождение</h2>
+                                <section>
+                                    <EditAddress Model="@AddressModel" />
+                                </section>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="checked-item">
+                            <input type="checkbox" name="tab-btn" id="tab-btn-single-phones">
+                            <label for="tab-btn-single-phones" class="tittle-input-label">
+                                <Checkmark />
+                            </label>
+                            <div class="checked-item-content">
+                                <h2 class="checked-item-title">Телефоны</h2>
+                                <section>
+                                    <EditPhones Model="@PhonesModel" />
+                                </section>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="checked-item">
+                            <input type="checkbox" name="tab-btn" id="tab-btn-single-emails">
+                            <label for="tab-btn-single-emails" class="tittle-input-label">
+                                <Checkmark />
+                            </label>
+                            <div class="checked-item-content">
+                                <h2 class="checked-item-title">Электронная почта</h2>
+                                <section>
+                                    <EditEmails Model="@MailsModel" />
+                                </section>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="checked-item">
+                            <input type="checkbox" name="tab-btn" id="tab-btn-single-links">
+                            <label for="tab-btn-single-links" class="tittle-input-label">
+                                <Checkmark />
+                            </label>
+                            <div class="checked-item-content">
+                                <h2 class="checked-item-title">Социальные сети</h2>
+                                <section>
+                                    <EditLinks Model="@LinksModel" />
+                                </section>
+                            </div>
+                        </div>
+                    </li>
+                </ol>
+
+            </main>
+        </div>
+        <div class="header-top">
+
+            <div class="header-spacer"></div>
+
+            <button class="save-btn" @onclick="HandleSave" disabled="@IsBusy">
+                <span class="save-inner">@(IsBusy ? "Сохраняю..." : "Сохранить")</span>
+            </button>
+            <button class="save-btn" @onclick="HandleBack">
+                <span class="save-inner">Назад</span>
+            </button>
+
+        </div>
+        <div>@errorMessage</div>
+    </div>
+
+}
+
+@code {
+    [Parameter]
+    public ContactExampleDM Model { get; set; } = null;
+
+    string Name { get { return Model.Content.Name; } }
+
+    ContactAddressDM AddressModel { get { return Model.AddressDM; } }
+
+    ContentListDM<ContactPhone> PhonesModel { get { return Model.PhonesListDM; } }
+
+    ContentListDM<ContactMail> MailsModel { get { return Model.MailsListDM; } }
+
+    ContentListDM<ContactLinkDM> LinksModel { get { return Model.SocialLinksListDM; } }
+
+    int maxLinkId = 0;
+    string errorMessage = "";
+
+    protected override void OnParametersSet()
+    {
+            if (Model.SocialLinksListDM.ContentList.Count > 0)
+            {
+                maxLinkId = Model.SocialLinksListDM.ContentList.Max(l => l.Link.ID);
+            }
+    }
+
+    private bool IsBusy { get; set; } = false;
+
+    private async Task HandleSave()
+    {
+        if (IsBusy) return;
+
+        if (AddressModel == null &&
+            PhonesModel.ContentList.Count == 0 &&
+            MailsModel.ContentList.Count == 0 &&
+            LinksModel.ContentList.Count == 0)
+        {
+            errorMessage = "Контактные данные не заполнены! ";
+            return;
+        }
+
+        if (PhonesModel.ContentList.Count > 0)
+            foreach (var phone in PhonesModel.ContentList)
+            {
+                if (phone.Phone == "")
+                {
+                    errorMessage = "Телефон не может быть пустым";
+                    return;
+                }
+            }
+
+        if (MailsModel.ContentList.Count > 0)
+            foreach (var mail in MailsModel.ContentList)
+            {
+                if (mail.Mail == "")
+                {
+                    errorMessage = "Email не может быть пустым";
+                    return;
+                }
+            }
+
+        if (LinksModel.ContentList.Count > 0)
+            foreach (var link in LinksModel.ContentList)
+            {
+                if (link.Link.SocialLink == "")
+                {
+                    errorMessage = "Ссылка не может быть пустой";
+                    return;
+                }
+                if (link.FileInfo == null)
+                {
+                    errorMessage = "Изображение социальной сети не может быть пустым";
+                    return;
+                }
+            }
+
+        IsBusy = true;
+        ContactContent? newcontact = null;
+        try
+        {
+
+            foreach (var link in LinksModel.ContentList)
+            {
+                if (link.Link.ID > maxLinkId)
+                {
+                    link.Link.ID = 0;
+                }
+            }
+            foreach(var link in Model.SocialLinksListDM.DeletedContentList)
+            {
+                if (link.Link.ID > maxLinkId)
+                {
+                    Model.SocialLinksListDM.DeletedContentList.Remove(link);
+                }
+            }
+            var response = await Model.ChangeContactContentAsync();
+            var jsonSerializer = new TTClassLibrary.Support.HttpResponseMessageDeserialize<ContactContent>();
+            newcontact = await jsonSerializer.DeserealizeResultToContentAsync(response);
+
+        }
+        catch (Exception ex)
+        {
+            NavigationManager.NavigateTo($"/Error/{ex}");
+        }
+        finally
+        {
+            IsBusy = false;
+            if (newcontact != null)
+            {
+                NavigationManager.NavigateTo($"/contact?Id={newcontact.ID}&Tab=Show");
+            }
+        }
+    }
+
+    private void HandleBack()
+    {
+        NavigationManager.NavigateTo("/contacts");
+    }
+}

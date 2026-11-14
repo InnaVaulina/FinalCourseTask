@@ -1,0 +1,71 @@
+﻿
+
+<div class="uc-header">
+
+    @if (EmailsList.Count > 0)
+    {
+        <ol class="ol-list">
+            @foreach (var email in EmailsList)
+            {
+                <li class="list-item">
+                    <div>
+                        <input tipe="text" @bind="email.Mail" />
+                    </div>
+
+                    <div class="card-actions">
+                        <button class="btn delete" @onclick="@(e => DeleteEmail(email))">✖</button>
+                    </div>
+                </li>
+            }
+        </ol>
+    }
+
+    <div class="header-top">
+
+        <div class="header-spacer"></div>
+
+        <button class="save-btn" @onclick="AddEmailArea">
+            <span class="save-inner">Добавить email</span>
+        </button>
+    </div>
+</div>
+
+<style>
+    .ol-list {
+        list-style-type: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .list-item {
+        display: flex;
+        flex-direction: row;
+    }
+
+</style>
+
+
+@code {
+    [Parameter]
+    public ContentListDM<ContactMail> Model { get; set; } = null;
+
+    List<ContactMail> EmailsList { get { return Model.ContentList; } }
+
+    void DeleteEmail(ContactMail email)
+    {
+        EmailsList.Remove(email);
+        if (email.ID != 0)
+        {
+            Model.DeletedContentList.Add(email);
+        }
+        StateHasChanged();
+    }
+
+    void AddEmailArea()
+    {
+        EmailsList.Add(new ContactMail() { Mail = "" });
+        StateHasChanged();
+    }
+}

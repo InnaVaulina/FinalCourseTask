@@ -1,0 +1,66 @@
+﻿
+
+<div class="uc-header">
+
+    @if (Model.Count > 0)
+    {
+        <ol class="ol-list">
+            @foreach (var phone in Model)
+            {
+                <li class="list-item">
+                    <div>
+                        <input tipe="text" @bind="phone.Phone" />
+                    </div>
+
+                    <div class="card-actions">
+                        <button class="btn delete" @onclick="@(e => DeletePhone(phone))">✖</button>
+                    </div>
+                </li>
+            }
+        </ol>
+    }
+
+    <div class="header-top">
+
+        <div class="header-spacer"></div>
+
+        <button class="save-btn" @onclick="AddPhoneArea">
+            <span class="save-inner">Добавить телефон</span>
+        </button>
+    </div>
+</div>
+   
+<style>
+    .ol-list {
+        list-style-type: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .list-item{
+        display: flex;
+        flex-direction: row;
+    }
+
+</style>
+
+
+
+@code {
+    [Parameter]
+    public List<ContactPhone> Model { get; set; } = null;
+
+    void DeletePhone(ContactPhone phone)
+    {
+        Model.Remove(phone);
+        StateHasChanged();
+    }
+
+    void AddPhoneArea()
+    {
+        Model.Add(new ContactPhone(){ Phone = "" });
+        StateHasChanged();
+    }
+}

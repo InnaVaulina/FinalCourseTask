@@ -65,13 +65,16 @@ namespace WpfBLazorHybridClient.Functions.Contacts.AVM.AddContact
                 await CatchExeption.ExecuteWithCatchAsync(async () =>
                 {
                     contactDM.AddressDM = UC_address.Model.AddressDM;
-                    contactDM.Content.Address = contactDM.AddressDM.Address;
+            //        contactDM.Content.Address = contactDM.AddressDM.Address;
                     contactDM.Content.Mails = UC_mail.Model.Mails.Select(m => m.Mail).ToList();
                     contactDM.Content.Phones = UC_phone.Model.Phones.Select(p => p.Phone).ToList();
                     contactDM.SocialLinksListDM = UC_link.Model.Links.Select(l => l.LinkDM).ToList();
-                    contactDM.Content.Links = contactDM.SocialLinksListDM.Select(l => l.Link).ToList();
+            //        contactDM.Content.Links = contactDM.SocialLinksListDM.Select(l => l.Link).ToList();
 
-                    var newcontact = await contactDM.CreateContactContentAsync();
+                    var response = await contactDM.CreateContactContentAsync();
+                    var jsonSerializer = new TTClassLibrary.Support.HttpResponseMessageDeserialize<ContactContent>();
+                    var newcontact = await jsonSerializer.DeserealizeResultToContentAsync(response);
+
                     if (newcontact != null)
                     {
                         MessageBox.Show("Запрос выполнен успешно");

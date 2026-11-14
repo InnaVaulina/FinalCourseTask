@@ -22,10 +22,14 @@
         </g>
     </svg>
 
-    <InputFile id="inputFile" OnChange="OnInputFileChanged" style="display:none"/>
+    <InputFile id="@InputId" OnChange="OnInputFileChanged" style="display:none"/>
 </label>
 
 @code {
+
+    [Parameter]
+    public string InputId { get; set; } = "inputFile";
+
     [Parameter]
     public EventCallback<MakeImageContent> OnChange { get; set; }
 
@@ -62,7 +66,7 @@
             ContentType = file.ContentType
         };
 
-        makeImageContent.ObjectUrl = await JS.InvokeAsync<string?>("fileHelpers.getUrlFromInput");
+        makeImageContent.ObjectUrl = await JS.InvokeAsync<string?>("fileHelpers.getUrlFromInput", InputId);
         await OnChange.InvokeAsync(makeImageContent);
     }
 

@@ -1,0 +1,71 @@
+﻿@inject HttpRequestSender HttpRequestSender
+@inject NavigationManager NavigationManager
+
+@if (Model is null)
+{
+    <div class="blog-card">
+        <div>Загрузка...</div>
+    </div>
+}
+else
+{
+	<div class="tabs area">
+		@if (Tab == "Show")
+		{
+			<input type="radio" name="tab-btn" id="tab-btn-single" value="" checked>
+			<label for="tab-btn-single">Просмотр</label>
+
+			<input type="radio" name="tab-btn" id="tab-btn-edit" value="">
+			<label for="tab-btn-edit">Редактирование</label>
+		}
+
+		@if (Tab == "Edit")
+		{
+			<input type="radio" name="tab-btn" id="tab-btn-single" value="">
+			<label for="tab-btn-single">Просмотр</label>
+
+			<input type="radio" name="tab-btn" id="tab-btn-edit" value="" checked>
+			<label for="tab-btn-edit">Редактирование</label>
+		}
+
+		<section id="content-single" class="record-looking">
+			<ContactExample Model="@Model" />
+		</section>
+
+		<section id="content-edit" class="record-change">
+			<div class="uc-header">
+				<ContactEditor Model="@Model" />
+			
+			</div>
+		</section>
+
+	</div>
+}
+
+
+@code {
+    [Parameter]
+    public int? Id { get; set; } = null;
+
+    [Parameter]
+    public string Tab { get; set; } = "";
+
+    ContactExampleDM? Model = null;
+
+    
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+            Model = await ContactExampleDM.CreateAsync(new ContactsRequestSender(HttpRequestSender), Id.Value);         
+		}
+		catch (Exception ex)
+		{
+			NavigationManager.NavigateTo($"/Error/{ex}");
+		}
+	}
+
+	
+
+}

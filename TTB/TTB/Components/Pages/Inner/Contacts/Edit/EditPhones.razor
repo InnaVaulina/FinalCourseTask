@@ -1,0 +1,72 @@
+﻿
+
+<div class="uc-header">
+
+    @if (PhonesList.Count > 0)
+    {
+        <ol class="ol-list">
+            @foreach (var phone in PhonesList)
+            {
+                <li class="list-item">
+                    <div>
+                        <input tipe="text" @bind="phone.Phone" />
+                    </div>
+
+                    <div class="card-actions">
+                        <button class="btn delete" @onclick="@(e => DeletePhone(phone))">✖</button>
+                    </div>
+                </li>
+            }
+        </ol>
+    }
+
+    <div class="header-top">
+
+        <div class="header-spacer"></div>
+
+        <button class="save-btn" @onclick="AddPhoneArea">
+            <span class="save-inner">Добавить телефон</span>
+        </button>
+    </div>
+</div>
+
+<style>
+    .ol-list {
+        list-style-type: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .list-item {
+        display: flex;
+        flex-direction: row;
+    }
+
+</style>
+
+
+
+@code {
+    [Parameter]
+    public ContentListDM<ContactPhone> Model { get; set; } = null;
+
+    List<ContactPhone> PhonesList { get { return Model.ContentList; } }
+
+    void DeletePhone(ContactPhone phone)
+    {
+        PhonesList.Remove(phone);
+        if (phone.ID != 0)
+        {
+            Model.DeletedContentList.Add(phone);
+        }
+        StateHasChanged();
+    }
+
+    void AddPhoneArea()
+    {
+        PhonesList.Add(new ContactPhone() { Phone = "" });
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,74 @@
+﻿@using TTB.Client.Pages.Inner.SVGComponents
+@inject NavigationManager NavigationManager
+
+@if (Model is null)
+{
+    <div class="blog-card">
+        <div>@hello</div>
+    </div>
+}
+else
+{
+    <div class="checked-item">
+        <input type="checkbox" name="tab-btn" id="tab-btn-single-@Id">
+        <label for="tab-btn-single-@Id" class="tittle-input-label">
+            <Checkmark />
+        </label>
+
+        <div class="checked-item-content">
+            <h2 class="checked-item-title">@Title</h2>
+            <section>
+                <ContactExample Model="@Model" />
+            </section>
+        </div>
+
+        <div class="card-actions">
+            <button class="btn edit" @onclick="OpenEditContactPage">✎</button>
+            <button class="btn delete" @onclick="DeleteContact">✖</button>
+        </div>
+
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public ContactExampleDM? Model { get; set; } = null;
+
+    int Id { get { return Model.Content.ID; } }
+
+    string Title { get { return Model.Content.Name; } }
+
+    string hello = "Загрузка...";
+
+
+    protected void OpenEditContactPage()
+    {
+        if (Model != null)
+        {
+            NavigationManager.NavigateTo($"/contact?Id={Id}&Tab=Edit");
+        }
+    }
+
+    protected async Task DeleteContact()
+    {
+        if (Model != null)
+        {
+            try
+            {
+                await Model.DeleteAsync();
+            }
+            catch (Exception ex)
+            {
+                NavigationManager.NavigateTo($"/Error/{ex}");
+            }
+            finally
+            {
+                Model = null;
+                hello = "Пост удален.";
+                NavigationManager.Refresh();
+            }
+        }
+    }
+
+}

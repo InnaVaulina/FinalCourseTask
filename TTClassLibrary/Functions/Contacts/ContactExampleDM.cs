@@ -82,6 +82,8 @@ namespace TTClassLibrary.Functions.Contacts
                 ContentList = content.Links.Select(link => new ContactLinkDM() { Link = link }).ToList(),
                 DeletedContentList = new List<ContactLinkDM>()
             };
+            if(socialLinksListDM.ContentList == null)
+                socialLinksListDM.ContentList = new List<ContactLinkDM>();
 
         }
 
@@ -90,6 +92,14 @@ namespace TTClassLibrary.Functions.Contacts
             var dm = new ContactExampleDM(_requestMaker, _content);
             await dm.InitializeAsync();
             return dm;
+        }
+
+        public static async Task<ContactExampleDM> CreateAsync(IContactRequestSender _requestMaker, int id)
+        {
+            var response = await _requestMaker.GetContact(id);
+            var jsonSerializer = new HttpResponseMessageDeserialize<ContactContent>();
+            ContactContent _content = await jsonSerializer.DeserealizeResultToContentAsync(response);
+            return await CreateAsync(_requestMaker, _content);
         }
 
         private async Task InitializeAsync()

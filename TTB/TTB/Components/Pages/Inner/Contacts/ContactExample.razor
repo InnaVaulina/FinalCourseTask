@@ -1,0 +1,122 @@
+﻿<div class="card-description">
+    <div class="card-details">
+        @if (Address != null)
+        {
+            <div class="snippet-scroll">
+                @Address.Address
+            </div>
+        }
+        <ol class="ol-list">
+            @foreach (var phone in Phones)
+            {
+                <li class="contact-item">
+                    @phone.Phone
+                </li>
+            }
+        </ol>
+        <ol class="ol-list">
+            @foreach (var email in Emails)
+            {       
+                <li class="contact-item">
+                    @email.Mail
+                </li>
+            }
+        </ol>
+        <ol class="ol-list-link-details">
+            @foreach (var linkDM in Links)
+            {
+                string iconImagePath = "img/" + linkDM.Link.IkonFileName;
+
+                <li class="contact-item">
+                    <a href="@linkDM.Link.SocialLink" target="_blank">
+                        <img class="item-media" src="@iconImagePath" alt="Иконка" />
+                    </a>
+                    
+                </li>
+            }
+        </ol>
+    </div>
+    @if (Address != null && Address.MapFileName != null)
+    {
+        string mapImagePath = "img/" + Address.MapFileName;
+
+        <div class="card-media">
+            <img class="map-media" src="@mapImagePath" alt="Иллюстрация" />
+        </div>
+
+    }
+</div>
+
+<style>
+
+    .ol-list {
+        list-style-type: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .ol-list-link-details {
+        list-style-type: none;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .card-description {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .card-details {
+        flex: 4;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .card-media {
+        flex: 6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .map-media {
+        max-width: 80%;
+        height: auto;
+    }
+
+    
+
+    .item-media {
+        width: 30px;
+        height: 30px;
+    }
+
+    
+
+</style>
+
+@code {
+    [Parameter]
+    public ContactExampleDM Model { get; set; } = null;
+
+
+    ContactAddress Address
+    {
+        get
+        {
+            if (Model.AddressDM == null) return null;
+            else
+                return Model.AddressDM.Address;
+        }
+    }
+
+    List<ContactPhone> Phones { get { return Model.PhonesListDM.ContentList; } }
+
+    List<ContactMail> Emails { get { return Model.MailsListDM.ContentList; } }
+
+    List<ContactLinkDM> Links { get { return Model.SocialLinksListDM.ContentList; } }
+}

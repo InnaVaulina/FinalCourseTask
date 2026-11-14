@@ -1,0 +1,120 @@
+﻿@if (Model.Address == null)
+{
+    <div class="header-top">
+
+        <div class="header-spacer"></div>
+
+        <button class="save-btn" @onclick="OpenCreateAddressInterface">
+            <span class="save-inner">Добавить адрес</span>
+        </button>
+    </div>
+}
+else
+{
+
+    <div class="address-description">
+
+        <div class="address-details">
+            <input type="text" @bind="Model.Address.Address" />
+
+        </div>
+
+        <div class="address-media">
+            @if (!string.IsNullOrEmpty(imagePath))
+            {
+                <img class="map-media" src="@imagePath" />
+            }
+            else
+            {
+                <div class="no-image">Нет изображения</div>
+            }
+            <Dovnload_button Design="@buttonDesign" OnChange="OnMapDownloadButtonChanged" />
+
+        </div>
+        <div class="card-actions">
+            <button class="btn delete" @onclick="ClearAddressInterface">✖</button>
+        </div>
+    </div>
+}
+
+<style>
+
+    .address-description {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .address-details {
+        flex: 4;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .address-media {
+        flex: 6;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .map-media {
+        width: 80%;
+        height: auto;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public ContactAddressDM? Model { get; set; } = null;
+
+    string Address { get { return Model.Address.Address; } set { Model.Address.Address = value; } }
+
+    SVGparameters buttonDesign = new SVGparameters()
+    {
+        Width = "20px",
+        Height = "20px",
+        ColorStyle1 = "fill:CadetBlue;",
+        ColorStyle2 = "fill:BlueViolet;"
+    };
+
+    private string? imagePath { get; set; } = null;
+
+    protected override void OnParametersSet()
+    {
+        if (Model.Address != null)
+            if (!string.IsNullOrEmpty(Model.Address.MapFileName))
+        {
+            imagePath = "img/" + Model.Address.MapFileName;
+        }
+    }
+
+    void OpenCreateAddressInterface()
+    {
+        Model.Address = new ContactAddress()
+        {
+            Address = "",
+            MapFileName = ""
+        };
+        StateHasChanged();
+    }
+
+    void ClearAddressInterface()
+    {
+        if (Model.Address.ID != 0)
+            Model.DeletedAddress = Model.Address;
+        Model.Address = null;
+        StateHasChanged();
+    }
+
+    private void OnMapDownloadButtonChanged(MakeImageContent makeImageContent)
+    {
+        if (makeImageContent is null) return;
+        Model.FileInfo = makeImageContent.ImageFile;
+        imagePath = makeImageContent.ObjectUrl;
+        StateHasChanged();
+    }
+
+
+}

@@ -101,8 +101,8 @@ window.fileHelpers = {
         const f = input.files && input.files[0];
         return f;
     },
-    getUrlFromInput: function () {
-        const input = document.getElementById("inputFile");
+    getUrlFromInput: function (inputId) {
+        const input = document.getElementById(inputId);
         const f = input.files && input.files[0];
         return f ? URL.createObjectURL(f) : null;
     },

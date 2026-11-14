@@ -50,34 +50,62 @@ namespace TTClassLibrary.Functions.Contacts
            
         }
 
-
-        public async Task<ContactContent?> CreateContactContentAsync()
+        public async Task<HttpResponseMessage> CreateContactContentAsync()
         {
-            using (var formData = new MultipartFormDataContent())
+            Content.Address = AddressDM.Address;
+            Content.Links = SocialLinksListDM.Select(l => l.Link).ToList();
+
+            using var formData = new MultipartFormDataContent();
+            var json = JsonSerializer.Serialize(Content);
+            formData.Add(new StringContent(json, Encoding.UTF8, "application/json"), "contactContent");
+
+            if (AddressDM.FileInfo != null)
             {
-                var json = JsonSerializer.Serialize(Content);
-                formData.Add(new StringContent(json, Encoding.UTF8, "application/json"), "contactContent");
-
-                if (AddressDM.FileInfo != null)
-                {
-                    var imageContent = new ByteArrayContent(AddressDM.FileInfo.Content, 0, AddressDM.FileInfo.Content.Length);
-                    imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-                    formData.Add(imageContent, "addressPicture", AddressDM.FileInfo.FileName);
-                }
-
-
-                foreach (var linkDM in SocialLinksListDM)
-                {
-                    var imageContent = new ByteArrayContent(linkDM.FileInfo.Content, 0, linkDM.FileInfo.Content.Length);
-                    imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-                    formData.Add(imageContent, "socialIcons", linkDM.FileInfo.FileName);
-                }
-
-                var response = await requestMaker.SaveContact(formData);
-                var jsonSerializer = new HttpResponseMessageDeserialize<ContactContent>();
-                var newcontact = await jsonSerializer.DeserealizeResultToContentAsync(response);
-                return newcontact;
+                var imageContent = new ByteArrayContent(AddressDM.FileInfo.Content, 0, AddressDM.FileInfo.Content.Length);
+                imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                formData.Add(imageContent, "addressPicture", AddressDM.FileInfo.FileName);
             }
+
+
+            foreach (var linkDM in SocialLinksListDM)
+            {
+                var imageContent = new ByteArrayContent(linkDM.FileInfo.Content, 0, linkDM.FileInfo.Content.Length);
+                imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                formData.Add(imageContent, "socialIcons", linkDM.FileInfo.FileName);
+            }
+
+            var response = await requestMaker.SaveContact(formData);
+            return response;
         }
+
+
+        //public async Task<ContactContent?> CreateContactContentAsync()
+        //{
+        //    using (var formData = new MultipartFormDataContent())
+        //    {
+        //        var json = JsonSerializer.Serialize(Content);
+        //        formData.Add(new StringContent(json, Encoding.UTF8, "application/json"), "contactContent");
+
+        //        if (AddressDM.FileInfo != null)
+        //        {
+        //            var imageContent = new ByteArrayContent(AddressDM.FileInfo.Content, 0, AddressDM.FileInfo.Content.Length);
+        //            imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+        //            formData.Add(imageContent, "addressPicture", AddressDM.FileInfo.FileName);
+        //        }
+
+
+        //        foreach (var linkDM in SocialLinksListDM)
+        //        {
+        //            var imageContent = new ByteArrayContent(linkDM.FileInfo.Content, 0, linkDM.FileInfo.Content.Length);
+        //            imageContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+        //            formData.Add(imageContent, "socialIcons", linkDM.FileInfo.FileName);
+        //        }
+
+        //        var response = await requestMaker.SaveContact(formData);
+        //        var jsonSerializer = new HttpResponseMessageDeserialize<ContactContent>();
+        //        var newcontact = await jsonSerializer.DeserealizeResultToContentAsync(response);
+        //        return newcontact;
+        //    }
+        //}
     }
 }

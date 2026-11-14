@@ -1,0 +1,77 @@
+﻿
+
+<div class="uc-header">
+
+    @if (LinksList.Count > 0)
+    {
+        <ol class="ol-list">
+            @foreach (var linkdm in LinksList)
+            {
+                <li class="list-item">
+                    <EditLink Model="@linkdm" />
+
+                    <div class="card-actions">
+                        <button class="btn delete" @onclick="@(e => DeleteLink(linkdm))">✖</button>
+                    </div>
+                </li>
+            }
+        </ol>
+    }
+
+    <div class="header-top">
+
+        <div class="header-spacer"></div>
+
+        <button class="save-btn" @onclick="AddLinkArea">
+            <span class="save-inner">Добавить ссылку</span>
+        </button>
+    </div>
+</div>
+
+<style>
+    .ol-list {
+        list-style-type: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .list-item {
+        display: flex;
+        flex-direction: row;
+    }
+
+</style>
+
+@code {
+    [Parameter]
+    public ContentListDM<ContactLinkDM> Model { get; set; } = null;
+
+    List<ContactLinkDM> LinksList { get { return Model.ContentList; } }
+
+    int nextId = 1;
+
+    protected override void OnParametersSet()
+    {
+        if (LinksList.Count > 0)
+        {
+            nextId = LinksList.Max(l => l.Link.ID) + 1;
+        }
+    }
+
+
+    void DeleteLink(ContactLinkDM link)
+    {
+        LinksList.Remove(link);
+        Model.DeletedContentList.Add(link);
+        StateHasChanged();
+    }
+
+    void AddLinkArea()
+    {
+        LinksList.Add(new ContactLinkDM() { Link = new ContactSocialLink() { SocialLink = "", ID = nextId } });
+        nextId++;
+        StateHasChanged();
+    }
+}
