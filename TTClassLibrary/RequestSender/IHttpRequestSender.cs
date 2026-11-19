@@ -10,6 +10,7 @@ namespace TTClassLibrary.RequestSender
     public interface IHttpRequestSender
     {
         Task<HttpResponseMessage> Get(string url);
+        Task<HttpResponseMessage> Get(string url, JsonContent? parameters);
         Task<HttpResponseMessage> Get(Uri geturl);
         Task<HttpResponseMessage> Post(string url, JsonContent content);
         Task<HttpResponseMessage> Post(string url, MultipartFormDataContent formData);

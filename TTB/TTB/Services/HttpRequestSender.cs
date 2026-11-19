@@ -90,7 +90,27 @@ namespace TTB.Services
         }
 
 
-
+        public async Task<HttpResponseMessage> Get(string url, JsonContent? parameters)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient(ClientName);
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                if (parameters != null)
+                {
+                    request.Content = parameters;
+                }
+                var result = await client.SendAsync(request);
+                ResultError(result, url);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                OnError?.Invoke(identity, ex, url);
+                throw new Exception(ex.Message, ex);
+            }
+        }
 
         public async Task<HttpResponseMessage> Get(Uri geturl)
         {

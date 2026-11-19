@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Globalization;
@@ -245,16 +246,78 @@ namespace WebApplication1.Controllers
 
        
 
+        //[HttpGet]
+        //[AllowAnonymous]
+        //public async Task<ActionResult<IEnumerable<Blog>>> GetAllBlogs(string Search, string BeginDate, string EndDate, int Page)
+        //{
+        //    List<Blog> blogs;
+        //    try
+        //    {
+        //        DateTime beginDate = DateTime.ParseExact(BeginDate, "yyyy-MM-ddTHH:mm:ss", null);
+        //        DateTime endDate = DateTime.ParseExact(EndDate, "yyyy-MM-ddTHH:mm:ss", null);
+        //        switch (Search)
+        //        {
+        //            case "ShowAll":
+        //                blogs = await _context.SelectAllBlogs(beginDate, endDate);
+        //                break;
+        //            case "ShowPublished":
+        //                blogs = await _context.SelectAllPublishedBlogs(beginDate, endDate);
+        //                break;
+        //            case "ShowInWork":
+        //                blogs = await _context.SelectAllBlogsInWork(beginDate, endDate);
+        //                break;
+        //            default:
+        //                throw new Exception("Неверный параметр поиска");
+        //        }
+
+        //        if (blogs.Count > 0) 
+        //        {
+        //            blogs.Reverse();
+        //            int pageCount = 6;
+        //            int totalPages = blogs.Count / 6 + (blogs.Count % 6 > 0 ? 1 : 0);
+        //            if (Page < 1 || Page > totalPages)
+        //            {
+        //                Page = 1;
+        //            }
+        //            if (Page == totalPages) pageCount = blogs.Count % 6 > 0 ? blogs.Count % 6 : 6;
+
+        //            GetAllBlogsResponseParamertes paramertes = new GetAllBlogsResponseParamertes()
+        //            {
+        //                Blogs = blogs.GetRange(Page * 6 - 6, pageCount),
+        //                CurrentPage = Page,
+        //                TotalPages = totalPages
+        //            };
+        //            return Ok(paramertes);
+        //        }
+        //        else 
+        //        {
+        //            GetAllBlogsResponseParamertes paramertes = new GetAllBlogsResponseParamertes()
+        //            {
+        //                Blogs = blogs,
+        //                CurrentPage = 1,
+        //                TotalPages = 1
+        //            };
+        //            return Ok(paramertes);
+        //        }
+                
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ModelState.AddModelError(string.Empty, ex.Message);
+        //        return BadRequest(ModelState);
+        //    }
+        //}
+
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<Blog>>> GetAllBlogs(string Search, string BeginDate, string EndDate, int Page)
+        public async Task<ActionResult<IEnumerable<Blog>>> GetAllBlogs(BlogFilterParameters filterParameters) 
         {
             List<Blog> blogs;
             try
             {
-                DateTime beginDate = DateTime.ParseExact(BeginDate, "yyyy-MM-ddTHH:mm:ss", null);
-                DateTime endDate = DateTime.ParseExact(EndDate, "yyyy-MM-ddTHH:mm:ss", null);
-                switch (Search)
+                DateTime beginDate = DateTime.ParseExact(filterParameters.BeginDate, "yyyy-MM-ddTHH:mm:ss", null);
+                DateTime endDate = DateTime.ParseExact(filterParameters.EndDate, "yyyy-MM-ddTHH:mm:ss", null);
+                switch (filterParameters.Search)
                 {
                     case "ShowAll":
                         blogs = await _context.SelectAllBlogs(beginDate, endDate);
@@ -269,26 +332,26 @@ namespace WebApplication1.Controllers
                         throw new Exception("Неверный параметр поиска");
                 }
 
-                if (blogs.Count > 0) 
+                if (blogs.Count > 0)
                 {
                     blogs.Reverse();
                     int pageCount = 6;
                     int totalPages = blogs.Count / 6 + (blogs.Count % 6 > 0 ? 1 : 0);
-                    if (Page < 1 || Page > totalPages)
+                    if (filterParameters.Page < 1 || filterParameters.Page > totalPages)
                     {
-                        Page = 1;
+                        filterParameters.Page = 1;
                     }
-                    if (Page == totalPages) pageCount = blogs.Count % 6 > 0 ? blogs.Count % 6 : 6;
+                    if (filterParameters.Page == totalPages) pageCount = blogs.Count % 6 > 0 ? blogs.Count % 6 : 6;
 
                     GetAllBlogsResponseParamertes paramertes = new GetAllBlogsResponseParamertes()
                     {
-                        Blogs = blogs.GetRange(Page * 6 - 6, pageCount),
-                        CurrentPage = Page,
+                        Blogs = blogs.GetRange(filterParameters.Page * 6 - 6, pageCount),
+                        CurrentPage = filterParameters.Page,
                         TotalPages = totalPages
                     };
                     return Ok(paramertes);
                 }
-                else 
+                else
                 {
                     GetAllBlogsResponseParamertes paramertes = new GetAllBlogsResponseParamertes()
                     {
@@ -298,7 +361,7 @@ namespace WebApplication1.Controllers
                     };
                     return Ok(paramertes);
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -308,6 +371,14 @@ namespace WebApplication1.Controllers
         }
     }
 
+    public class BlogFilterParameters
+    {
+        public string Search { get; set; }
+        public string BeginDate { get; set; }
+        public string EndDate { get; set; } 
+        public int Page { get; set; } = 1;
+
+    }
 
     public class GetAllBlogsResponseParamertes
     {

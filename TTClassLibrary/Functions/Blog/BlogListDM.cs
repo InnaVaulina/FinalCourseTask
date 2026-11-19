@@ -3,6 +3,7 @@ using static System.Net.Mime.MediaTypeNames;
 using TTClassLibrary.Support;
 using TTClassLibrary.DataModel;
 using TTClassLibrary.RequestSender;
+using TTClassLibrary.Support.Filters;
 
 
 namespace TTClassLibrary.Functions.Blog
@@ -10,7 +11,7 @@ namespace TTClassLibrary.Functions.Blog
     public class BlogListDM
     {
         IBlogRequestSender requestMaker;
-        
+        IFilter filter;
 
         List<BlogExampleDM> dmList;
         public List<BlogExampleDM> DMList 
@@ -18,28 +19,13 @@ namespace TTClassLibrary.Functions.Blog
             get { return dmList; } 
         }
 
-        BlogFilter requestParametres;
-
-        public BlogFilter Parametres
-        {
-            get { return requestParametres; }
-        }
-
-        int totalPages;
-        public int TotalPages { get { return totalPages; } }
-
-        public BlogListDM(IBlogRequestSender _requestMaker) 
+   
+        public BlogListDM(IBlogRequestSender _requestMaker, IFilter _filter) 
         {
             requestMaker = _requestMaker;
+            filter = _filter;
             dmList = new List<BlogExampleDM>();
-            requestParametres = new BlogFilter()
-            {
-                Search = "ShowAll",
-                BeginDate = DateTime.MinValue,
-                EndDate = DateTime.Now,
-                Page = 1
-            };
-            totalPages = 1;
+
         }
 
         public async Task InitializeAsync()
@@ -50,17 +36,11 @@ namespace TTClassLibrary.Functions.Blog
         public async Task SetListAsync()
         {
             dmList.Clear();
-            if (requestParametres.EndDate.Value.Date == DateTime.Today.Date)
-            {
-                requestParametres.EndDate = DateTime.Now;
-            }
-            else requestParametres.EndDate = requestParametres.EndDate.Value.Date.AddDays(1).AddSeconds(-1);
-
-            var response = await requestMaker.GetAllBlogs(requestParametres);
+            var response = await requestMaker.GetAllBlogs(filter.FilterContent);
             var jsonSerializer = new HttpResponseMessageDeserialize<GetAllBlogsResponseParamertes>();
             var responseParametres = await jsonSerializer.DeserealizeResultToContentAsync(response);
-            totalPages = responseParametres.TotalPages;
-            Parametres.Page = responseParametres.CurrentPage;
+            filter.TotalPages = responseParametres.TotalPages;
+            filter.Page = responseParametres.CurrentPage;
             foreach (var content in responseParametres.Blogs)
             {
                 var blogDM = await CtreateBlogExampleDM(content);

@@ -32,7 +32,7 @@ else
                 </div>
 
                 
-                @if (Page == 1 && Model.TotalPages > 1)
+                @if (Page == 1 && TotalPages > 1)
                 {
                     @Page
                     <span>..</span>
@@ -143,32 +143,34 @@ else
     string PageKey = "PageKey_forNotAuthBlog";
 
     BlogListDM? Model = null;
+    BlogFilter? Filter = null;
 
     List<BlogExampleDM> blogItems { get { return Model.DMList; } }
 
     DateTime? BeginDate
     {
-        get { return Model.Parametres.BeginDate; }
-        set { Model.Parametres.BeginDate = value; }
+        get { return Filter.BeginDate; }
+        set { Filter.BeginDate = value; }
     }
     DateTime? EndDate
     {
-        get { return Model.Parametres.EndDate; }
-        set { Model.Parametres.EndDate = value; }
+        get { return Filter.EndDate; }
+        set { Filter.EndDate = value; }
     }
 
-    int? Page
+    int Page
     {
-        get { return Model.Parametres.Page; }
-        set { Model.Parametres.Page = value; }
+        get { return Filter.Parameters.Page; }
+        set { Filter.Parameters.Page = value; }
     }
 
-    int TotalPages { get { return Model.TotalPages; } }
+    int TotalPages { get { return Filter.TotalPages; } }
 
 
     protected override async Task OnInitializedAsync()
     {
-        Model = new BlogListDM(new BlogRequestSender(HttpRequestSender));
+        Filter = new BlogFilter();
+        Model = new BlogListDM(new BlogRequestSender(HttpRequestSender), Filter);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -210,7 +212,7 @@ else
         Page++;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);
@@ -226,7 +228,7 @@ else
         Page--;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);
@@ -246,7 +248,7 @@ else
         {
             await JS.InvokeAsync<string>("localStorage.setItem", BeginDateKey, BeginDate?.ToString("yyyy-MM-ddTHH:mm:ss"));
             await JS.InvokeAsync<string>("localStorage.setItem", EndDateKey, EndDate?.ToString("yyyy-MM-ddTHH:mm:ss"));
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);

@@ -76,6 +76,29 @@ namespace WpfBLazorHybridClient.Client
 
         }
 
+
+        public async Task<HttpResponseMessage> Get(string url, JsonContent? parameters)
+        {
+            using var client = new HttpClient();
+            try
+            {
+                url = $"{baseAddress}/" + url;
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.Token);
+                if (parameters != null)
+                {
+                    request.Content = parameters;
+                }
+                var result = await client.SendAsync(request);
+                await ResultError(result, url);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new ScopedExeption(new UserInfo { UserName = user.UserName, Id = user.Id }, url, ex);
+            }
+        }
+
         public async Task<HttpResponseMessage> Get(Uri geturl)
         {
             using var client = new HttpClient();

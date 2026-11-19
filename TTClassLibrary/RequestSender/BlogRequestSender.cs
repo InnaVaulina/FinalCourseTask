@@ -1,4 +1,5 @@
-﻿using TTClassLibrary.DataModel;
+﻿using System.Net.Http.Json;
+using TTClassLibrary.DataModel;
 
 namespace TTClassLibrary.RequestSender
 {
@@ -8,7 +9,8 @@ namespace TTClassLibrary.RequestSender
         Task<HttpResponseMessage> DeleteBlog(int id);
         Task<HttpResponseMessage> SaveBlog(MultipartFormDataContent formData);
         Task<HttpResponseMessage> UpdateBlog(MultipartFormDataContent formData, int id);
-        Task<HttpResponseMessage> GetAllBlogs(BlogFilter parameters);
+        Task<HttpResponseMessage> GetAllBlogs(BlogFilterParameters parameters);
+        Task<HttpResponseMessage> GetAllBlogs(JsonContent parameters);
         Task<HttpResponseMessage> GetBlog(int id);
         Task<FileInfo?> GetImage(string fileName);
 
@@ -47,12 +49,16 @@ namespace TTClassLibrary.RequestSender
             }
         }
 
-        public async Task<HttpResponseMessage> GetAllBlogs(BlogFilter parameters)
+        public async Task<HttpResponseMessage> GetAllBlogs(BlogFilterParameters parameters)
         {
-            string beginDate = parameters.BeginDate.HasValue ? parameters.BeginDate.Value.ToString("yyyy-MM-ddTHH:mm:ss") : DateTime.MinValue.ToString("yyyy-MM-ddTHH:mm:ss");
-            string endDate = parameters.EndDate.HasValue ? parameters.EndDate.Value.ToString("yyyy-MM-ddTHH:mm:ss") : DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
-            var url = $"api/Blog/GetAllBlogs?search={parameters.Search}&beginDate={beginDate}&endDate={endDate}&page={parameters.Page}";
+            var url = $"api/Blog/GetAllBlogs?search={parameters.Search}&beginDate={parameters.BeginDate}&endDate={parameters.EndDate}&page={parameters.Page}";
             return await requestSender.Get(url);
+        }
+
+        public async Task<HttpResponseMessage> GetAllBlogs(JsonContent parameters)
+        {
+            var url = $"api/Blog/GetAllBlogs";
+            return await requestSender.Get(url, parameters);
         }
 
         public async Task<HttpResponseMessage> GetBlog(int id)
@@ -91,12 +97,12 @@ namespace TTClassLibrary.RequestSender
         }
     }
 
-    public class BlogFilter 
+    public class BlogFilterParameters 
     {
         public string? Search { get; set; } = "ShowAll";
-        public DateTime? BeginDate { get; set; } = DateTime.MinValue;
-        public DateTime? EndDate { get; set; } = DateTime.Now;
-        public int? Page { get; set; } = 1;
+        public string? BeginDate { get; set; } = DateTime.MinValue.ToString("yyyy-MM-ddTHH:mm:ss");
+        public string? EndDate { get; set; } = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
+        public int Page { get; set; } = 1;
 
     }
 

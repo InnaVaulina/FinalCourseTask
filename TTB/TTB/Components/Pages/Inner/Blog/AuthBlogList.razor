@@ -123,27 +123,28 @@ else
     string PageKey = "PageKey_forAuth";
 
     BlogListDM? Model = null;
+    BlogFilter? Filter = null;
 
     List<BlogExampleDM> blogItems { get { return Model.DMList; } }
 
     DateTime? BeginDate
     {
-        get { return Model.Parametres.BeginDate; }
-        set { Model.Parametres.BeginDate = value; }
+        get { return Filter.BeginDate; }
+        set { Filter.BeginDate = value; }
     }
     DateTime? EndDate
     {
-        get { return Model.Parametres.EndDate; }
-        set { Model.Parametres.EndDate = value; }
+        get { return Filter.EndDate; }
+        set { Filter.EndDate = value; }
     }
 
-    int? Page
+    int Page
     {
-        get { return Model.Parametres.Page; }
-        set { Model.Parametres.Page = value; }
+        get { return Filter.Page; }
+        set { Filter.Page = value; }
     }
 
-    int TotalPages { get { return Model.TotalPages; } }
+    int TotalPages { get { return Filter.TotalPages; } }
 
     bool showAll;
     bool ShowAll
@@ -156,7 +157,7 @@ else
             {
                 ShowPublished = false;
                 ShowInWork = false;
-                Model.Parametres.Search = "ShowAll";
+                Filter.Parameters.Search = "ShowAll";
             }
         }
     }
@@ -172,7 +173,7 @@ else
             {
                 ShowAll = false;
                 ShowInWork = false;
-                Model.Parametres.Search = "ShowPublished";
+                Filter.Parameters.Search = "ShowPublished";
             }
         }
     }
@@ -188,14 +189,14 @@ else
             {
                 ShowAll = false;
                 ShowPublished = false;
-                Model.Parametres.Search = "ShowInWork";
+                Filter.Parameters.Search = "ShowInWork";
             }
         }
     }
 
     public string Search
     {
-        get { return Model.Parametres.Search; }
+        get { return Filter.Parameters.Search; }
         set
         {
             switch (value)
@@ -218,7 +219,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Model = new BlogListDM(new BlogRequestSender(HttpRequestSender));
+        Filter = new BlogFilter();
+        Model = new BlogListDM(new BlogRequestSender(HttpRequestSender), Filter);
         ShowAll = true;
     }
 
@@ -266,7 +268,7 @@ else
         Page++;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);
@@ -282,7 +284,7 @@ else
         Page--;
         try
         {
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);
@@ -303,7 +305,7 @@ else
             await JS.InvokeAsync<string>("localStorage.setItem", SearchKey, Search);
             await JS.InvokeAsync<string>("localStorage.setItem", BeginDateKey, BeginDate?.ToString("yyyy-MM-ddTHH:mm:ss"));
             await JS.InvokeAsync<string>("localStorage.setItem", EndDateKey, EndDate?.ToString("yyyy-MM-ddTHH:mm:ss"));
-            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page?.ToString());
+            await JS.InvokeAsync<string>("localStorage.setItem", PageKey, Page.ToString());
 
             await Model.SetListAsync();
             await InvokeAsync(StateHasChanged);
