@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using TTClassLibrary.DataModel;
 using TTClassLibrary.Functions.Blog;
+using TTClassLibrary.Support.Filters;
 using WpfBLazorHybridClient.Client;
 using WpfBLazorHybridClient.Command;
 using WpfBLazorHybridClient.Error;
@@ -30,13 +31,15 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
 
         ListTabVM tab;
         BlogListDM blogListDM;
+        BlogFilter filter;
 
         ObservableCollection<UC_BlogItem2> list;
         public ObservableCollection<UC_BlogItem2> List { get { return list; } }
 
-        public BlogVM(BlogListDM _blogListDM, ListTabVM _tab)
+        public BlogVM(BlogListDM _blogListDM, BlogFilter _filter, ListTabVM _tab)
         {            
             blogListDM = _blogListDM;
+            filter = _filter;
             tab = _tab;
             list = new ObservableCollection<UC_BlogItem2>();
 
@@ -65,17 +68,17 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
             });
             goNextPage = new WCommand(async _ =>
             {
-                if (blogListDM.Parametres.Page < blogListDM.TotalPages)
+                if (filter.Parameters.Page < filter.TotalPages)
                 {
-                    blogListDM.Parametres.Page++;
+                    filter.Parameters.Page++;
                     await InitializeAsync();
                 }
             });
             goPreviousPage = new WCommand(async _ =>
             {
-                if (blogListDM.Parametres.Page > 1)
+                if (filter.Parameters.Page > 1)
                 {
-                    blogListDM.Parametres.Page--;
+                    filter.Parameters.Page--;
                     await InitializeAsync();
                 }
             });
@@ -151,9 +154,9 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
             {
                 await blogListDM.SetListAsync();
                 List.Clear();
-                IsBackButtonEnabled = blogListDM.Parametres.Page > 1;
-                IsNextButtonEnabled = blogListDM.Parametres.Page < blogListDM.TotalPages;
-                PageNumber = blogListDM.Parametres.Page;
+                IsBackButtonEnabled = filter.Parameters.Page > 1;
+                IsNextButtonEnabled = filter.Parameters.Page < filter.TotalPages;
+                PageNumber = filter.Parameters.Page;
                 foreach (var item in blogListDM.DMList)
                 {
                     var vm = new BlogItemVM(item, tab);
@@ -189,7 +192,7 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
         {
             get 
             {
-                switch (blogListDM.Parametres.Search) 
+                switch (filter.Parameters.Search) 
                 {
                     case "ShowAll": return "Все";
                     case "ShowPublished": return "Опубликовано";
@@ -199,19 +202,19 @@ namespace WpfBLazorHybridClient.Functions.Blog.AVM
             }
             set 
             {
-                blogListDM.Parametres.Search = value; OnPropertyChanged("DesiredStatus");
+                filter.Parameters.Search = value; OnPropertyChanged("DesiredStatus");
             }
         }
 
         public DateTime? BeginDate
         {
-            get { return blogListDM.Parametres.BeginDate; }
-            set { blogListDM.Parametres.BeginDate = value; }
+            get { return filter.BeginDate; }
+            set { filter.BeginDate = value; OnPropertyChanged("BeginDate"); }
         }
         public DateTime? EndDate
         {
-            get { return blogListDM.Parametres.EndDate; }
-            set { blogListDM.Parametres.EndDate = value; }
+            get { return filter.EndDate; }
+            set { filter.EndDate = value; OnPropertyChanged("EndDate"); }
         }
 
         int? pageNumber;

@@ -13,8 +13,8 @@ namespace TTClassLibrary.Support.Filters
     {
         public int Page { get { return parameters.Page; } set { parameters.Page = value; } }
 
-        int totalPage;
-        public int TotalPages { get { return totalPage; } set { totalPage = value; } }
+        int totalPages;
+        public int TotalPages { get { return totalPages; } set { totalPages = value; } }
 
         DateTime? beginDate;
         public DateTime? BeginDate
@@ -61,13 +61,9 @@ namespace TTClassLibrary.Support.Filters
             };
             BeginDate = DateTime.MinValue;
             EndDate = DateTime.Now;
-            totalPage = 1;
+            totalPages = 1;
         }
 
-        public BlogFilter(BlogFilterParameters _parameters)
-        {
-            parameters = _parameters;
-        }
 
 
     }

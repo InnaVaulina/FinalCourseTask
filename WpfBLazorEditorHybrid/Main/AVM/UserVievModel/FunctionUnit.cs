@@ -33,6 +33,7 @@ using TTClassLibrary.Functions.Service;
 using TTClassLibrary.Functions.Work;
 using TTClassLibrary.Functions.Contacts;
 using TTClassLibrary.RequestSender;
+using TTClassLibrary.Support.Filters;
 
 namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
 {
@@ -88,8 +89,9 @@ namespace WpfBLazorHybridClient.Main.AVM.UserVievModel
             functionDisplay = "Блог";
 
             var rs = new BlogRequestSenderWPF(new HttpRequestSender2(user));
-            var blogListDM = new BlogListDM(rs);
-            blog = new UC_Blog(new BlogVM(blogListDM, _tabViewModel));
+            var bf = new BlogFilter();
+            var blogListDM = new BlogListDM(rs, bf);
+            blog = new UC_Blog(new BlogVM(blogListDM, bf, _tabViewModel));
             blog.Model.Notify_new += tabViewModel.TabAdd;
             menuCommand = new WCommand(async _ =>
             {
